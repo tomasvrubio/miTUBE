@@ -1,4 +1,5 @@
 var express = require('express');
+//const favicon = require('express-favicon');
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
     helpers: {
@@ -14,6 +15,7 @@ app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
 
 app.use(express.static(__dirname + '/public'));
+//app.use(favicon(__dirname + '/public/favicon.png'));
 
 
 app.get('/', function(req, res){
