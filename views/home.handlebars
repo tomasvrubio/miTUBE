@@ -1,1 +1,12 @@
-<h1>Welcome to miTUBE</h1>
+<h1>Welcome {{name}} to miTUBE</h1>
+
+<form action="/process-home" method="POST">
+    <input type="hidden" name="hush" val="hidden, but not secret!">
+    <div>
+        <label for="fieldName">Your name is: </label>
+        <input type="text" id="fieldName" name="name">
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>

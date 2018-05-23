@@ -1,5 +1,5 @@
 var express = require('express');
-//const favicon = require('express-favicon');
+const favicon = require('express-favicon');
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
     helpers: {
@@ -14,12 +14,35 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
 
+
+app.use(favicon(__dirname + '/public/favicon.png'));
 app.use(express.static(__dirname + '/public'));
-//app.use(favicon(__dirname + '/public/favicon.png'));
+app.use(require('body-parser')());
+
 
 
 app.get('/', function(req, res){
-  res.render('home');
+  var context = {name: "Cris",
+                  csrf: 'CSRF token goes here'};
+  res.render('home', context);
+});
+
+app.post('/process-home', function(req, res){
+  console.log('Form (from querystring): ' + req.query.form);
+  console.log('CSRF token (from hidden form field): ' + req.body._csrf);
+  console.log('Name (from visible form field): ' + req.body.name);
+  res.redirect(303, '/');
+});
+
+app.get('/register', function(req, res){
+  res.render('register', { csrf: 'CSRF token goes here' });
+});
+
+app.post('/process-register', function(req, res){
+  console.log('Form (from querystring): ' + req.query.form);
+  console.log('CSRF token (from hidden form field): ' + req.body._csrf);
+  console.log('Name (from visible form field): ' + req.body.name);
+  res.redirect(303, '/');
 });
 
 app.get('/about', function(req, res){
@@ -47,6 +70,8 @@ app.use(function(err, req, res, next){
         res.status(500);
         res.render('500');
 });
+
+
 
 
 app.listen(app.get('port'), function(){
