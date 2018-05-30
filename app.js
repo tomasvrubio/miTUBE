@@ -66,34 +66,29 @@ app.get('/register', function(req, res){
 
 app.post('/process-register', function(req, res){
   console.log('Name (from visible form field): ' + req.body.name);
-  //var cart = req.session.cart;
   var cart = "";
   var name = req.body.name || '', email = req.body.email || '';
-  // input validation
-  //if(!email.match(VALID_EMAIL_REGEX))
-  //        return res.next(new Error('Invalid email address.'));
-  // assign a random cart ID; normally we would use a database ID here
-  //cart.number = Math.random().toString().replace(/^0\.0*/, '');
-   cart = {
-           name: name,
-           email: email,
-   };
-   console.log('Nombre: ' + cart.name + 'y Email: ' + cart.email);
-  // res.render('email/email_lite',
-  //   { layout: null, cart: cart }, function(err,html){
-  //           if( err ) console.log('error in email template');
-  //           mailTransport.sendMail({
-  //               from: '"miTUBE": desarrollovazquezrubio@gmail.com',
-  //               to: email,
-  //               subject: 'Here is your login information',
-  //               html: html,
-  //               generateTextFromHtml: true
-  //           }, function(err){
-  //                   if(err) console.error('Unable to send confirmation: '
-  //                           + err.stack);
-  //           });
-  //       }
-  // );
+  cart = {
+    name: name,
+    email: email,
+    number: Math.random().toString().replace(/^0\.0*/, ''),
+  };
+  console.log('Nombre: ' + cart.name + 'y Email: ' + cart.email + 'y numero: ' + cart.number);
+  res.render('email/email_lite',
+    { layout: null, cart: cart }, function(err,html){
+            if( err ) console.log('error in email template');
+            mailTransport.sendMail({
+                from: '"miTUBE": desarrollovazquezrubio@gmail.com',
+                to: email,
+                subject: 'Here is your login information',
+                html: html,
+                generateTextFromHtml: true
+            }, function(err){
+                    if(err) console.error('Unable to send confirmation: '
+                            + err.stack);
+            });
+        }
+  );
   res.redirect(303, '/');
 });
 
