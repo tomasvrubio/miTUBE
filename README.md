@@ -1,6 +1,11 @@
 # miTUBE
 web application to generate music lists from youtube lists
 
+### Requisitos
+
+* nodejs
+* mongodb
+
 
 ### Instalación
 
@@ -11,6 +16,7 @@ web application to generate music lists from youtube lists
 
 
 ### Estructura fichero *credentials.js*:
+```
 module.exports = {
   cookieSecret: 'your cookie secret goes here',
   gmail: {
@@ -21,6 +27,7 @@ module.exports = {
     connectionString: 'your_connection_string',
   },
 };
+```
 
 
 ### Tareas pendientes:
