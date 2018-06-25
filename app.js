@@ -2,8 +2,16 @@ var express = require('express'),
     favicon = require('express-favicon'),
     nodemailer = require('nodemailer'),
     fs = require('fs'),
+    mongoose = require('mongoose'),
+    passport = require('passport'),
+    LocalStrategy = require('passport-local'),
+    passportLocalMongoose = require('passport-local-mongoose'),
+    credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
-    ListUser = require('./models/listUser.js');
+    ListUser = require('./models/listUser.js'),
+    User = require('./models/user.js');
+    //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
+
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -15,14 +23,9 @@ var handlebars = require('express-handlebars').create({
 });
 
 var app = express();
-
-//Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
-var credentials = require('./credentials.js');
-
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
-
 
 //Email sender
 var mailTransport = nodemailer.createTransport({
@@ -34,16 +37,46 @@ var mailTransport = nodemailer.createTransport({
 });
 
 //Database 
-var mongoose = require('mongoose');
 mongoose.connect(credentials.mongo.connectionString);
+
 
 app.use(favicon(__dirname + '/public/favicon.png'));
 app.use(express.static(__dirname + '/public'));
-app.use(require('body-parser')()); //Para poder usar variables de formulario en req.body
+app.use(require('body-parser').urlencoded({extended:true})); //Para poder usar variables de formulario en req.body
 app.use(require('cookie-parser')(credentials.cookieSecret));
-app.use(require('express-session')());
+app.use(require('express-session')({
+  secret: 'Hello World, this is a session',
+  resave: false,    
+  saveUninitialized: false
+}));
 
-//Flash messages - FUNCIONALIDAD SIN USAR (CAP9 - Using Sessions to Implement Flash Messages)
+//Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+//passport.use(new LocalStrategy(User.authenticate()));
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  }, 
+  function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+//Flash messages - (CAP9 - Using Sessions to Implement Flash Messages)
 app.use(function(req, res, next){
   res.locals.flash = req.session.flash;
   delete req.session.flash;
@@ -53,7 +86,7 @@ app.use(function(req, res, next){
 
 //Introducimos datos en BBDD en caso de que no existan:
 ListUser.find(function(err, lists){
-  if(lists.length) return;
+  if(lists.length) return; //En caso de que ya existan usuarios no hace falta crear información
 
   new ListUser({
     name: 'Despierta',
@@ -77,14 +110,21 @@ ListUser.find(function(err, lists){
 
 //--------------Routing
 app.get('/', function(req, res){
-  var context = { name: req.session.userName || "Anonymous",
+  var context = { name: req.session.username || "Anonymous",
                   csrf: 'CSRF token goes here'};
   res.render('home', context);
 });
 
-app.post('/process-home', function(req, res){
-  req.session.userName = req.body.name;
-  res.redirect(303, '/');
+app.post('/process-home', passport.authenticate("local",{
+    successRedirect: "/user",
+    failureRedirect: "/",
+    failureFlash: true 
+  }), function(req, res){
+    console.log("He pasado por validación");
+    //req.session.userName = req.body.name; 
+
+    //console.log(req.session);
+    //res.redirect(303, '/');
 });
 
 app.get('/register', function(req, res){
@@ -92,15 +132,28 @@ app.get('/register', function(req, res){
 });
 
 app.post('/process-register', function(req, res){
-  console.log('Name (from visible form field): ' + req.body.name);
-  var cart = "";
-  var name = req.body.name || '', email = req.body.email || '';
+  var cart = ""; //ELIMINAR
+  var name = req.body.name || '', email = req.body.email || ''; //ELIMINAR
   cart = {
     name: name,
     email: email,
-    number: Math.random().toString().replace(/^0\.0*/, ''),
+    pass: Math.random().toString().replace(/^0\.0*/, ''),
   };
-  console.log('Nombre: ' + cart.name + 'y Email: ' + cart.email + 'y numero: ' + cart.number);
+  //Registramos nuevo usuario en BBDD
+  User.register(new User({
+      username : cart.name,
+      email: cart.email
+    }),
+    cart.pass, function(err, user){
+      if(err){            
+           console.log(err);            
+           res.render('register');        
+      }
+      console.log("User registered in BBDD");
+    }
+  );
+  //Mandamos por mail la contraseña al usuario
+  console.log('Nombre: ' + cart.name + ' y Email: ' + cart.email + ' y numero: ' + cart.pass);
   res.render('email/email_lite',
     { layout: null, cart: cart }, function(err,html){
             if( err ) console.log('error in email template');
@@ -111,8 +164,7 @@ app.post('/process-register', function(req, res){
                 html: html,
                 generateTextFromHtml: true
             }, function(err){
-                    if(err) console.error('Unable to send confirmation: '
-                            + err.stack);
+                    if(err) console.error('Unable to send confirmation: ' + err.stack);
             });
         }
   );
@@ -124,7 +176,7 @@ app.get('/about', function(req, res){
 });
 
 app.get('/user', function(req, res){
-  ListUser.find({user:req.session.userName}, function(err, lists){ //TODO: Filtrar por el usuario que esta conectado
+  ListUser.find({user:req.session.userName}, function(err, lists){ 
     var context = {
         lists: lists.map(function(list){
             return {

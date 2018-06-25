@@ -16,6 +16,7 @@ web application to generate music lists from youtube lists
 
 
 ### Estructura fichero *credentials.js*:
+
 ```
 module.exports = {
   cookieSecret: 'your cookie secret goes here',
