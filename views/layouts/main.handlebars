@@ -55,9 +55,15 @@
               <a class="nav-link" href="about">About</a>
             </li>
           </ul>
+          {{#if logged}}
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="logout"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+          </ul>
+          {{else}}
           <ul class="nav navbar-nav navbar-right">
             <li><a href="register"><span class="glyphicon glyphicon-log-in"></span>Register</a></li>
           </ul>
+          {{/if}}
       </div>
     </nav>
 

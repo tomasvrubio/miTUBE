@@ -13,6 +13,8 @@ var express = require('express'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
+var apiYoutubePlaylist = 'https://www.googleapis.com/youtube/v3/playlists',
+    apiYoutubePlaylistItems = 'https://www.googleapis.com/youtube/v3/playlistItems';
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -55,92 +57,7 @@ app.use(require('express-session')({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//passport.use(new LocalStrategy(User.authenticate()));
-// passport.use(new LocalStrategy({
-//     usernameField: 'email',
-//     passwordField: 'password'
-//   }, 
-//   //User.authenticate()
-//   function(req, username, password, done){
-//     User.findOne({email:username}, function(err, user){
-//       if (err) { return done(err); }
-//       if (!user){
-//         console.log('Usuario incorrecto');
-//         return done(null, false, {message:'mensaje'});
-//       }
-//       if (!user.validPassword(password)){
-//         console.log('Contraseña incorecta');
-//         return done(null, false, {message:'mensaje'});
-//       }
-//       return done(null, user);
-//     })
-//   }
-// ));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-// passport.use(new LocalStrategy({
-//     // by default, local strategy uses username and password, we will override with email
-//     usernameField : 'email',
-//     passwordField : 'password',
-//     passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
-//   },
-//   function(req, email, password, done) {
-//     if (email)
-//         email = email.toLowerCase(); // Use lower-case e-mails to avoid case-sensitive e-mail matching
-
-//     // asynchronous
-//     process.nextTick(function() {
-//         User.findOne({'email' : email }, function(err, user) {
-//             // if there are any errors, return the error
-//             if (err)
-//                 return done(err);
-
-//             // if no user is found, return the message
-//             if (!user)
-//                 return done(null, false);
-
-//             if (!user.validPassword(password)){
-//               console.log("La password es mala");
-//               return done(null, false);
-//             }
-                
-
-//             // all is well, return user
-//             else
-//                 return done(null, user);
-//         });
-//   });
-// }));
-
-// //Vamos a usar este:
-// passport.use(new LocalStrategy({
-//     // by default, local strategy uses username and password, we will override with email
-//     usernameField : 'email',
-//     passwordField : 'password',
-//     passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
-//   }, 
-//   function(req, email, password, done) {
-//     User.findOne({ 'email': email }, function(err, user) {
-//       //console.log(arguments);
-//       if (err) { 
-//         return done(err); 
-//       }
-//       if (!user) {
-//         return done(null, false, { message: 'Incorrect username.' });
-//       }
-//       if (!user.validPassword(password)) {
-//         return done(null, false, { message: 'Incorrect password.' });
-//       }
-//       return done(null, user);
-//     });
-//   }
-// ));
-
-
-
-// =========================================================================
-// LOCAL LOGIN =============================================================
-// =========================================================================
+//--------------Local Login
 passport.use('local-login', new LocalStrategy({
     // by default, local strategy uses username and password, we will override with email
     usernameField : 'email',
@@ -166,98 +83,28 @@ passport.use('local-login', new LocalStrategy({
             return done(null, false);
 
         // all is well, return user
-        else
-            return done(null, user);
+        else{
+          req.session.email = req.body.email; 
+          return done(null, user);
+        }
       });
-    });
-  }
-));
-
-// =========================================================================
-// LOCAL SIGNUP ============================================================
-// =========================================================================
-passport.use('local-signup', new LocalStrategy({
-    // by default, local strategy uses username and password, we will override with email
-    usernameField : 'email',
-    passwordField : 'password',
-    passReqToCallback : true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
-  },
-  function(req, email, password, done) {
-    if (email)
-        email = email.toLowerCase(); // Use lower-case e-mails to avoid case-sensitive e-mail matching
-
-    password = Math.random().toString().replace(/^0\.0*/, '');
-
-    // asynchronous
-    process.nextTick(function() {
-      // if the user is not already logged in:
-      if (!req.user) {
-        User.findOne({ 'email' : email }, function(err, user) {
-          // if there are any errors, return the error
-          if (err)
-            return done(err);
-
-          // check to see if theres already a user with that email
-          if (user) {
-            return done(null, false);
-          } else {
-            // create the user
-            var newUser = new User();
-            newUser.email    = email;
-            newUser.password = newUser.generateHash(password);
-            newUser.save(function(err) {
-              if (err)
-                return done(err);
-
-              //Enviamos mail con la password al usuario
-              var cart = "";
-              cart = {
-                // name: name,
-                email: email,
-                pass: Math.random().toString().replace(/^0\.0*/, ''),
-              };
-              console.log('Email: ' + cart.email + ' y password: ' + cart.pass);
-              res.render('email/email_lite',
-                { layout: null, cart: cart }, function(err,html){
-                        if( err ) console.log('error in email template');
-                        mailTransport.sendMail({
-                            from: '"miTUBE": desarrollovazquezrubio@gmail.com',
-                            to: email,
-                            subject: 'Here is your login information',
-                            html: html,
-                            generateTextFromHtml: true
-                        }, function(err){
-                                if(err) console.error('Unable to send confirmation: ' + err.stack);
-                        });
-                    }
-              );
-
-              return done(null, newUser);
-            });
-          }
-        });
-      // if the user is logged in but has no local account...
-      } else {
-        // user is logged in and already has a local account. Ignore signup. (You should log out before trying to create a new account, user!)
-        return done(null, req.user);
-      }
     });
   }
 ));
 
 //passport.serializeUser(User.serializeUser());
 //passport.deserializeUser(User.deserializeUser());
-    // used to serialize the user for the session
-    passport.serializeUser(function(user, done) {
-      done(null, user.id);
-  });
+// used to serialize the user for the session
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
 
-  // used to deserialize the user
-  passport.deserializeUser(function(id, done) {
-      User.findById(id, function(err, user) {
-          done(err, user);
-      });
-  });
+// used to deserialize the user
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+        done(err, user);
+    });
+});
 
 
 
@@ -278,47 +125,79 @@ app.use(function(req, res, next){
  });
 
 
+app.use(function(req, res, next){
+  console.log(req.session);
+  next();
+});
+
+
 //Introducimos datos en BBDD en caso de que no existan:
 ListUser.find(function(err, lists){
   if(lists.length) return; //En caso de que ya existan usuarios no hace falta crear información
 
   new ListUser({
     name: 'Despierta',
-    user: 'Tomas',
+    email: 'tomasvrubio@gmail.com',
     created: "2007,08,10",
   }).save();
 
   new ListUser({
     name: 'Vive',
-    user: 'Tomas',
+    email: 'tomasvrubio@gmail.com',
     created: "2012,10,02",
   }).save();
 
   new ListUser({
     name: 'Piensa',
-    user: 'Pedro',
+    email: 'pedrin@gmail.com',
     created: "2018,06,07",
   }).save();
 });
 
 
+
+//--------------Middleware propio
+//route middleware to ensure user is logged in
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated())
+      return next();
+  res.status(404);
+  res.render('404');
+}
+
+
+
 //--------------Routing
+
+
 app.get('/', function(req, res){
-  var context = { name: req.session.username || "Anonymous",
-                  csrf: 'CSRF token goes here'};
+  //En caso de estar autenticado la home será la página de listas del usuario
+  if (req.isAuthenticated())
+    return res.redirect(303, '/user');
+
+  //console.log(req.isAuthenticated());
+
+  var context = {
+    logged: req.isAuthenticated(),
+    name: req.session.username || "Anonymous",
+    csrf: 'CSRF token goes here'
+  };
   res.render('home', context);
 });
 
-app.post('/process-home', passport.authenticate("local",{
+app.post('/process-home', passport.authenticate("local-login",{
     successRedirect: "/user",
     failureRedirect: "/",
-    //failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
+    failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
-    console.log("He pasado por validación");
-    //req.session.userName = req.body.name; 
-
+    //Por esta función pasa en caso de que haya hecho un successRedirect y no haya indicado arriba la dirección. Para algún caso me puede interesar y hacer algo más con la petición recibida.  
     //console.log(req.session);
-    //res.redirect(303, '/');
+    //res.redirect(303, "/user");
+});
+
+app.get('/logout', isLoggedIn, function(req, res){
+  req.logout();
+  res.redirect(303,"/");
 });
 
 app.get('/register', function(req, res){
@@ -347,6 +226,7 @@ app.post('/register', function(req, res){
       var newUser = new User({
         username: cart.name,
         email: cart.email,
+        created: Date.now(),
         role: "deactivated"
       });
       newUser.password =  newUser.generateHash(cart.pass);
@@ -377,19 +257,23 @@ app.post('/register', function(req, res){
 });
 
 app.get('/about', function(req, res){
-  res.render('about');
+  var context = {
+    logged: req.isAuthenticated()
+  }; 
+  res.render('about', context);
 });
 
-app.get('/user', function(req, res){
-  ListUser.find({user:req.session.userName}, function(err, lists){ 
+app.get('/user', isLoggedIn, function(req, res){
+  ListUser.find({email:req.session.email}, function(err, lists){ 
     var context = {
-        lists: lists.map(function(list){
-            return {
-                user: list.user,
-                name: list.name,
-                created: list.created,
-            }
-        })
+      logged: req.isAuthenticated(),
+      lists: lists.map(function(list){
+      return {
+          email: list.email,
+          name: list.name,
+          created: list.created
+        }
+      })
     };
     console.log(context);
     res.render('user', context);
@@ -398,9 +282,21 @@ app.get('/user', function(req, res){
 
 app.post('/process-user', function(req, res){
   console.log(req.body);
+
+  var dataApi = {
+    part: 'snippet',
+    maxResults: 50,
+    id: req.body.url,
+    key: credentials.youtube.apiKey, //Clave API usuario youtube
+    pageToken: page    
+  };
+  //Lo voy a hacer con la api o con lo que tenía?
+
+  //apiYoutubePlaylist
+
   //TODO: Asegurarnos que es una URL de lista de youtube. Después realizar 2 pasos: Introducirlo en tabla de listas y sincronizarla con el usuario en la tabla de relaciones.
   ListUser.insertMany(
-    {user: req.session.userName, name: req.body.name},
+    {email: req.session.email, name: req.body.name},
     function(err){
       if(err) {
           console.error(err.stack);
@@ -411,8 +307,11 @@ app.post('/process-user', function(req, res){
   );
 });
 
-app.get('/list', function(req, res){
-  res.render('list');
+app.get('/list', isLoggedIn, function(req, res){
+  var context = {
+    logged: req.isAuthenticated(),
+  };
+  res.render('list', context);
 });
 
 

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var listUserSchema = mongoose.Schema({
-	user: String,
+	email: String,
 	name: String,
 	created: Date,
 });
