@@ -13,8 +13,14 @@ var express = require('express'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
-var apiYoutubePlaylist = 'https://www.googleapis.com/youtube/v3/playlists',
-    apiYoutubePlaylistItems = 'https://www.googleapis.com/youtube/v3/playlistItems';
+var Youtube = require('./lib/youtube.js')();
+// Youtube.search(credentials.youtube.apiKey, 'PLTOZ3CU8NJdQjXnfpYNMGrHkCQHc9p3iW').then(playlistItems => {
+//   //console.log(playlistItems);
+//   console.log('Longitud de playlist: '+ playlistItems.length);
+// }).catch(console.error);
+
+
+
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -126,6 +132,7 @@ app.use(function(req, res, next){
 
 
 app.use(function(req, res, next){
+  console.log("Petición: " + req.url)
   console.log(req.session);
   next();
 });
@@ -269,42 +276,100 @@ app.get('/user', isLoggedIn, function(req, res){
       logged: req.isAuthenticated(),
       lists: lists.map(function(list){
       return {
-          email: list.email,
+          listId: list.listId,
           name: list.name,
           created: list.created
         }
       })
     };
-    console.log(context);
+//    console.log(context);
     res.render('user', context);
   });
 });
 
 app.post('/process-user', function(req, res){
-  console.log(req.body);
+  //console.log(req.body);
 
-  var dataApi = {
-    part: 'snippet',
-    maxResults: 50,
-    id: req.body.url,
-    key: credentials.youtube.apiKey, //Clave API usuario youtube
-    pageToken: page    
-  };
-  //Lo voy a hacer con la api o con lo que tenía?
+  var listId = req.body.url.split("list=")[1];
+  if (listId != null) {
+    //Como paro la ejecución de promesas???
 
-  //apiYoutubePlaylist
+    Promise.all([
+      ListUser.find({email:req.session.email, listId: listId}).count(),
+      ListUser.find({email:req.session.email, name: req.body.name}).count()
+    ]).then( ([ usedId, usedName ]) => {
+
+      // console.log("Resultado de url usada: " + usedId);
+      // console.log("Resultado de nombre usado: " + usedName);
+
+      if (usedId){
+        console.log("URL ya utilizada en otra lista.");
+        return res.redirect(303, '/user');
+      }
+
+      if (usedName){
+        console.log("Nombre ya utilizado en otra lista.");
+        return res.redirect(303, '/user');
+      }
+
+      //Que pasa cuando el usuario mete una url que no es de yt?
+      Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
+  
+        console.log(playlistInfo);
+        //En caso de que sea una lista válida de Youtube
+        if (playlistInfo.pageInfo.totalResults == 1){
+          ListUser.insertMany(
+            {listId: listId, name: req.body.name, email: req.session.email, created: Date.now()},
+            function(err){
+              if(err) {
+                  console.error(err.stack);
+              }
+            }
+          );
+          console.log("Lista insertada en BDD");
+        } else {
+          console.log("Url no válida como lista de Youtube");
+        }
+        return res.redirect(303, '/user');
+      }).catch(console.error);
+      
+    });
+
+    // ListUser.find({email:req.session.email, listId: listId}, function(err, lists){
+    //   console.log("URL Youtube ya utilizada en otra lista del usuario");
+    //   return res.redirect(303, '/user');
+    // });
+    
+    // ListUser.find({email:req.session.email, name: req.body.name}, function(err, lists){
+    //   console.log("Nombre ya utilizado en otra lista del usuario");
+    //   return res.redirect(303, '/user');
+    //});
+    
+    // //Que pasa cuando el usuario mete una url que no es de yt?
+    // Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
+  
+    //   console.log(playlistInfo);
+    //   //En caso de que sea una lista válida de Youtube
+    //   if (playlistInfo.pageInfo.totalResults == 1){
+    //     ListUser.insertMany(
+    //       {listId: listId, name: req.body.name, email: req.session.email, created: Date.now()},
+    //       function(err){
+    //         if(err) {
+    //             console.error(err.stack);
+    //         }
+    //       }
+    //     );
+    //   } else {
+    //     console.log("Url no válida como lista de Youtube");
+    //   }
+    // }).catch(console.error);
+  } 
+  else {
+    console.log("Url no válida como lista de Youtube");
+    return res.redirect(303, '/user');
+  }
 
   //TODO: Asegurarnos que es una URL de lista de youtube. Después realizar 2 pasos: Introducirlo en tabla de listas y sincronizarla con el usuario en la tabla de relaciones.
-  ListUser.insertMany(
-    {email: req.session.email, name: req.body.name},
-    function(err){
-      if(err) {
-          console.error(err.stack);
-          return res.redirect(303, '/user');
-      }
-      return res.redirect(303, '/user');
-    }
-  );
 });
 
 app.get('/list', isLoggedIn, function(req, res){

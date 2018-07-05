@@ -11,6 +11,13 @@ var userSchema = mongoose.Schema({
 	created: Date,
 });
 
+//De uno que he visto por internet
+// username: {type:String,required:true,trim:true,unique:true},
+// password:{type:String,required:true},
+// email:{type:String,required:true,unique:true},
+// verified:{type:Boolean,required:true},
+// dateCreated:{type:Date,default:Date.now}
+
 //Hay que implementar el validPassword. ¿Pero puedo utilizar el plugin de abajo sin mas?
 // generating a hash
 userSchema.methods.generateHash = function(password) {

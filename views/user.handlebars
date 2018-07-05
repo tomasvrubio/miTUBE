@@ -16,18 +16,20 @@
     <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Email</th>
+            <th scope="col">ListId</th>
             <th scope="col">Date Added</th>
         </tr>
     </thead>
     <tbody>
     {{#each lists}}
+    {{!-- Terminar de hacer los links --}}
         <tr>
-            <th>{{name}}</th>
-            <th>{{email}}</th>
+            <th><a href="list">{{name}}</a></th>
+            <th>{{listId}}</th>
             <th>{{created}}</th>
         </tr>
     {{/each}}
     </tbody>
     </table>
 </div>
+
