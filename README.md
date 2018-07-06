@@ -11,6 +11,7 @@ web application to generate music lists from youtube lists
 
 * Descarga repositorio github
 * Lanzar "npm install"
+* Crear BBDD mongodb
 * Introducir las credenciales en *credentials.js*
 * Lanzar "node app.js"
 
@@ -35,7 +36,6 @@ module.exports = {
 
 * Quitar librerias que realmente no necesito:
   * youtube-playlist-info
-  * ¿google-apis?
 * Utilizar librería morgan para dejar logs.
 * Montar entorno Producción (Cap 12).
 * Usar https

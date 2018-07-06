@@ -7,6 +7,8 @@ var listUserSchema = mongoose.Schema({
 	name: String,
 	listId: String, //Youtube ID
 	created: Date,
+	updated: Date,
+	picture: String, //REVISAR:¿Seguro que es un string?
 });
 
 var ListUser = mongoose.model('ListUser', listUserSchema);

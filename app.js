@@ -7,6 +7,7 @@ var express = require('express'),
     passport = require('passport'),
     LocalStrategy = require('passport-local'),
     passportLocalMongoose = require('passport-local-mongoose'),
+    moment = require('moment'),
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -278,7 +279,7 @@ app.get('/user', isLoggedIn, function(req, res){
       return {
           listId: list.listId,
           name: list.name,
-          created: list.created
+          created: moment(list.created).format('DD / MM / YYYY')
         }
       })
     };
@@ -299,9 +300,6 @@ app.post('/process-user', function(req, res){
       ListUser.find({email:req.session.email, name: req.body.name}).count()
     ]).then( ([ usedId, usedName ]) => {
 
-      // console.log("Resultado de url usada: " + usedId);
-      // console.log("Resultado de nombre usado: " + usedName);
-
       if (usedId){
         console.log("URL ya utilizada en otra lista.");
         return res.redirect(303, '/user');
@@ -312,21 +310,42 @@ app.post('/process-user', function(req, res){
         return res.redirect(303, '/user');
       }
 
-      //Que pasa cuando el usuario mete una url que no es de yt?
       Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
   
-        console.log(playlistInfo);
+        //console.log(playlistInfo);
         //En caso de que sea una lista válida de Youtube
         if (playlistInfo.pageInfo.totalResults == 1){
-          ListUser.insertMany(
-            {listId: listId, name: req.body.name, email: req.session.email, created: Date.now()},
-            function(err){
-              if(err) {
-                  console.error(err.stack);
-              }
-            }
-          );
+          ListUser.insertMany({
+            listId: listId, 
+            name: req.body.name, 
+            email: req.session.email, 
+            created: Date.now()
+          },function(err){
+              if(err) console.error(err.stack);
+          });
+          //console.log(playlistInfo.items[0].snippet.title);
           console.log("Lista insertada en BDD");
+          //aquí es donde tengo que meterla en la otra tabla
+          Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
+            var itemsMapped = playlistItems.map(function(item){
+              return {
+                songId: item.resourceId.videoId,
+                originalName: item.title,
+                added: item.publishedAt                  
+              }
+            });
+
+            console.log(itemsMapped);
+
+            //¿Como meto esto dentro de la tabla "list"?
+            List.insertMany({
+              listId: listId,
+              nameYT: playlistInfo.items[0].snippet.title,
+              songs: itemsMapped
+            },function(err){
+              if (err) console.error(err.stack);
+            });
+          });
         } else {
           console.log("Url no válida como lista de Youtube");
         }
@@ -334,35 +353,6 @@ app.post('/process-user', function(req, res){
       }).catch(console.error);
       
     });
-
-    // ListUser.find({email:req.session.email, listId: listId}, function(err, lists){
-    //   console.log("URL Youtube ya utilizada en otra lista del usuario");
-    //   return res.redirect(303, '/user');
-    // });
-    
-    // ListUser.find({email:req.session.email, name: req.body.name}, function(err, lists){
-    //   console.log("Nombre ya utilizado en otra lista del usuario");
-    //   return res.redirect(303, '/user');
-    //});
-    
-    // //Que pasa cuando el usuario mete una url que no es de yt?
-    // Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
-  
-    //   console.log(playlistInfo);
-    //   //En caso de que sea una lista válida de Youtube
-    //   if (playlistInfo.pageInfo.totalResults == 1){
-    //     ListUser.insertMany(
-    //       {listId: listId, name: req.body.name, email: req.session.email, created: Date.now()},
-    //       function(err){
-    //         if(err) {
-    //             console.error(err.stack);
-    //         }
-    //       }
-    //     );
-    //   } else {
-    //     console.log("Url no válida como lista de Youtube");
-    //   }
-    // }).catch(console.error);
   } 
   else {
     console.log("Url no válida como lista de Youtube");

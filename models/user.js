@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 var passportLocalMongoose = require("passport-local-mongoose")
 
 var userSchema = mongoose.Schema({
-	authId: String,
+	//authId: String, REVISAR: Esto creo que se puede borrar
 	username: String,
 	password: String,
 	email: String,
@@ -18,7 +18,7 @@ var userSchema = mongoose.Schema({
 // verified:{type:Boolean,required:true},
 // dateCreated:{type:Date,default:Date.now}
 
-//Hay que implementar el validPassword. ¿Pero puedo utilizar el plugin de abajo sin mas?
+
 // generating a hash
 userSchema.methods.generateHash = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
