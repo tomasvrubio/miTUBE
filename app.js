@@ -310,6 +310,7 @@ app.post('/process-user', function(req, res){
         return res.redirect(303, '/user');
       }
 
+      //Obtenemos los datos generales de la lista de Youtube
       Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
   
         //console.log(playlistInfo);
@@ -325,7 +326,7 @@ app.post('/process-user', function(req, res){
           });
           //console.log(playlistInfo.items[0].snippet.title);
           console.log("Lista insertada en BDD");
-          //aquí es donde tengo que meterla en la otra tabla
+          //Obtenemos los datos de cada una de las canciones de la lista de Youtube
           Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
             var itemsMapped = playlistItems.map(function(item){
               return {
@@ -337,7 +338,7 @@ app.post('/process-user', function(req, res){
 
             console.log(itemsMapped);
 
-            //¿Como meto esto dentro de la tabla "list"?
+           //Insertamos las canciones en la tabla de detalle de lista
             List.insertMany({
               listId: listId,
               nameYT: playlistInfo.items[0].snippet.title,
@@ -358,14 +359,31 @@ app.post('/process-user', function(req, res){
     console.log("Url no válida como lista de Youtube");
     return res.redirect(303, '/user');
   }
-
-  //TODO: Asegurarnos que es una URL de lista de youtube. Después realizar 2 pasos: Introducirlo en tabla de listas y sincronizarla con el usuario en la tabla de relaciones.
 });
 
 app.get('/list', isLoggedIn, function(req, res){
   var context = {
     logged: req.isAuthenticated(),
   };
+  var listId = req.query.listid;
+  console.log("La lista que quiero mostrar es: " + listId);
+
+
+//   ListUser.find({email:req.session.email}, function(err, lists){ 
+//     var context = {
+//       logged: req.isAuthenticated(),
+//       lists: lists.map(function(list){
+//       return {
+//           listId: list.listId,
+//           name: list.name,
+//           created: moment(list.created).format('DD / MM / YYYY')
+//         }
+//       })
+//     };
+// //    console.log(context);
+//     res.render('user', context);
+//   });
+
   res.render('list', context);
 });
 
