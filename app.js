@@ -325,7 +325,7 @@ app.post('/process-user', function(req, res){
               if(err) console.error(err.stack);
           });
           //console.log(playlistInfo.items[0].snippet.title);
-          console.log("Lista insertada en BDD");
+          console.log("Lista insertada en BBDD");
           //Obtenemos los datos de cada una de las canciones de la lista de Youtube
           Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
             var itemsMapped = playlistItems.map(function(item){
@@ -362,29 +362,27 @@ app.post('/process-user', function(req, res){
 });
 
 app.get('/list', isLoggedIn, function(req, res){
-  var context = {
-    logged: req.isAuthenticated(),
-  };
-  var listId = req.query.listid;
-  console.log("La lista que quiero mostrar es: " + listId);
 
+  List.findOne({listId:req.query.listid}, function(err, list){
+    if (list == null){
+      console.log("Lista sin detalles");
+      return res.redirect(303, '/user');
+    }      
 
-//   ListUser.find({email:req.session.email}, function(err, lists){ 
-//     var context = {
-//       logged: req.isAuthenticated(),
-//       lists: lists.map(function(list){
-//       return {
-//           listId: list.listId,
-//           name: list.name,
-//           created: moment(list.created).format('DD / MM / YYYY')
-//         }
-//       })
-//     };
-// //    console.log(context);
-//     res.render('user', context);
-//   });
-
-  res.render('list', context);
+    var context = {
+      logged: req.isAuthenticated(),
+      nameYT: list.nameYT,
+      songs: list.songs.map(function(song){
+        return {
+            songId: song.songId,
+            name: song.originalName,
+            added: moment(song.added).format('DD / MM / YYYY')
+          }
+      })
+    };
+    console.log(context);
+    res.render('list', context);
+  });
 });
 
 

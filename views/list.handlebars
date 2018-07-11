@@ -1,1 +1,31 @@
 <h1>Show the details about a synchronized list</h1>
+
+<div>   
+    <p>Información de la lista</p>
+</div>
+
+
+
+<!-- Mostrar resultados en tabla -->
+<div>
+    <p>Detalle de las canciones de la lista</p>
+    <table id="miTabla" class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">SongId</th>
+            <th scope="col">Date Added</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each songs}}
+    {{!-- Terminar de hacer los links --}}
+        <tr>
+            <th>{{name}}</th>
+            <th><a href="https://www.youtube.com/watch?v={{songId}}">{{songId}}</a></th>
+            <th>{{added}}</th>
+        </tr>
+    {{/each}}
+    </tbody>
+    </table>
+</div>
