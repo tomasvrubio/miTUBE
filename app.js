@@ -363,26 +363,56 @@ app.post('/process-user', function(req, res){
 
 app.get('/list', isLoggedIn, function(req, res){
 
-  List.findOne({listId:req.query.listid}, function(err, list){
-    if (list == null){
-      console.log("Lista sin detalles");
+  Promise.all([
+    ListUser.findOne({email:req.session.email, listId: req.query.listid}),
+    List.findOne({listId:req.query.listid})
+  ]).then( ([listUser, list]) => {
+    if (listUser == null || list == null){
+      console.log("Lista sin detalles almacenados.");
       return res.redirect(303, '/user');
-    }      
+    }
 
     var context = {
       logged: req.isAuthenticated(),
+      listId: req.query.listid,
+      name: listUser.name,
+      updated: listUser.updated,
       nameYT: list.nameYT,
       songs: list.songs.map(function(song){
         return {
             songId: song.songId,
-            name: song.originalName,
+            originalName: song.originalName,
+            name: song.name,
+            artist: song.artist,
             added: moment(song.added).format('DD / MM / YYYY')
           }
       })
-    };
+    };   
+
     console.log(context);
     res.render('list', context);
   });
+
+  // List.findOne({listId:req.query.listid}, function(err, list){
+  //   if (list == null){
+  //     console.log("Lista sin detalles");
+  //     return res.redirect(303, '/user');
+  //   }      
+
+  //   var context = {
+  //     logged: req.isAuthenticated(),
+  //     nameYT: list.nameYT,
+  //     songs: list.songs.map(function(song){
+  //       return {
+  //           songId: song.songId,
+  //           name: song.originalName,
+  //           added: moment(song.added).format('DD / MM / YYYY')
+  //         }
+  //     })
+  //   };
+  //   console.log(context);
+  //   res.render('list', context);
+  // });
 });
 
 
