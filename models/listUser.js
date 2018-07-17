@@ -9,6 +9,7 @@ var listUserSchema = mongoose.Schema({
 	created: Date,
 	updated: Date,
 	picture: String, //REVISAR:¿Seguro que es un string?
+	//Pensando en poner un campo más que indique que hay trabajo pendiente a la hora de descargar, sincronizar canciones. Podría ser un booleano.
 });
 
 var ListUser = mongoose.model('ListUser', listUserSchema);

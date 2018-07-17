@@ -14,11 +14,9 @@ var express = require('express'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
-var Youtube = require('./lib/youtube.js')();
-// Youtube.search(credentials.youtube.apiKey, 'PLTOZ3CU8NJdQjXnfpYNMGrHkCQHc9p3iW').then(playlistItems => {
-//   //console.log(playlistItems);
-//   console.log('Longitud de playlist: '+ playlistItems.length);
-// }).catch(console.error);
+var Youtube = require('./lib/youtube.js')(),
+    Synchronize = require('./lib/synchronize.js')();
+
 
 
 
@@ -313,7 +311,6 @@ app.post('/process-user', function(req, res){
       //Obtenemos los datos generales de la lista de Youtube
       Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
   
-        //console.log(playlistInfo);
         //En caso de que sea una lista válida de Youtube
         if (playlistInfo.pageInfo.totalResults == 1){
           ListUser.insertMany({
@@ -324,7 +321,6 @@ app.post('/process-user', function(req, res){
           },function(err){
               if(err) console.error(err.stack);
           });
-          //console.log(playlistInfo.items[0].snippet.title);
           console.log("Lista insertada en BBDD");
           //Obtenemos los datos de cada una de las canciones de la lista de Youtube
           Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
@@ -335,8 +331,7 @@ app.post('/process-user', function(req, res){
                 added: item.publishedAt                  
               }
             });
-
-            console.log(itemsMapped);
+            // console.log(itemsMapped);
 
            //Insertamos las canciones en la tabla de detalle de lista
             List.insertMany({
@@ -345,6 +340,12 @@ app.post('/process-user', function(req, res){
               songs: itemsMapped
             },function(err){
               if (err) console.error(err.stack);
+
+              //Aqui tenemos que meter las nuevas canciones en la tabla de WorkTodo
+              Synchronize.checkUpdated(req.session.email, listId).then(returnObject => {
+                //console.log(returnObject);
+                console.log("Canciones metidas en WorkTodo");
+              });
             });
           });
         } else {
@@ -392,27 +393,6 @@ app.get('/list', isLoggedIn, function(req, res){
     console.log(context);
     res.render('list', context);
   });
-
-  // List.findOne({listId:req.query.listid}, function(err, list){
-  //   if (list == null){
-  //     console.log("Lista sin detalles");
-  //     return res.redirect(303, '/user');
-  //   }      
-
-  //   var context = {
-  //     logged: req.isAuthenticated(),
-  //     nameYT: list.nameYT,
-  //     songs: list.songs.map(function(song){
-  //       return {
-  //           songId: song.songId,
-  //           name: song.originalName,
-  //           added: moment(song.added).format('DD / MM / YYYY')
-  //         }
-  //     })
-  //   };
-  //   console.log(context);
-  //   res.render('list', context);
-  // });
 });
 
 

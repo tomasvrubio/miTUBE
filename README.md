@@ -34,8 +34,6 @@ module.exports = {
 
 ### Tareas pendientes:
 
-* Quitar librerias que realmente no necesito:
-  * youtube-playlist-info
 * Utilizar librería morgan para dejar logs.
 * Montar entorno Producción (Cap 12).
 * Usar https
