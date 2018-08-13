@@ -395,6 +395,10 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+app.get('/checkUpdated', isLoggedIn, function(req, res){
+  Synchronize.checkNewSongs(credentials.youtube.apiKey, "PLTOZ3CU8NJdROm8gi8XN-ZJJgh7ex-Qv8", "2018-08-12T21:55:08Z");
+  res.redirect("/user");
+});
 
 // custom 404 page
 app.use(function(req, res){
