@@ -18,9 +18,6 @@ var Youtube = require('./lib/youtube.js')(),
     Synchronize = require('./lib/synchronize.js')();
 
 
-
-
-
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
     helpers: {
@@ -337,6 +334,7 @@ app.post('/process-user', function(req, res){
             List.insertMany({
               listId: listId,
               nameYT: playlistInfo.items[0].snippet.title,
+              updated: Date.now(),
               songs: itemsMapped
             },function(err){
               if (err) console.error(err.stack);
@@ -388,17 +386,19 @@ app.get('/list', isLoggedIn, function(req, res){
             added: moment(song.added).format('DD / MM / YYYY')
           }
       })
-    };   
+    };
+
+    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated);
 
     console.log(context);
     res.render('list', context);
   });
 });
 
-app.get('/checkUpdated', isLoggedIn, function(req, res){
-  Synchronize.checkNewSongs(credentials.youtube.apiKey, "PLTOZ3CU8NJdROm8gi8XN-ZJJgh7ex-Qv8", "2018-08-12T21:55:08Z");
-  res.redirect("/user");
-});
+// app.get('/checkUpdated', isLoggedIn, function(req, res){
+//   Synchronize.checkNewSongs(credentials.youtube.apiKey, "PLTOZ3CU8NJdROm8gi8XN-ZJJgh7ex-Qv8", "2018-08-12T21:55:08Z");
+//   res.redirect("/user");
+// });
 
 // custom 404 page
 app.use(function(req, res){

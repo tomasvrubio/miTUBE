@@ -4,10 +4,10 @@ var mongoose = require('mongoose');
 var listSchema = mongoose.Schema({
     listId: String,
     nameYT: String, //Nombre de la lista en yt
-    //dateUpdated: String, //REVISAR:Es necesario? Yo creo que si, que podría poner la última modificación que hemos tenido y así no tener que mirar en el array de songs.
+    updated: Date, 
     //picture: String, //REVISAR:Esto tiene que ir en la relación de cada uno con la lista
     songs: [{
-        songId: String, //Youtube ID
+        songId: {type: String, unique: true}, //Youtube ID //Esto tengo que ver lo de que sea único ya que en YT si que puede ir una canción repetida en una lista.
         originalName: String,
         name: String,
         artist: String,
