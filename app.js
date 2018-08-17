@@ -94,8 +94,7 @@ passport.use('local-login', new LocalStrategy({
   }
 ));
 
-//passport.serializeUser(User.serializeUser());
-//passport.deserializeUser(User.deserializeUser());
+
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -131,30 +130,6 @@ app.use(function(req, res, next){
   console.log("Petición: " + req.url)
   console.log(req.session);
   next();
-});
-
-
-//Introducimos datos en BBDD en caso de que no existan:
-ListUser.find(function(err, lists){
-  if(lists.length) return; //En caso de que ya existan usuarios no hace falta crear información
-
-  new ListUser({
-    name: 'Despierta',
-    email: 'tomasvrubio@gmail.com',
-    created: "2007,08,10",
-  }).save();
-
-  new ListUser({
-    name: 'Vive',
-    email: 'tomasvrubio@gmail.com',
-    created: "2012,10,02",
-  }).save();
-
-  new ListUser({
-    name: 'Piensa',
-    email: 'pedrin@gmail.com',
-    created: "2018,06,07",
-  }).save();
 });
 
 
@@ -395,10 +370,6 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
-// app.get('/checkUpdated', isLoggedIn, function(req, res){
-//   Synchronize.checkNewSongs(credentials.youtube.apiKey, "PLTOZ3CU8NJdROm8gi8XN-ZJJgh7ex-Qv8", "2018-08-12T21:55:08Z");
-//   res.redirect("/user");
-// });
 
 // custom 404 page
 app.use(function(req, res){
