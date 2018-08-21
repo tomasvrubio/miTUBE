@@ -126,6 +126,7 @@ app.use(function(req, res, next){
  });
 
 
+//Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
 app.use(function(req, res, next){
   console.log("Petición: " + req.url)
   console.log(req.session);
@@ -309,6 +310,7 @@ app.post('/process-user', function(req, res){
             List.insertMany({
               listId: listId,
               nameYT: playlistInfo.items[0].snippet.title,
+              eTag: playlistItems.etag, //Revisar si esto va bien.
               updated: Date.now(),
               songs: itemsMapped
             },function(err){
@@ -363,9 +365,20 @@ app.get('/list', isLoggedIn, function(req, res){
       })
     };
 
-    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated);
+    //¿Como meto esto? ¿Donde calculo el primer etag para meterlo en los datos de la lista?
+    //Youtube.listModified(credentials.youtube.apiKey, req.query.listid);
 
-    console.log(context);
+    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated).then(newSongs => {
+      console.log("Comprobado si hay nuevas canciones en la yt-lista.")
+      if (newSongs)
+        //console.log("Hay canciones nuevas.");
+        Synchronize.checkUpdated(req.session.email, req.query.listid).then(returnObject => {
+          //console.log(returnObject);
+          console.log("Canciones metidas en WorkTodo");
+        });
+      });
+
+    //console.log(context);
     res.render('list', context);
   });
 });
