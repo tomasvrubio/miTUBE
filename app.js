@@ -368,7 +368,7 @@ app.get('/list', isLoggedIn, function(req, res){
     //¿Como meto esto? ¿Donde calculo el primer etag para meterlo en los datos de la lista?
     //Youtube.listModified(credentials.youtube.apiKey, req.query.listid);
 
-    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated).then(newSongs => {
+    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated, list.eTag).then(newSongs => {
       console.log("Comprobado si hay nuevas canciones en la yt-lista.")
       if (newSongs)
         //console.log("Hay canciones nuevas.");
