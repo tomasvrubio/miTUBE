@@ -383,6 +383,12 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+app.get('/gmusic', function(req, res){
+  var context = {
+    logged: req.isAuthenticated()
+  }; 
+  res.render('gmusic', context);
+});
 
 // custom 404 page
 app.use(function(req, res){

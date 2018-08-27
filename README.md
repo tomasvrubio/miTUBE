@@ -37,3 +37,11 @@ module.exports = {
 * Utilizar librería morgan para dejar logs.
 * Montar entorno Producción (Cap 12).
 * Usar https
+* Implementar llamadas a gmusicapi
+  - ¿Como hacemos el primer login para conseguir el oauth? 
+    Desde la terminal lo que hacía era 
+    gmupload -U 'B8:27:EB:F5:91:27' -c luisvv -l 'The Cure - Boys Don'\''t Cry.mp3'
+
+    Tengo que utilizar un audio de prueba ligero para subir y eliminarlo cuando ya tenga el acceso confirmado.
+
+    URL para conseguir el token? Hacer pruebas desde la terminal y poner en la app un boton para hacer la redirección a la URL y copiar la cadena que devuelva en un formulario. Con eso llamar a gmupload.
