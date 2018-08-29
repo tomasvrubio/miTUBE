@@ -45,3 +45,8 @@ module.exports = {
     Tengo que utilizar un audio de prueba ligero para subir y eliminarlo cuando ya tenga el acceso confirmado.
 
     URL para conseguir el token? Hacer pruebas desde la terminal y poner en la app un boton para hacer la redirección a la URL y copiar la cadena que devuelva en un formulario. Con eso llamar a gmupload.
+
+    Para hacer las llamadas a los programas python (gmusicapi y youtube-dl) voy a utilizar "python-shell":
+    https://www.npmjs.com/package/python-shell
+
+    Realmente no tengo que utilizar ese módulo sino que necesito algo que haga llamadas "shell" ya que son ejecutables que llamo directamente desde la terminal. Tengo que utilizar "child_process".

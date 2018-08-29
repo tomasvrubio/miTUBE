@@ -8,6 +8,7 @@ var express = require('express'),
     LocalStrategy = require('passport-local'),
     passportLocalMongoose = require('passport-local-mongoose'),
     moment = require('moment'),
+    pythonShell = require('python-shell'),
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -387,6 +388,41 @@ app.get('/gmusic', function(req, res){
   var context = {
     logged: req.isAuthenticated()
   }; 
+
+  // pythonShell.run('gmupload', function(err){
+  //   if (err) throw err;
+  //   console.log("finished");
+  // });
+
+  // const exec = require('child_process').exec;
+  // var yourscript = exec('gmupload',
+  //       (error, stdout, stderr) => {
+  //           console.log(`${stdout}`);
+  //           console.log(`${stderr}`);
+  //           if (error !== null) {
+  //               console.log(`exec error: ${error}`);
+  //           }
+  // });
+
+  var process = require("child_process")
+  var spawn = process.spawn
+  //var execFile = process.execFile
+  
+  var child = spawn("gmupload")
+  
+  child.stdout.on("data", function (data) {
+    console.log("spawnSTDOUT:" + data)
+  })
+  
+  child.stderr.on("data", function (data) {
+    console.log("spawnSTDERR:" + data)
+  })
+  
+  child.on("exit", function (code) {
+    console.log("spawnEXIT:", code)
+  })
+  
+
   res.render('gmusic', context);
 });
 
