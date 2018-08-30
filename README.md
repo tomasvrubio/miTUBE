@@ -50,3 +50,5 @@ module.exports = {
     https://www.npmjs.com/package/python-shell
 
     Realmente no tengo que utilizar ese módulo sino que necesito algo que haga llamadas "shell" ya que son ejecutables que llamo directamente desde la terminal. Tengo que utilizar "child_process".
+
+    Tengo que cortar la cadena stdout para quedarme con la url. Empieza con https y termina con un blanco.

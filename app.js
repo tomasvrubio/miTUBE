@@ -411,6 +411,12 @@ app.get('/gmusic', function(req, res){
   var child = spawn("gmupload")
   
   child.stdout.on("data", function (data) {
+    var mensaje = "Visit the following url:";
+    if (data.includes(mensaje)){
+      var trozo = data.stringify.split('https');
+      console.log("Lo contiene: " + trozo[1]);
+    }
+      
     console.log("spawnSTDOUT:" + data)
   })
   
