@@ -389,32 +389,18 @@ app.get('/gmusic', function(req, res){
     logged: req.isAuthenticated()
   }; 
 
-  // pythonShell.run('gmupload', function(err){
-  //   if (err) throw err;
-  //   console.log("finished");
-  // });
-
-  // const exec = require('child_process').exec;
-  // var yourscript = exec('gmupload',
-  //       (error, stdout, stderr) => {
-  //           console.log(`${stdout}`);
-  //           console.log(`${stderr}`);
-  //           if (error !== null) {
-  //               console.log(`exec error: ${error}`);
-  //           }
-  // });
-
-  var process = require("child_process")
-  var spawn = process.spawn
-  //var execFile = process.execFile
+  var process = require("child_process");
+  var spawn = process.spawn;
   
   var child = spawn("gmupload")
   
   child.stdout.on("data", function (data) {
+    var data2 = data.toString('utf8');  
     var mensaje = "Visit the following url:";
-    if (data.includes(mensaje)){
-      var trozo = data.stringify.split('https');
-      console.log("Lo contiene: " + trozo[1]);
+    
+    if (data2.includes(mensaje)){
+      var urlAuth = data2.split(/\r?\n/)[2];
+      console.log("URL autorización: " + urlAuth);
     }
       
     console.log("spawnSTDOUT:" + data)
