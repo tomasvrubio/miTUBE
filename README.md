@@ -44,11 +44,11 @@ module.exports = {
 
     Tengo que utilizar un audio de prueba ligero para subir y eliminarlo cuando ya tenga el acceso confirmado.
 
-    URL para conseguir el token? Hacer pruebas desde la terminal y poner en la app un boton para hacer la redirección a la URL y copiar la cadena que devuelva en un formulario. Con eso llamar a gmupload.
+    URL para conseguir el token? Hacer pruebas desde la terminal y poner en la app un boton para hacer la redirección a la URL y copiar la cadena que devuelva en un formulario. Con eso mandar la información al proceso de gmupload.
 
-    Para hacer las llamadas a los programas python (gmusicapi y youtube-dl) voy a utilizar "python-shell":
-    https://www.npmjs.com/package/python-shell
+    Para hacer las llamadas a los programas python, que realmente son programas que llamo desde la shell, (gmusicapi y youtube-dl) voy a utilizar "child_process".
 
-    Realmente no tengo que utilizar ese módulo sino que necesito algo que haga llamadas "shell" ya que son ejecutables que llamo directamente desde la terminal. Tengo que utilizar "child_process".
+    Tengo que cortar la cadena stdout para quedarme con la url. Empieza con https y termina con un blanco. No, lo hago con los saltos de línea.
 
-    Tengo que cortar la cadena stdout para quedarme con la url. Empieza con https y termina con un blanco.
+    ¿Como almaceno la información del proceso entre petición y petición?
+    No lo necesito hacer. La URL es estática entre peticiones. Hago una petición, consigo URL, cierro programa. Paso la url al usuario, que introduzca el código de autorización y con su respuesta vuelvo a llamar a gmupload y ya lo autorizo creando así el token.

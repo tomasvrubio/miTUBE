@@ -18,6 +18,7 @@ var express = require('express'),
 var Youtube = require('./lib/youtube.js')(),
     Synchronize = require('./lib/synchronize.js')();
 
+var childGlobal = {};
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -385,25 +386,26 @@ app.get('/list', isLoggedIn, function(req, res){
 });
 
 app.get('/gmusic', function(req, res){
-  var context = {
-    logged: req.isAuthenticated()
-  }; 
+  //Esto sólo debería ejecutarlo si no existe el ".cred" en la ruta de credenciales de usuario.
+  var child = require("child_process").spawn("gmupload", ["-U", 'B9:27:EB:F5:91:27', "-c", "pepe@gmail.com"]);
+  childGlobal = child;
 
-  var process = require("child_process");
-  var spawn = process.spawn;
-  
-  var child = spawn("gmupload")
-  
   child.stdout.on("data", function (data) {
-    var data2 = data.toString('utf8');  
-    var mensaje = "Visit the following url:";
+    var data2 = data.toString('utf8');
     
-    if (data2.includes(mensaje)){
+    if (data2.includes("Visit the following url:")){
       var urlAuth = data2.split(/\r?\n/)[2];
       console.log("URL autorización: " + urlAuth);
     }
-      
-    console.log("spawnSTDOUT:" + data)
+    child.kill("SIGKILL");
+    
+    var context = {
+      logged: req.isAuthenticated(),
+      urlAuth: urlAuth,
+    };
+
+    console.log("spawnSTDOUT:" + data);
+    res.render('gmusic', context);    
   })
   
   child.stderr.on("data", function (data) {
@@ -412,10 +414,13 @@ app.get('/gmusic', function(req, res){
   
   child.on("exit", function (code) {
     console.log("spawnEXIT:", code)
-  })
-  
+  })  
+});
 
-  res.render('gmusic', context);
+app.post('/process-gmusic', function(req, res){
+  console.log(req.body.authCode);
+
+  res.redirect(303, '/user');
 });
 
 // custom 404 page
