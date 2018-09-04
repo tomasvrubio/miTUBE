@@ -8,7 +8,7 @@ var express = require('express'),
     LocalStrategy = require('passport-local'),
     passportLocalMongoose = require('passport-local-mongoose'),
     moment = require('moment'),
-    pythonShell = require('python-shell'),
+    pythonShell = require('python-shell'), //este al final no le he usado.
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -17,8 +17,6 @@ var express = require('express'),
 
 var Youtube = require('./lib/youtube.js')(),
     Synchronize = require('./lib/synchronize.js')();
-
-var childGlobal = {};
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -340,6 +338,7 @@ app.post('/process-user', function(req, res){
 });
 
 app.get('/list', isLoggedIn, function(req, res){
+  //Si es la primera vez que llega aquí primero tengo que conseguir su autorización de gmusic. ¿Como hago para saber que es la primera vez?
 
   Promise.all([
     ListUser.findOne({email:req.session.email, listId: req.query.listid}),
@@ -387,8 +386,8 @@ app.get('/list', isLoggedIn, function(req, res){
 
 app.get('/gmusic', function(req, res){
   //Esto sólo debería ejecutarlo si no existe el ".cred" en la ruta de credenciales de usuario.
+  //Esta llamada la tengo que hacer particular para el usuario. Cada usuario tiene que tener su propia MAC que la habré generado al crear el usuario y su email.
   var child = require("child_process").spawn("gmupload", ["-U", 'B9:27:EB:F5:91:27', "-c", "pepe@gmail.com"]);
-  childGlobal = child;
 
   child.stdout.on("data", function (data) {
     var data2 = data.toString('utf8');
