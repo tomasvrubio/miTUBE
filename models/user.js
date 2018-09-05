@@ -9,6 +9,8 @@ var userSchema = mongoose.Schema({
 	email: String,
 	role: String,
 	created: Date,
+	mac: String,
+	synchronized: {type:Boolean,default:false},
 });
 
 //De uno que he visto por internet

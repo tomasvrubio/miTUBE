@@ -385,6 +385,7 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+//Este y el process-gmusic los puedo dejar en uno sólo e ir filtrando con responseMessage?
 app.get('/gmusic', function(req, res){
   //Esto sólo debería ejecutarlo si no existe el ".cred" en la ruta de credenciales de usuario.
   //Esta llamada la tengo que hacer particular para el usuario. Cada usuario tiene que tener su propia MAC que la habré generado al crear el usuario y su email.
@@ -400,34 +401,6 @@ app.get('/gmusic', function(req, res){
 
     res.render('gmusic', context);  
   });
-
-  // var child = require("child_process").spawn("gmupload", ["-U", 'B9:27:EB:F5:91:27', "-c", "pepe@gmail.com"]);
-
-  // child.stdout.on("data", function (data) {
-  //   var data2 = data.toString('utf8');
-    
-  //   if (data2.includes("Visit the following url:")){
-  //     var urlAuth = data2.split(/\r?\n/)[2];
-  //     console.log("URL autorización: " + urlAuth);
-  //   }
-  //   child.kill("SIGKILL");
-    
-  //   var context = {
-  //     logged: req.isAuthenticated(),
-  //     urlAuth: urlAuth,
-  //   };
-
-  //   console.log("spawnSTDOUT:" + data);
-  //   res.render('gmusic', context);    
-  // })
-  
-  // child.stderr.on("data", function (data) {
-  //   console.log("spawnSTDERR:" + data)
-  // })
-  
-  // child.on("exit", function (code) {
-  //   console.log("spawnEXIT:", code)
-  // })  
 });
 
 app.post('/process-gmusic', function(req, res){

@@ -37,7 +37,7 @@ module.exports = {
 * Utilizar librería morgan para dejar logs.
 * Montar entorno Producción (Cap 12).
 * Usar https
-* Mejorar el rastreado de nuevas canciones. Comparación dos listas buscando coincidencias y elementos que no están en una ni en la otra (nuevas y eliminadas).
+* Mejorar el rastreo de nuevas canciones. Comparación dos listas buscando coincidencias y elementos que no están en una ni en la otra (nuevas y eliminadas).
 * Revisar que creo que tengo un problema con songIds repetidos aunque sea en listas diferentes:
 
 	{ MongoError: E11000 duplicate key error collection: MITUBEDB.lists index: songs.songId_1 dup key: { : "zC30BYR3CUk" }
@@ -77,7 +77,7 @@ module.exports = {
 
     Vigilar cuando en la respuesta viene **NOT_SUBSCRIBED** ya que tiene pinta de que es cuando no tiene habilitado en su perfil googleMusic ni tiene forma de pago asociada. 
 
-    Opciones al meter el codigo (mensajes en STDERR):
+    Opciones al meter el codigo auth (mensajes en STDERR):
      * Meterlo mal: 
       oauth2client.client.FlowExchangeError: invalid_grantMalformed auth code.
       oauth2client.client.FlowExchangeError: invalid_grantBad Request
@@ -85,3 +85,5 @@ module.exports = {
      spawnSTDERR:MusicManagerWrapper authentication failed.
      * Que funcione correctamente y cree credenciales:
      spawnSTDERR:MusicManagerWrapper authentication succeeded.
+  * ¿Donde almaceno la información sobre que MAC voy? Tengo que dar una a cada usuario y ha de ser la consecutiva a la anterior que di. ¿Una función que al levantar el servidor se encargue de ver cual es la mayor MAC en la BBDD y la guarde en memoria y ya luego lo utilice de contador para saber que proporcionar a los usuarios?
+  * ¿Cómo se que un usuario se conecta por primera vez? Lo necesito para que esa primera vez sincronice con googleMusic y consiga su token de autenticación. Luego ya no se debe solicitar nunca más. Se me ocurre variable en BBDD que cargue cuando haga login y que luego ya se almacene en la información del usuario. ¿su cookie o tengo otro sitio mejor y que no esté viajando por la red?
