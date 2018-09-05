@@ -16,7 +16,8 @@ var express = require('express'),
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var Youtube = require('./lib/youtube.js')(),
-    Synchronize = require('./lib/synchronize.js')();
+    Synchronize = require('./lib/synchronize.js')(),
+    Gmusic = require('./lib/gmusic.js')();
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -387,39 +388,58 @@ app.get('/list', isLoggedIn, function(req, res){
 app.get('/gmusic', function(req, res){
   //Esto sólo debería ejecutarlo si no existe el ".cred" en la ruta de credenciales de usuario.
   //Esta llamada la tengo que hacer particular para el usuario. Cada usuario tiene que tener su propia MAC que la habré generado al crear el usuario y su email.
-  var child = require("child_process").spawn("gmupload", ["-U", 'B9:27:EB:F5:91:27', "-c", "pepe@gmail.com"]);
 
-  child.stdout.on("data", function (data) {
-    var data2 = data.toString('utf8');
-    
-    if (data2.includes("Visit the following url:")){
-      var urlAuth = data2.split(/\r?\n/)[2];
-      console.log("URL autorización: " + urlAuth);
-    }
-    child.kill("SIGKILL");
-    
+  //Así sólo tengo que ir si no existen las credenciales del usuario
+  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', null).then(responseMessage => {
+    console.log("He terminado getAuth - Valor respuesta: " + responseMessage);
+
     var context = {
       logged: req.isAuthenticated(),
-      urlAuth: urlAuth,
+      urlAuth: responseMessage,
     };
 
-    console.log("spawnSTDOUT:" + data);
-    res.render('gmusic', context);    
-  })
+    res.render('gmusic', context);  
+  });
+
+  // var child = require("child_process").spawn("gmupload", ["-U", 'B9:27:EB:F5:91:27', "-c", "pepe@gmail.com"]);
+
+  // child.stdout.on("data", function (data) {
+  //   var data2 = data.toString('utf8');
+    
+  //   if (data2.includes("Visit the following url:")){
+  //     var urlAuth = data2.split(/\r?\n/)[2];
+  //     console.log("URL autorización: " + urlAuth);
+  //   }
+  //   child.kill("SIGKILL");
+    
+  //   var context = {
+  //     logged: req.isAuthenticated(),
+  //     urlAuth: urlAuth,
+  //   };
+
+  //   console.log("spawnSTDOUT:" + data);
+  //   res.render('gmusic', context);    
+  // })
   
-  child.stderr.on("data", function (data) {
-    console.log("spawnSTDERR:" + data)
-  })
+  // child.stderr.on("data", function (data) {
+  //   console.log("spawnSTDERR:" + data)
+  // })
   
-  child.on("exit", function (code) {
-    console.log("spawnEXIT:", code)
-  })  
+  // child.on("exit", function (code) {
+  //   console.log("spawnEXIT:", code)
+  // })  
 });
 
 app.post('/process-gmusic', function(req, res){
   console.log(req.body.authCode);
+  
+  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', req.body.authCode).then(responseMessage => {
+    console.log("He terminado getAuth - Valor respuesta: " + responseMessage);
 
-  res.redirect(303, '/user');
+    res.redirect(303, '/user'); 
+  });
+
+  //res.redirect(303, '/user');
 });
 
 // custom 404 page
