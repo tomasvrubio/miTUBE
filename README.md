@@ -76,3 +76,12 @@ module.exports = {
     No lo necesito hacer. La URL es estática entre peticiones. Hago una petición, consigo URL, cierro programa. Paso la url al usuario, que introduzca el código de autorización y con su respuesta vuelvo a llamar a gmupload y ya lo autorizo creando así el token.
 
     Vigilar cuando en la respuesta viene **NOT_SUBSCRIBED** ya que tiene pinta de que es cuando no tiene habilitado en su perfil googleMusic ni tiene forma de pago asociada. 
+
+    Opciones al meter el codigo (mensajes en STDERR):
+     * Meterlo mal: 
+      oauth2client.client.FlowExchangeError: invalid_grantMalformed auth code.
+      oauth2client.client.FlowExchangeError: invalid_grantBad Request
+     * Pese a meterlo bien no haberse metido nunca en la googleMusic.
+     spawnSTDERR:MusicManagerWrapper authentication failed.
+     * Que funcione correctamente y cree credenciales:
+     spawnSTDERR:MusicManagerWrapper authentication succeeded.
