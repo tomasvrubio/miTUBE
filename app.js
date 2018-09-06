@@ -391,28 +391,50 @@ app.get('/gmusic', function(req, res){
   //Esta llamada la tengo que hacer particular para el usuario. Cada usuario tiene que tener su propia MAC que la habré generado al crear el usuario y su email.
 
   //Así sólo tengo que ir si no existen las credenciales del usuario
-  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', null).then(responseMessage => {
-    console.log("He terminado getAuth - Valor respuesta: " + responseMessage);
+  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', null).then(response => {
+    console.log("He terminado getAuth - Valor respuesta: ");
+    console.log(response);
 
     var context = {
       logged: req.isAuthenticated(),
-      urlAuth: responseMessage,
+      urlAuth: response.message,
     };
 
-    res.render('gmusic', context);  
+    res.render('gmusic', context);
   });
 });
 
-app.post('/process-gmusic', function(req, res){
-  console.log(req.body.authCode);
+// app.post('/process-gmusic', function(req, res){
+//   console.log(req.body.authCode);
   
-  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', req.body.authCode).then(responseMessage => {
-    console.log("He terminado getAuth - Valor respuesta: " + responseMessage);
+//   Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', req.body.authCode).then(response => {
+//     console.log("He terminado getAuth - Valor respuesta: ");
+//     console.log(response);
 
-    res.redirect(303, '/user'); 
+//     res.redirect(303, '/user'); 
+//   });
+// });
+
+app.all('/gmusic', isLoggedIn, function(req, res){
+  var authCode = req.body.authCode || null;
+  console.log("El codigo es: "+authCode);
+  
+  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', authCode).then(response => {
+    console.log("He terminado getAuth - Valor respuesta: ");
+    console.log(response);
+
+    //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
+
+    var context = {
+      logged: req.isAuthenticated(),
+      urlAuth: response.message,
+    };
+
+    res.render('gmusic', context);
   });
 
-  //res.redirect(303, '/user');
+
+  //res.redirect(303, '/user'); 
 });
 
 // custom 404 page
