@@ -3,4 +3,8 @@
 <form method="POST" action="/gmusic">    
   <input type="text" name="authCode" placeholder="Codigo autorización">
   <button type="submit">Aceptar</button>
-</form> 
+</form>
+
+{{#if message}}
+    <p><b>Resultado intento sincronización: </b>{{message}}</p>
+{{/if}}

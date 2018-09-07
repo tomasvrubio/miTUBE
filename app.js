@@ -385,56 +385,37 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
-//Este y el process-gmusic los puedo dejar en uno sólo e ir filtrando con responseMessage?
-app.get('/gmusic', function(req, res){
-  //Esto sólo debería ejecutarlo si no existe el ".cred" en la ruta de credenciales de usuario.
-  //Esta llamada la tengo que hacer particular para el usuario. Cada usuario tiene que tener su propia MAC que la habré generado al crear el usuario y su email.
-
-  //Así sólo tengo que ir si no existen las credenciales del usuario
-  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', null).then(response => {
-    console.log("He terminado getAuth - Valor respuesta: ");
-    console.log(response);
-
-    var context = {
-      logged: req.isAuthenticated(),
-      urlAuth: response.message,
-    };
-
-    res.render('gmusic', context);
-  });
-});
-
-// app.post('/process-gmusic', function(req, res){
-//   console.log(req.body.authCode);
-  
-//   Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', req.body.authCode).then(response => {
-//     console.log("He terminado getAuth - Valor respuesta: ");
-//     console.log(response);
-
-//     res.redirect(303, '/user'); 
-//   });
-// });
-
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   console.log("El codigo es: "+authCode);
   
+  //Cuando tenga generada la MAC del usuario deberé ponerla aquí
   Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', authCode).then(response => {
     console.log("He terminado getAuth - Valor respuesta: ");
     console.log(response);
 
-    //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
-
     var context = {
       logged: req.isAuthenticated(),
-      urlAuth: response.message,
+      message: response.message,
+      urlAuth: response.url,
     };
 
-    res.render('gmusic', context);
+    //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
+    //TODO - Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
+    if (response.code == 1) {
+      console.log("Usuario sin autorización.");
+      res.render('gmusic', context);
+    } 
+    else if (response.code == 2 || response.code == 3) { //No estoy seguro de que este caso vaya a funcionar bien porque me falta la URL de autenticación. Como he montado la función no la devuelve, ¿no?
+      console.log("Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");     
+      res.render('gmusic', context);
+    } 
+    else if (response.code == 0) {
+      console.log("Usuario autorizado.");
+      res.redirect(303, '/user'); 
+    }
+
   });
-
-
-  //res.redirect(303, '/user'); 
 });
 
 // custom 404 page
