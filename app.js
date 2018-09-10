@@ -17,6 +17,7 @@ var express = require('express'),
 
 var Youtube = require('./lib/youtube.js')(),
     Synchronize = require('./lib/synchronize.js')(),
+    SynchronizeMod = require('./lib/synchronize_mod.js')(),
     Gmusic = require('./lib/gmusic.js')();
 
 var handlebars = require('express-handlebars').create({
@@ -239,7 +240,13 @@ app.post('/register', function(req, res){
 app.get('/about', function(req, res){
   var context = {
     logged: req.isAuthenticated()
-  }; 
+  };
+
+  //Para hacer pruebas de llamadas.
+  SynchronizeMod.checkUpdatedList(credentials.youtube.apiKey, "PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
+    console.log("Comprobada sincronización.")
+  });
+
   res.render('about', context);
 });
 
