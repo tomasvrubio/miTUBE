@@ -247,7 +247,11 @@ app.get('/about', function(req, res){
   //   console.log("Comprobada sincronización.")
   // });
 
-  SynchronizeMod.checkUpdatedUser(credentials.youtube.apiKey, "pedrin@gmail.com").then(returnObject => {
+  // SynchronizeMod.checkUpdatedUser(credentials.youtube.apiKey, "pedrin@gmail.com").then(returnObject => {
+  //   console.log("Comprobada sincronización.")
+  // });
+
+  SynchronizeMod.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
     console.log("Comprobada sincronización.")
   });
 
