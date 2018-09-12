@@ -243,7 +243,11 @@ app.get('/about', function(req, res){
   };
 
   //Para hacer pruebas de llamadas.
-  SynchronizeMod.checkUpdatedList(credentials.youtube.apiKey, "PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
+  // SynchronizeMod.checkUpdatedList(credentials.youtube.apiKey, "PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
+  //   console.log("Comprobada sincronización.")
+  // });
+
+  SynchronizeMod.checkUpdatedUser(credentials.youtube.apiKey, "pedrin@gmail.com").then(returnObject => {
     console.log("Comprobada sincronización.")
   });
 
