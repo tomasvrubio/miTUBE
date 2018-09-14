@@ -16,8 +16,7 @@ var express = require('express'),
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var Youtube = require('./lib/youtube.js')(),
-    Synchronize = require('./lib/synchronize.js')(),
-    SynchronizeMod = require('./lib/synchronize_mod.js')(),
+    Synchronize = require('./lib/synchronize_mod.js')(),
     Gmusic = require('./lib/gmusic.js')();
 
 var handlebars = require('express-handlebars').create({
@@ -251,9 +250,13 @@ app.get('/about', function(req, res){
   //   console.log("Comprobada sincronización.")
   // });
 
-  SynchronizeMod.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
-    console.log("Comprobada sincronización.")
-  });
+  // SynchronizeMod.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
+  //   console.log("Comprobada sincronización.")
+  // });
+  
+  // SynchronizeMod.generateWorkUpload("PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
+  //   console.log("Terminado de generar trabajos.")
+  // });
 
   res.render('about', context);
 });
@@ -332,10 +335,8 @@ app.post('/process-user', function(req, res){
             },function(err){
               if (err) console.error(err.stack);
 
-              //Aqui tenemos que meter las nuevas canciones en la tabla de WorkTodo
-              Synchronize.checkUpdated(req.session.email, listId).then(returnObject => {
-                //console.log(returnObject);
-                console.log("Canciones metidas en WorkTodo");
+              Synchronize.generateWorkUpload(listId).then(returnObject => {
+                console.log("Canciones metidas en workTodo.");
               });
             });
           });
@@ -354,7 +355,6 @@ app.post('/process-user', function(req, res){
 });
 
 app.get('/list', isLoggedIn, function(req, res){
-  //Si es la primera vez que llega aquí primero tengo que conseguir su autorización de gmusic. ¿Como hago para saber que es la primera vez?
 
   Promise.all([
     ListUser.findOne({email:req.session.email, listId: req.query.listid}),
@@ -382,21 +382,10 @@ app.get('/list', isLoggedIn, function(req, res){
       })
     };
 
-    //¿Como meto esto? ¿Donde calculo el primer etag para meterlo en los datos de la lista?
-    //Youtube.listModified(credentials.youtube.apiKey, req.query.listid);
-
-    Synchronize.checkNewSongs(credentials.youtube.apiKey, req.query.listid, list.updated, list.eTag).then(newSongs => {
-      console.log("Comprobado si hay nuevas canciones en la yt-lista.")
-      if (newSongs)
-        //console.log("Hay canciones nuevas.");
-        Synchronize.checkUpdated(req.session.email, req.query.listid).then(returnObject => {
-          //console.log(returnObject);
-          console.log("Canciones metidas en WorkTodo");
-        });
-      });
-
-    //console.log(context);
-    res.render('list', context);
+    Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
+      console.log("Comprobada lista "+req.query.listid);
+      res.render('list', context);
+    });
   });
 });
 

@@ -37,7 +37,6 @@ module.exports = {
 * Utilizar librería morgan para dejar logs.
 * Montar entorno Producción (Cap 12).
 * Usar https
-* Mejorar el rastreo de nuevas canciones. Comparación dos listas buscando coincidencias y elementos que no están en una ni en la otra (nuevas y eliminadas).
 * Revisar que creo que tengo un problema con songIds repetidos aunque sea en listas diferentes:
 
 	{ MongoError: E11000 duplicate key error collection: MITUBEDB.lists index: songs.songId_1 dup key: { : "zC30BYR3CUk" }
@@ -58,7 +57,6 @@ module.exports = {
   errmsg: 'E11000 duplicate key error collection: MITUBEDB.lists index: songs.songId_1 dup key: { : "zC30BYR3CUk" }',
   code: 11000,
   codeName: 'DuplicateKey' }
-* Cambiar query para hacer push de todas las canciones nuevas y no ir una a una.
 * Implementar llamadas a gmusicapi.
   [x] Generar TOKEN.
   [] Subir cancion.
