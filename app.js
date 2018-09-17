@@ -1,12 +1,12 @@
 var express = require('express'),
     favicon = require('express-favicon'),
     nodemailer = require('nodemailer'),
-    fs = require('fs'),
+    fs = require('fs'), //¿Donde voy a necesitar el fs? En synchronize? O en algo nuevo?
     flash = require('connect-flash'),
     mongoose = require('mongoose'),
     passport = require('passport'),
     LocalStrategy = require('passport-local'),
-    passportLocalMongoose = require('passport-local-mongoose'),
+    passportLocalMongoose = require('passport-local-mongoose'), //Revisar qeu es lo que utilizo realmente de passport
     moment = require('moment'),
     pythonShell = require('python-shell'), //este al final no le he usado.
     credentials = require('./credentials.js'), 
@@ -165,6 +165,7 @@ app.get('/', function(req, res){
   res.render('home', context);
 });
 
+//TODO: Aquí es donde debería llamar a gmusic. Comprobar que tengo bien sincronizada la cuenta y una vez hecho eso el usuario ya puede seguir navegando por la aplicación.
 app.post('/process-home', passport.authenticate("local-login",{
     successRedirect: "/user",
     failureRedirect: "/",
@@ -188,15 +189,34 @@ app.post('/register', function(req, res){
   var cart = {
     name: req.body.name,
     email: req.body.email.toLowerCase(),
-    pass: Math.random().toString().replace(/^0\.0*/, '')
+    pass: Math.random().toString().replace(/^0\.0*/, ''),
+    //mac: ,
   };
   console.log(cart); //A eliminar
 
-  User.findOne({'email' : cart.email}, function(err, user){
-    if (err){
-      console.log("Error consulta BBDD");
-      console.log(err);
-      res.render('register', {message: "Ha ocurrido un error técnico"});
+  Promise.all([
+    User.findOne({'email' : cart.email}),
+    User.aggregate([{$group : {_id : null, macMax : {$min : "$mac"}}}])
+  ]).then( ([user, macData]) => {
+    console.log("Info sobre la mac: ")
+    var macMax = macData[0].macMax;
+    console.log(macMax);
+
+    if (macMax){
+      console.log("Ya hay usuarios con su mac.");
+      var macMaxArray = macMax.split(".");
+      macMaxArray[5] = +macMaxArray[5]+1;
+      var newMac = macMaxArray.join(".");
+      console.log(newMac);
+    } else{
+      console.log("Es el primer usuario");
+      var newMacArray = [
+        "b8", "27", "eb", 
+        Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*255).toString(16),
+        "00"
+      ];
+      var newMac = newMacArray.join(".");
+      console.log(newMac);
     }
 
     if (user){
@@ -206,6 +226,7 @@ app.post('/register', function(req, res){
       var newUser = new User({
         username: cart.name,
         email: cart.email,
+        mac: newMac,
         created: Date.now(),
         role: "deactivated"
       });
@@ -216,7 +237,7 @@ app.post('/register', function(req, res){
           console.log(err);
           res.render('register', {message: "Ha ocurrido un error técnico"});
         }
-        
+            
         res.render('email/email_lite', { layout: null, cart: cart }, function(err,html){
           if(err) console.log('error in email template');
           mailTransport.sendMail({
@@ -233,7 +254,52 @@ app.post('/register', function(req, res){
         res.render('register', {message: "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso."});
       });
     }
-  }); 
+  }).catch(err => {
+    console.error(err.stack);
+  });
+
+  // User.findOne({'email' : cart.email}, function(err, user){
+  //   if (err){
+  //     console.log("Error consulta BBDD");
+  //     console.log(err);
+  //     res.render('register', {message: "Ha ocurrido un error técnico"});
+  //   }
+
+  //   if (user){
+  //     console.log("Usuario ya existente");
+  //     res.render('register', {message: "Usuario ya registrado previamente"});
+  //   } else {
+  //     var newUser = new User({
+  //       username: cart.name,
+  //       email: cart.email,
+  //       created: Date.now(),
+  //       role: "deactivated"
+  //     });
+  //     newUser.password =  newUser.generateHash(cart.pass);
+  //     newUser.save(function(err) {
+  //       if (err){
+  //         console.log("Error guardando en BBDD");
+  //         console.log(err);
+  //         res.render('register', {message: "Ha ocurrido un error técnico"});
+  //       }
+        
+  //       res.render('email/email_lite', { layout: null, cart: cart }, function(err,html){
+  //         if(err) console.log('error in email template');
+  //         mailTransport.sendMail({
+  //           from: '"miTUBE": desarrollovazquezrubio@gmail.com',
+  //           to: cart.email,
+  //           subject: 'Here is your login information',
+  //           html: html,
+  //           generateTextFromHtml: true
+  //         }, function(err){
+  //           if(err) console.error('Unable to send confirmation: ' + err.stack);
+  //         });
+  //       });
+  //       console.log("Usuario almacenado en BBDD");
+  //       res.render('register', {message: "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso."});
+  //     });
+  //   }
+  // }); 
 });
 
 app.get('/about', function(req, res){
