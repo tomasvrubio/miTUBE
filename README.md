@@ -7,6 +7,9 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 * mongodb
 * python3
 * pip
+* gmusicapi-scripts (pip3 install gmusicapi-scripts --user)
+* youtube-dl (pip3 install youtube-dl --user)
+  * Requerido instalar "ffmpeg" [FEDORA]
 
 
 ### Instalación
@@ -59,12 +62,24 @@ module.exports = {
   errmsg: 'E11000 duplicate key error collection: MITUBEDB.lists index: songs.songId_1 dup key: { : "zC30BYR3CUk" }',
   code: 11000,
   codeName: 'DuplicateKey' }
+
 * Implementar llamadas a gmusicapi.
   [x] Generar TOKEN.
   [] Subir cancion.
   [] Eliminar cancion. 
 
-* Implementar descargar canciones.
+``` 
+gmsync up -U "$mac_lista" -c $usuario_lista "data/$nombre_lista"
+```
+
+* Implementar descargar canciones.Comando a emular: 
+
+```
+youtube-dl -i --download-archive "log/downloaded_${nombre_lista}.txt" --metadata-from-title "%(artist)s - %(title)s" --add-metadata --extract-audio --audio-format mp3 -o "./temp/%(title)s.%(ext)s" "${url_lista}"
+``` 
+Ejemplo: https://www.youtube.com/watch?v=IgY3z5VSDBg
+
+youtube-dl --no-playlist --metadata-from-title "%(artist)s - %(title)s" --add-metadata --extract-audio --audio-format mp3 --no-progress -o "Descargas/%(id)s.%(ext)s" "IgY3z5VSDBg"
 
 * ¿Donde almaceno la información sobre que MAC voy? Tengo que dar una a cada usuario y ha de ser la consecutiva a la anterior que di. ¿Una función que al levantar el servidor se encargue de ver cual es la mayor MAC en la BBDD y la guarde en memoria y ya luego lo utilice de contador para saber que proporcionar a los usuarios?
   Que al generar un usuario nuevo haya una formula que calcule su mac.

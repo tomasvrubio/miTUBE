@@ -1,14 +1,12 @@
 var express = require('express'),
     favicon = require('express-favicon'),
     nodemailer = require('nodemailer'),
-    fs = require('fs'), //¿Donde voy a necesitar el fs? En synchronize? O en algo nuevo?
     flash = require('connect-flash'),
     mongoose = require('mongoose'),
     passport = require('passport'),
     LocalStrategy = require('passport-local'),
-    passportLocalMongoose = require('passport-local-mongoose'), //Revisar qeu es lo que utilizo realmente de passport
+    passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
     moment = require('moment'),
-    pythonShell = require('python-shell'), //este al final no le he usado.
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -16,8 +14,9 @@ var express = require('express'),
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var Youtube = require('./lib/youtube.js')(),
-    Synchronize = require('./lib/synchronize_mod.js')(),
-    Gmusic = require('./lib/gmusic.js')();
+    Synchronize = require('./lib/synchronize.js')(),
+    Gmusic = require('./lib/gmusic.js')(),
+    YoutubeDL = require('./lib/youtubedl.js')();
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -155,8 +154,6 @@ app.get('/', function(req, res){
   if (req.isAuthenticated())
     return res.redirect(303, '/user');
 
-  //console.log(req.isAuthenticated());
-
   var context = {
     logged: req.isAuthenticated(),
     name: req.session.username || "Anonymous",
@@ -190,34 +187,30 @@ app.post('/register', function(req, res){
     name: req.body.name,
     email: req.body.email.toLowerCase(),
     pass: Math.random().toString().replace(/^0\.0*/, ''),
-    //mac: ,
   };
-  console.log(cart); //A eliminar
+  console.log(cart); //TODO: A eliminar
 
   Promise.all([
     User.findOne({'email' : cart.email}),
     User.aggregate([{$group : {_id : null, macMax : {$min : "$mac"}}}])
   ]).then( ([user, macData]) => {
-    console.log("Info sobre la mac: ")
     var macMax = macData[0].macMax;
-    console.log(macMax);
+    console.log("El actual MAC tope es: "+macMax);
 
     if (macMax){
-      console.log("Ya hay usuarios con su mac.");
-      var macMaxArray = macMax.split(".");
-      macMaxArray[5] = +macMaxArray[5]+1;
-      var newMac = macMaxArray.join(".");
-      console.log(newMac);
+      var newMacArray = macMax.split(".");
+      newMacArray[5] = +newMacArray[5]+1;
     } else{
-      console.log("Es el primer usuario");
+      //TODO: Dejo margen para poder aumentar el penúltimo número. Ahora mismo el máximo número de usuarios es 256.
       var newMacArray = [
         "b8", "27", "eb", 
-        Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*255).toString(16),
+        Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
         "00"
       ];
-      var newMac = newMacArray.join(".");
-      console.log(newMac);
     }
+
+    var newMac = newMacArray.join(".");
+    console.log(newMac);
 
     if (user){
       console.log("Usuario ya existente");
@@ -256,50 +249,8 @@ app.post('/register', function(req, res){
     }
   }).catch(err => {
     console.error(err.stack);
+    //TODO: Y a donde voy?
   });
-
-  // User.findOne({'email' : cart.email}, function(err, user){
-  //   if (err){
-  //     console.log("Error consulta BBDD");
-  //     console.log(err);
-  //     res.render('register', {message: "Ha ocurrido un error técnico"});
-  //   }
-
-  //   if (user){
-  //     console.log("Usuario ya existente");
-  //     res.render('register', {message: "Usuario ya registrado previamente"});
-  //   } else {
-  //     var newUser = new User({
-  //       username: cart.name,
-  //       email: cart.email,
-  //       created: Date.now(),
-  //       role: "deactivated"
-  //     });
-  //     newUser.password =  newUser.generateHash(cart.pass);
-  //     newUser.save(function(err) {
-  //       if (err){
-  //         console.log("Error guardando en BBDD");
-  //         console.log(err);
-  //         res.render('register', {message: "Ha ocurrido un error técnico"});
-  //       }
-        
-  //       res.render('email/email_lite', { layout: null, cart: cart }, function(err,html){
-  //         if(err) console.log('error in email template');
-  //         mailTransport.sendMail({
-  //           from: '"miTUBE": desarrollovazquezrubio@gmail.com',
-  //           to: cart.email,
-  //           subject: 'Here is your login information',
-  //           html: html,
-  //           generateTextFromHtml: true
-  //         }, function(err){
-  //           if(err) console.error('Unable to send confirmation: ' + err.stack);
-  //         });
-  //       });
-  //       console.log("Usuario almacenado en BBDD");
-  //       res.render('register', {message: "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso."});
-  //     });
-  //   }
-  // }); 
 });
 
 app.get('/about', function(req, res){
@@ -307,22 +258,11 @@ app.get('/about', function(req, res){
     logged: req.isAuthenticated()
   };
 
-  //Para hacer pruebas de llamadas.
-  // SynchronizeMod.checkUpdatedList(credentials.youtube.apiKey, "PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
-  //   console.log("Comprobada sincronización.")
-  // });
-
-  // SynchronizeMod.checkUpdatedUser(credentials.youtube.apiKey, "pedrin@gmail.com").then(returnObject => {
-  //   console.log("Comprobada sincronización.")
-  // });
-
-  // SynchronizeMod.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
-  //   console.log("Comprobada sincronización.")
-  // });
-  
-  // SynchronizeMod.generateWorkUpload("PLTOZ3CU8NJdQidbJNYXgxX7dWnvwAZlk1").then(returnObject => {
-  //   console.log("Terminado de generar trabajos.")
-  // });
+  YoutubeDL.download("blabla").then(returnObject => {
+    console.log("Canción descargada.");
+  }).catch(err => {
+    console.error(err.stack);
+  });
 
   res.render('about', context);
 });
@@ -368,6 +308,8 @@ app.post('/process-user', function(req, res){
 
       //Obtenemos los datos generales de la lista de Youtube
       Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
+
+        //TODO: Quitar tanto código de aquí e insertar las funciones creadas: createRelation / createList
   
         //En caso de que sea una lista válida de Youtube
         if (playlistInfo.pageInfo.totalResults == 1){
@@ -471,7 +413,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
     };
 
     //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
-    //TODO - Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
+    //TODO: Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
     if (response.code == 1) {
       console.log("Usuario sin autorización.");
       res.render('gmusic', context);
