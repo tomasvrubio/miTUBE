@@ -162,9 +162,10 @@ app.get('/', function(req, res){
   res.render('home', context);
 });
 
-//TODO: Aquí es donde debería llamar a gmusic. Comprobar que tengo bien sincronizada la cuenta y una vez hecho eso el usuario ya puede seguir navegando por la aplicación.
+//TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    successRedirect: "/user",
+    //successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
+    successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
     failureRedirect: "/",
     failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
@@ -258,8 +259,12 @@ app.get('/about', function(req, res){
     logged: req.isAuthenticated()
   };
 
+  //Así es como invoco a las descargas.
   YoutubeDL.download("blabla").then(returnObject => {
-    console.log("Canción descargada.");
+    if (returnObject == 0)
+      console.log("Canción descargada.");
+    else if (returnObject == 1)
+      console.log("No se ha podido descargar la canción.");
   }).catch(err => {
     console.error(err.stack);
   });
@@ -279,7 +284,7 @@ app.get('/user', isLoggedIn, function(req, res){
         }
       })
     };
-//    console.log(context);
+    
     res.render('user', context);
   });
 });
@@ -401,7 +406,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   console.log("El codigo es: "+authCode);
   
-  //Cuando tenga generada la MAC del usuario deberé ponerla aquí
+  //TODO: Pasar a usar la mac del usuario.
   Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', authCode).then(response => {
     console.log("He terminado getAuth - Valor respuesta: ");
     console.log(response);
@@ -426,7 +431,6 @@ app.all('/gmusic', isLoggedIn, function(req, res){
       console.log("Usuario autorizado.");
       res.redirect(303, '/user'); 
     }
-
   });
 });
 

@@ -72,20 +72,5 @@ module.exports = {
 gmsync up -U "$mac_lista" -c $usuario_lista "data/$nombre_lista"
 ```
 
-* Implementar descargar canciones.Comando a emular: 
-
-```
-youtube-dl -i --download-archive "log/downloaded_${nombre_lista}.txt" --metadata-from-title "%(artist)s - %(title)s" --add-metadata --extract-audio --audio-format mp3 -o "./temp/%(title)s.%(ext)s" "${url_lista}"
-``` 
-Ejemplo: https://www.youtube.com/watch?v=IgY3z5VSDBg
-
-youtube-dl --no-playlist --metadata-from-title "%(artist)s - %(title)s" --add-metadata --extract-audio --audio-format mp3 --no-progress -o "Descargas/%(id)s.%(ext)s" "IgY3z5VSDBg"
-
-* ¿Donde almaceno la información sobre que MAC voy? Tengo que dar una a cada usuario y ha de ser la consecutiva a la anterior que di. ¿Una función que al levantar el servidor se encargue de ver cual es la mayor MAC en la BBDD y la guarde en memoria y ya luego lo utilice de contador para saber que proporcionar a los usuarios?
-  Que al generar un usuario nuevo haya una formula que calcule su mac.
-  X.X.X.Y.Y.Z
-    X prefijado.
-    Y aleatorio con la primera vez que se levante el servidor o bien el primerisimo de todos los usuarios.
-    Z contador con el número de usuarios que tengamos.  
-
 * ¿Cómo se que un usuario se conecta por primera vez? Lo necesito para que esa primera vez sincronice con googleMusic y consiga su token de autenticación. Luego ya no se debe solicitar nunca más. Se me ocurre variable en BBDD que cargue cuando haga login y que luego ya se almacene en la información del usuario. ¿su cookie o tengo otro sitio mejor y que no esté viajando por la red?
+  * Lo he puesto en el redirect del login satisfactorio. Lo que pasa es que si alguien se pone a navegar por los links de la cabecera de la aplicación sin haber sincronizado con gmusic no habrá nada que se lo impida. Darle una pensada!!
