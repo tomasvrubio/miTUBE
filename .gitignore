@@ -3,4 +3,5 @@ node_modules
 *~
 credentials.js
 tmp/*.mp3
+tmp/*.webm
 .vscode
