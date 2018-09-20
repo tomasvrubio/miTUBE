@@ -5,9 +5,7 @@ var nodemailer = require('nodemailer')
 
 var WorkTodo = require('./models/workTodo.js');
 
-var Youtube = require('./lib/youtube.js')(),
-    Synchronize = require('./lib/synchronize.js')(),
-    Gmusic = require('./lib/gmusic.js')(),
+var Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl.js')();
 
 //Database 
@@ -25,12 +23,7 @@ async function loop() {
   do {
     console.log("\n\nSoy el demonio encargado de trabajar.");
     
-    //await WorkTodo.find({state:"upl"}, async function(err, uploads){ 
-    await WorkTodo.find({state:"upl"}).then(async function(uploads){ 
-      //Prueba para saber si hace las cosas en orden.
-      //await sleep(2500);
-      //console.log("He terminado en la función tras la query.")
-      
+    await WorkTodo.find({state:"upl"}).then(async function(uploads){       
       
       if (uploads.length==0)
         console.log("Sin subidas que realizar.");
@@ -47,32 +40,26 @@ async function loop() {
             console.log("No hay archivo para la canción " + work.songId);
             work.state = "err";
             work.dateLastMovement = Date.now();
-            //work.save();
           } 
         });
+
+        console.log("Se ha modificado uploads tras el forEach??");
+        console.log(uploads);
+        //uploads.save(); //TODO: Tras las pruebas dejar de comentarlo
       }
 
-      console.log("Se ha modificado uploads tras el forEach??");
-      console.log(uploads);
-      //uploads.save();
-
-      //await WorkTodo.findOne({state:"new"}, async function(err, work){ 
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
-        if (work.length==0)
+        if (work.length==0) {
           console.log("No hay descargas que realizar. Dormir durante X segundos.");
-          //await sleep(2000); 
+          //await sleep(2000); //TODO: Tras las pruebas descomentar y pensar cuantos segundos lo quiero parado.
+        } 
         else {
           console.log("Hay que bajar la siguiente canción:");
           console.log(work);
 
-          //await YoutubeDL.download(work.songId).then(returnObject => {
-          //const returnObject = await YoutubeDL.download(work.songId);
-
-          // await Promise.all([ YoutubeDL.download(work.songId) ]).then( ([returnObject]) => {
           await YoutubeDL.download(work.songId).then(returnObject => {
             if (returnObject == 0) {
               console.log("Canción descargada.");
-              //Marcar trabajo como "upl".
               work.state = "upl";
               work.dateLastMovement = Date.now();
               work.save();
@@ -88,7 +75,7 @@ async function loop() {
 
     //  SI HUBIESE ALGÚN ERROR DEMASIADO GRAVE SALIR DEL BUCLE Y FINALIZAR DEMONIO?
     
-    await sleep(2000); //Esta espera tengo que quitarla y dejar la de arriba.
+    await sleep(2000); //TODO: Borrar tras pruebas.
   } while (active);
 }
 

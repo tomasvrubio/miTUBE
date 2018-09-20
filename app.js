@@ -311,53 +311,62 @@ app.post('/process-user', function(req, res){
         return res.redirect(303, '/user');
       }
 
-      //Obtenemos los datos generales de la lista de Youtube
-      Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
-
-        //TODO: Quitar tanto código de aquí e insertar las funciones creadas: createRelation / createList
-  
-        //En caso de que sea una lista válida de Youtube
-        if (playlistInfo.pageInfo.totalResults == 1){
-          ListUser.insertMany({
-            listId: listId, 
-            name: req.body.name, 
-            email: req.session.email, 
-            created: Date.now()
-          },function(err){
-              if(err) console.error(err.stack);
-          });
-          console.log("Lista insertada en BBDD");
-          //Obtenemos los datos de cada una de las canciones de la lista de Youtube
-          Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
-            var itemsMapped = playlistItems.map(function(item){
-              return {
-                songId: item.resourceId.videoId,
-                originalName: item.title,
-                added: item.publishedAt                  
-              }
-            });
-            // console.log(itemsMapped);
-
-           //Insertamos las canciones en la tabla de detalle de lista
-            List.insertMany({
-              listId: listId,
-              nameYT: playlistInfo.items[0].snippet.title,
-              eTag: playlistItems.etag, //Revisar si esto va bien.
-              updated: Date.now(),
-              songs: itemsMapped
-            },function(err){
-              if (err) console.error(err.stack);
-
-              Synchronize.generateWorkUpload(listId).then(returnObject => {
-                console.log("Canciones metidas en workTodo.");
-              });
-            });
-          });
-        } else {
-          console.log("Url no válida como lista de Youtube");
-        }
-        return res.redirect(303, '/user');
+      Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.email)
+      .then(returnObject => {
+        Synchronize.createList(credentials.youtube.apiKey, listId).then(returnObject => {
+          Synchronize.generateWorkUpload(listId).then(returnObject => {
+            console.log("Canciones metidas en workTodo.");
+          }).catch(console.error);
+        }).catch(console.error);
       }).catch(console.error);
+
+      // //Obtenemos los datos generales de la lista de Youtube
+      // Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
+
+      //   //TODO: Quitar tanto código de aquí e insertar las funciones creadas: createRelation / createList
+  
+      //   //En caso de que sea una lista válida de Youtube
+      //   if (playlistInfo.pageInfo.totalResults == 1){
+      //     ListUser.insertMany({
+      //       listId: listId, 
+      //       name: req.body.name, 
+      //       email: req.session.email, 
+      //       created: Date.now()
+      //     },function(err){
+      //         if(err) console.error(err.stack);
+      //     });
+      //     console.log("Lista insertada en BBDD");
+      //     //Obtenemos los datos de cada una de las canciones de la lista de Youtube
+      //     Youtube.listItems(credentials.youtube.apiKey, listId).then(playlistItems => {
+      //       var itemsMapped = playlistItems.map(function(item){
+      //         return {
+      //           songId: item.resourceId.videoId,
+      //           originalName: item.title,
+      //           added: item.publishedAt                  
+      //         }
+      //       });
+      //       // console.log(itemsMapped);
+
+      //      //Insertamos las canciones en la tabla de detalle de lista
+      //       List.insertMany({
+      //         listId: listId,
+      //         nameYT: playlistInfo.items[0].snippet.title,
+      //         eTag: playlistItems.etag, //Revisar si esto va bien.
+      //         updated: Date.now(),
+      //         songs: itemsMapped
+      //       },function(err){
+      //         if (err) console.error(err.stack);
+
+      //         Synchronize.generateWorkUpload(listId).then(returnObject => {
+      //           console.log("Canciones metidas en workTodo.");
+      //         });
+      //       });
+      //     });
+      //   } else {
+      //     console.log("Url no válida como lista de Youtube");
+      //   }
+      //   return res.redirect(303, '/user');
+      // }).catch(console.error);
       
     });
   } 
