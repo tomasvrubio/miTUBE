@@ -302,29 +302,32 @@ app.post('/process-user', function(req, res){
     ]).then( ([ usedId, usedName ]) => {
 
       if (usedId){
-        console.log("URL ya utilizada en otra lista.");
+        console.log("URL ya utilizada en otra lista del usuario.");
         return res.redirect(303, '/user');
       }
 
       if (usedName){
-        console.log("Nombre ya utilizado en otra lista.");
+        console.log("Nombre ya utilizado en otra lista del usuario.");
         return res.redirect(303, '/user');
       }
 
       Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.email)
-      .then(returnObject => {
-        Synchronize.createList(credentials.youtube.apiKey, listId).then(returnObject => {
+      .then(nameYT => {
+        //TODO: Fijarme si ya existe la lista. En ese caso no hay que meterla ya lo habrá hecho antes otro usuario. Pero hacerlo dentro de la función y devolver un OK.
+        //TODO: Lanzar las promesas en paralelo.
+        Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
           Synchronize.generateWorkUpload(listId).then(returnObject => {
             console.log("Canciones metidas en workTodo.");
           }).catch(console.error);
+          return res.redirect(303, '/user');
         }).catch(console.error);
       }).catch(console.error);
 
+
+       //   //TODO: Quitar tanto código de aquí e insertar las funciones creadas: createRelation / createList
       // //Obtenemos los datos generales de la lista de Youtube
       // Youtube.listInfo(credentials.youtube.apiKey, listId).then(playlistInfo => {
 
-      //   //TODO: Quitar tanto código de aquí e insertar las funciones creadas: createRelation / createList
-  
       //   //En caso de que sea una lista válida de Youtube
       //   if (playlistInfo.pageInfo.totalResults == 1){
       //     ListUser.insertMany({
