@@ -7,7 +7,7 @@ var listSchema = mongoose.Schema({
     etag: String,
     updated: Date,
     songs: [{
-        songId: {type: String}, //Youtube ID //Esto tengo que ver lo de que sea único ya que en YT si que puede ir una canción repetida en una lista.
+        songId: {type: String}, 
         originalName: String,
         name: String,
         artist: String,

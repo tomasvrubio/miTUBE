@@ -4,8 +4,7 @@ var mongoose = require('mongoose');
 var workDoneSchema = mongoose.Schema({
 	songId: String,
 	listId: String,
-	email: String, 
-	state: Date,
+	email: String,
 	dateLastMovement: Date,
 });
 

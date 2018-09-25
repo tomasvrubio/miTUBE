@@ -1,9 +1,8 @@
 var mongoose = require('mongoose'),
 	bcrypt = require('bcrypt-nodejs');
-var passportLocalMongoose = require("passport-local-mongoose")
+var passportLocalMongoose = require("passport-local-mongoose");
 
 var userSchema = mongoose.Schema({
-	//authId: String, REVISAR: Esto creo que se puede borrar
 	username: String,
 	password: String,
 	email: String,
