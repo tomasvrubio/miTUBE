@@ -110,7 +110,14 @@ async function loop() {
             else if (returnObject == 1){
               console.log("No se ha podido descargar la canción.");
               //Paso las canciones a "err" para que no las esté reintentando??? Luego desde una web de administración podría hacer que todas rearrancasen.
-              //Para este caso debería ver si hay una nueva versión del programa. //En caso de que no lo hubiese, como puedo estar fallando durante horas, debería dormir el programa unos cuantos minutos. ¿Y me podría avisar?   
+              //Para este caso debería ver si hay una nueva versión del programa. //En caso de que no lo hubiese, como puedo estar fallando durante horas, debería dormir el programa unos cuantos minutos. ¿Y me podría avisar?
+              WorkTodo.updateMany(
+                {songId:work.songId, state:"new"},
+                {$set: { state:"err", dateLastMovement:Date.now() }}, function(err, newwork){
+                  console.log("Canciones marcadas como err");
+                  console.log(newwork);
+                }
+              );  
             }
           }).catch(err => {
             console.error(err.stack);

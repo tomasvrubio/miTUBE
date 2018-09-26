@@ -7,16 +7,16 @@ var express = require('express'),
     LocalStrategy = require('passport-local'),
     passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
     moment = require('moment'),
+    morgan = require('morgan'),
+    winston = require('winston'),
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
-var Youtube = require('./lib/youtube.js')(),
-    Synchronize = require('./lib/synchronize.js')(),
-    Gmusic = require('./lib/gmusic.js')(),
-    YoutubeDL = require('./lib/youtubedl.js')();
+var Synchronize = require('./lib/synchronize.js')(),
+    Gmusic = require('./lib/gmusic.js')();
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -164,8 +164,8 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    //successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
-    successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
+    successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
+    //successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
     failureRedirect: "/",
     failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
@@ -193,24 +193,24 @@ app.post('/register', function(req, res){
 
   Promise.all([
     User.findOne({'email' : cart.email}),
-    User.aggregate([{$group : {_id : null, macMax : {$min : "$mac"}}}])
+    User.aggregate([{$group : {_id : null, macMax : {$max : "$mac"}}}])
   ]).then( ([user, macData]) => {
     var macMax = macData[0].macMax;
     console.log("El actual MAC tope es: "+macMax);
 
-    //TODO: Aquí lo tengo que convertir a decimal y luego retornar a hexa
     if (macMax){
-      var newMacArray = macMax.split(".");
-      if (+newMacArray<255){
-        newMacArray[5] = +newMacArray[5]+1;
+      var newMacArray = macMax.split(":");
+      var incrementalNumber = parseInt(newMacArray[5],16);
+      if (incrementalNumber<255){
+        newMacArray[5] = (incrementalNumber+1).toString(16);
       }
       else{
-        newMacArray[4] = +newMacArray[4]+1;
+        incrementalNumber = parseInt(newMacArray[4],16);
+        newMacArray[4] = (incrementalNumber+1).toString(16);
         newMacArray[5] = "00";
       }
         
-    } else{
-      //TODO: Dejo margen para poder aumentar el penúltimo número. Ahora mismo el máximo número de usuarios es 256.
+    } else {
       var newMacArray = [
         "b8", "27", "eb", 
         Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
@@ -218,7 +218,7 @@ app.post('/register', function(req, res){
       ];
     }
 
-    var newMac = newMacArray.join(".");
+    var newMac = newMacArray.join(":");
     console.log(newMac);
 
     if (user){
@@ -289,39 +289,40 @@ app.get('/user', isLoggedIn, function(req, res){
 
 app.post('/process-user', function(req, res){
 
-  var listId = req.body.url.split("list=")[1];
-  if (listId != null) {
+  if (req.body.url.includes("http"))
+    var listId = req.body.url.split("list=")[1];
+  else
+    var listId = req.body.url;
 
-    Promise.all([
-      ListUser.find({email:req.session.email, listId: listId}).count(),
-      ListUser.find({email:req.session.email, name: req.body.name}).count()
-    ]).then( ([ usedId, usedName ]) => {
+  Promise.all([
+    ListUser.find({email:req.session.email, listId: listId}).count(),
+    ListUser.find({email:req.session.email, name: req.body.name}).count()
+  ]).then( ([ usedId, usedName ]) => {
 
-      if (usedId){
-        console.log("URL ya utilizada en otra lista del usuario.");
-        return res.redirect(303, '/user');
-      }
+    if (usedId){
+      console.log("URL ya utilizada en otra lista del usuario.");
+      return res.redirect(303, '/user');
+    }
 
-      if (usedName){
-        console.log("Nombre ya utilizado en otra lista del usuario.");
-        return res.redirect(303, '/user');
-      }
+    if (usedName){
+      console.log("Nombre ya utilizado en otra lista del usuario.");
+      return res.redirect(303, '/user');
+    }
 
-      Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.email)
-      .then(nameYT => {
-        Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
-          Synchronize.generateWorkUpload(listId).then(returnObject => {
-            console.log("Canciones metidas en workTodo.");
-          }).catch(console.error);
-          return res.redirect(303, '/user');
+    Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.email)
+    .then(nameYT => {
+      Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
+        Synchronize.generateWorkUpload(listId).then(returnObject => {
+          console.log("Canciones metidas en workTodo.");
         }).catch(console.error);
-      }).catch(console.error);    
-    });
-  } 
-  else {
-    console.log("Url no válida como lista de Youtube");
-    return res.redirect(303, '/user');
-  }
+        return res.redirect(303, '/user');
+      }).catch(console.error);
+    }).catch(err => {
+      console.error(err.stack);
+      console.log("Url no válida como lista de Youtube");
+      return res.redirect(303, '/user');
+    }); 
+  });
 });
 
 app.get('/list', isLoggedIn, function(req, res){
