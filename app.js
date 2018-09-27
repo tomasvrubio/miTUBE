@@ -140,8 +140,8 @@ app.use(function(req, res, next){
 
 
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
+//TODO: A eliminar
 app.use(function(req, res, next){
-  console.log("Petición: " + req.url)
   console.log(req.session);
   next();
 });
@@ -209,7 +209,7 @@ app.post('/register', function(req, res){
     User.aggregate([{$group : {_id : null, macMax : {$max : "$mac"}}}])
   ]).then( ([user, macData]) => {
     var macMax = macData[0].macMax;
-    console.log("El actual MAC tope es: "+macMax);
+    logger.debug("Actual max MAC is: "+macMax);
 
     if (macMax){
       var newMacArray = macMax.split(":");
@@ -232,10 +232,10 @@ app.post('/register', function(req, res){
     }
 
     var newMac = newMacArray.join(":");
-    console.log(newMac);
+    logger.debug("New MAC is: "+newMac)
 
     if (user){
-      console.log("Usuario ya existente");
+      logger.debug("Allready registered user");
       res.render('register', {message: "Usuario ya registrado previamente"});
     } else {
       var newUser = new User({
@@ -248,8 +248,8 @@ app.post('/register', function(req, res){
       newUser.password =  newUser.generateHash(cart.pass);
       newUser.save(function(err) {
         if (err){
-          console.log("Error guardando en BBDD");
-          console.log(err);
+          logger.error("Can't save user in DB");
+          logger.error(err);
           res.render('register', {message: "Ha ocurrido un error técnico"});
         }
             
@@ -308,8 +308,8 @@ app.post('/process-user', function(req, res){
     var listId = req.body.url;
 
   Promise.all([
-    ListUser.find({email:req.session.email, listId: listId}).count(),
-    ListUser.find({email:req.session.email, name: req.body.name}).count()
+    ListUser.find({email:req.session.email, listId: listId}).countDocuments(),
+    ListUser.find({email:req.session.email, name: req.body.name}).countDocuments()
   ]).then( ([ usedId, usedName ]) => {
 
     if (usedId){
@@ -420,6 +420,5 @@ app.use(function(err, req, res, next){
 
 
 app.listen(app.get('port'), function(){
-  logger.info('Example app listening on port ');
-  console.log( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
+  logger.info( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
 });

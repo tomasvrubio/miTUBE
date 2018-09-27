@@ -31,31 +31,29 @@ async function loop() {
     ]).then(async ([uploads, users]) => {  
     
       userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
-      console.log(uploads);
-      console.log(userMacs);
 
       if (uploads.length==0)
         logger.debug("Nothing to upload.");
       else{
-        console.log("Hay que subir: ");
+        logger.debug("Songs to upload...");
         for (const work of uploads){  
           if (fs.existsSync("./tmp/"+work.songId+".mp3")){
-            console.log("Existe el archivo para la canción " + work.songId);
-            //Cambiamos metadatos
-            await YoutubeDL.changeMetadataAlbum(work.songId, "pruebando").then(returnObject => {
-              console.log("Metadato cambiado.");
+            
+            await YoutubeDL.changeMetadataAlbum(work.songId, work.listName).then(returnObject => {
+              logger.debug("Album metadata changed to "+work.listName+" for song "+work.songId);
             }).catch(err => {
-              console.error(err.stack);
+              logger.error(err.stack);
             });
             
-            console.log("Subiendo canción "+work.songId+"para el usuario "+work.email);
-            //Subimos canción. TODO: ¿Mejor hacerlo con un then tras el cambio de metadata, no?
+            logger.debug("Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
-              console.log("He terminado de subir la canción. Y me han devuelto: ");
               console.log(returnObject);
+              //TODO: ¿y ahora como me quedo con este id que me devuelve para la canción? He visto que para una misma canción y distintos usuarios devuelve exactamente el mismo id. ¿Me sirve para poder eliminarla después?
+              // ./tmp/FYH8DsU2WCk.mp3 (3c2ca648-b7e1-3cba-aee3-5f1a8da8f7c2)
+              // ./tmp/5k65sjY7csQ.mp3 (33a6b071-d50d-3a59-a615-579759d8afdf)	
 
               if (returnObject == 0){
-                console.log("Canción subida.");
+                logger.debug("Ended uploading song.");
 
                 WorkDone.insertMany({
                   songId: work.songId,
@@ -77,23 +75,22 @@ async function loop() {
                 work.remove();
               }
             }).catch(err => {
-              console.error(err.stack);
+              logger.error(err.stack);
             });
           }
           else{
-            console.log("No hay archivo para la canción " + work.songId);
+            logger.error("No file found for song "+work.songId);
             work.state = "err";
             work.dateLastMovement = Date.now();
             work.save();
           }
         }
       }
-
-      //¿Y si esto lo encadeno con un then a la función anterior??? O al menos meterlo en sus {}
+      
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
           logger.debug("Nothing to download. Sleeping...");
-          await sleep(10000); //TODO: Ajustar tiempo dormido. ¿2 minutos?
+          await sleep(10000); //TODO: Adjust SLEEP TIME (ms)
         } 
         else {
           logger.debug("Need to download "+work.songId);
@@ -109,19 +106,19 @@ async function loop() {
               );
             }
             else if (returnObject == 1){
-              console.log("No se ha podido descargar la canción.");
+              logger.error("Can't download song "+work.songId);
               //Paso las canciones a "err" para que no las esté reintentando??? Luego desde una web de administración podría hacer que todas rearrancasen.
               //Para este caso debería ver si hay una nueva versión del programa. //En caso de que no lo hubiese, como puedo estar fallando durante horas, debería dormir el programa unos cuantos minutos. ¿Y me podría avisar?
               WorkTodo.updateMany(
                 {songId:work.songId, state:"new"},
                 {$set: { state:"err", dateLastMovement:Date.now() }}, function(err, newwork){
-                  console.log("Canciones marcadas como err");
+                  logger.debug("Songs marked as 'err': ");
                   console.log(newwork);
                 }
               );  
             }
           }).catch(err => {
-            console.error(err.stack);
+            logger.error(err.stack);
           });
           
           await sleep(1000);
