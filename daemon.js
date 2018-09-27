@@ -24,7 +24,7 @@ const sleep = (milliseconds) => {
 //Declaration of the loop in async mode so we can call "await" inside to wait for promise end.
 async function loop() {
   do {
-    logger.info("\n\nAnother iteration of the Daemon.");
+    logger.info("Another iteration of the Daemon.");
     await Promise.all([
       WorkTodo.find({state:"upl"}),
       User.find({},{"_id":0, "email":1, "mac":1})
@@ -35,7 +35,7 @@ async function loop() {
       console.log(userMacs);
 
       if (uploads.length==0)
-        console.log("Sin subidas que realizar.");
+        logger.debug("Nothing to upload.");
       else{
         console.log("Hay que subir: ");
         for (const work of uploads){  
@@ -56,7 +56,7 @@ async function loop() {
 
               if (returnObject == 0){
                 console.log("Canción subida.");
-                
+
                 WorkDone.insertMany({
                   songId: work.songId,
                   listId: work.listId,
@@ -65,11 +65,11 @@ async function loop() {
                 });
 
                 WorkTodo.find({songId: work.songId, state:"upl"}).countDocuments().then(uplWork => {
-                  logger.info('Pending uploads of '+work.songId+': '+uplWork);
+                  logger.debug('Pending uploads of '+work.songId+': '+uplWork);
                   if (uplWork == 1){
                     fs.unlink("./tmp/"+work.songId+".mp3", function (err) {
                         if (err) throw err;
-                        logger.info('File '+work.songId+' deleted');
+                        logger.debug('File '+work.songId+' deleted');
                     }); 
                   }
                 });
@@ -92,22 +92,19 @@ async function loop() {
       //¿Y si esto lo encadeno con un then a la función anterior??? O al menos meterlo en sus {}
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
-          console.log("No hay descargas que realizar. Dormir durante X segundos.");
-          await sleep(10000); //TODO: Tras las pruebas descomentar y pensar cuantos segundos lo quiero parado.
+          logger.debug("Nothing to download. Sleeping...");
+          await sleep(10000); //TODO: Ajustar tiempo dormido. ¿2 minutos?
         } 
         else {
-          console.log("Hay que bajar la siguiente canción:");
-          console.log(work);
-
+          logger.debug("Need to download "+work.songId);
 
           await YoutubeDL.download(work.songId).then(returnObject => {
             if (returnObject == 0) {
-              console.log("Canción descargada.");
+              logger.debug("Song "+work.songId+" downloaded");
               WorkTodo.updateMany(
                 {songId:work.songId, state:"new"},
-                {$set: { state:"upl", dateLastMovement:Date.now() }}, function(err, newwork){
-                  console.log("Canciones marcadas como upl");
-                  console.log(newwork);
+                {$set: { state:"upl", dateLastMovement:Date.now() }}, function(err){
+                  logger.debug("Works of "+work.songId+" with 'new' state moved to 'upl' state.");
                 }
               );
             }
