@@ -8,7 +8,6 @@ var express = require('express'),
     passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
     moment = require('moment'),
     morgan = require('morgan'),
-    winston = require('winston'),
     credentials = require('./credentials.js'), 
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -16,7 +15,8 @@ var express = require('express'),
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var Synchronize = require('./lib/synchronize.js')(),
-    Gmusic = require('./lib/gmusic.js')();
+    Gmusic = require('./lib/gmusic.js')(),
+    logger = require('./lib/logger');
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
@@ -31,6 +31,19 @@ var app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
+
+//Morgan logger
+app.use(morgan('dev', {
+  skip: function (req, res) {
+      return res.statusCode < 400
+  }, stream: process.stderr
+}));
+
+app.use(morgan('dev', {
+  skip: function (req, res) {
+      return res.statusCode >= 400
+  }, stream: process.stdout
+}));
 
 //Email sender
 var mailTransport = nodemailer.createTransport({
@@ -407,5 +420,6 @@ app.use(function(err, req, res, next){
 
 
 app.listen(app.get('port'), function(){
+  logger.info('Example app listening on port ');
   console.log( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
 });

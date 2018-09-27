@@ -8,7 +8,8 @@ var WorkTodo = require('./models/workTodo.js'),
     User = require('./models/user.js');
 
 var Gmusic = require('./lib/gmusic.js')(),
-    YoutubeDL = require('./lib/youtubedl.js')();
+    YoutubeDL = require('./lib/youtubedl.js')(),
+    logger = require('./lib/logger');
 
 //Database 
 mongoose.connect(credentials.mongo.connectionString);
@@ -23,7 +24,7 @@ const sleep = (milliseconds) => {
 //Declaration of the loop in async mode so we can call "await" inside to wait for promise end.
 async function loop() {
   do {
-    console.log("\n\nSoy el demonio encargado de trabajar.");
+    logger.info("\n\nAnother iteration of the Daemon.");
     await Promise.all([
       WorkTodo.find({state:"upl"}),
       User.find({},{"_id":0, "email":1, "mac":1})
@@ -47,6 +48,7 @@ async function loop() {
               console.error(err.stack);
             });
             
+            console.log("Subiendo canción "+work.songId+"para el usuario "+work.email);
             //Subimos canción. TODO: ¿Mejor hacerlo con un then tras el cambio de metadata, no?
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
               console.log("He terminado de subir la canción. Y me han devuelto: ");
@@ -54,7 +56,7 @@ async function loop() {
 
               if (returnObject == 0){
                 console.log("Canción subida.");
-                //Guardo trabajo hecho en DONE.
+                
                 WorkDone.insertMany({
                   songId: work.songId,
                   listId: work.listId,
@@ -62,15 +64,17 @@ async function loop() {
                   dateLastMovement: Date.now()
                 });
 
+                WorkTodo.find({songId: work.songId, state:"upl"}).countDocuments().then(uplWork => {
+                  logger.info('Pending uploads of '+work.songId+': '+uplWork);
+                  if (uplWork == 1){
+                    fs.unlink("./tmp/"+work.songId+".mp3", function (err) {
+                        if (err) throw err;
+                        logger.info('File '+work.songId+' deleted');
+                    }); 
+                  }
+                });
+                
                 work.remove();
-                //Ahora compruebo si hay algún trabajo más de esa canción. En caso de que no haya la elimino.
-                var sameSong = uploads.filter(obj => { return obj.songId == work.songId});
-                console.log(sameSong);
-                //TODO: Conseguir diferenciar que hay más trabajos pendientes.
-                // if (sameSong.length() == 0){
-                //   console.log("Tenemos que eliminar "+work.songId);
-                //   //TODO: Eliminar mp3.
-                // }
               }
             }).catch(err => {
               console.error(err.stack);
@@ -87,9 +91,9 @@ async function loop() {
 
       //¿Y si esto lo encadeno con un then a la función anterior??? O al menos meterlo en sus {}
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
-        if (work.length==0) {
+        if (work==null) {
           console.log("No hay descargas que realizar. Dormir durante X segundos.");
-          //await sleep(2000); //TODO: Tras las pruebas descomentar y pensar cuantos segundos lo quiero parado.
+          await sleep(10000); //TODO: Tras las pruebas descomentar y pensar cuantos segundos lo quiero parado.
         } 
         else {
           console.log("Hay que bajar la siguiente canción:");
@@ -121,14 +125,14 @@ async function loop() {
             }
           }).catch(err => {
             console.error(err.stack);
-          });           
+          });
+          
+          await sleep(1000);
         }
       });
     });
 
     //  SI HUBIESE ALGÚN ERROR DEMASIADO GRAVE SALIR DEL BUCLE Y FINALIZAR DEMONIO?
-    
-    await sleep(2000); //TODO: Borrar tras pruebas.
   } while (active);
 }
 
