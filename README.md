@@ -1,4 +1,4 @@
-# miTUBE  ****WIP****
+# miTUBE  [WIP]
 Web application to synchronize music of the videos you have in Youtube Lists to your devices through Google Music.
 
 ### Requisitos
@@ -50,8 +50,10 @@ module.exports = {
   [] Eliminar cancion. 
 
 ``` 
-gmsync up -U "$mac_lista" -c $usuario_lista "data/$nombre_lista"
+gmdelete -u "pedrin@gmail.com" -d -f "id:e4482437-03aa-3097-a3e6-9d7f4d535822"
 ```
+El id tengo que ver como lo recupero cuando termino de subir una canción
+
 
 * ¿Cómo se que un usuario se conecta por primera vez? Lo necesito para que esa primera vez sincronice con googleMusic y consiga su token de autenticación. Luego ya no se debe solicitar nunca más. Se me ocurre variable en BBDD que cargue cuando haga login y que luego ya se almacene en la información del usuario. ¿su cookie o tengo otro sitio mejor y que no esté viajando por la red?
   * Lo he puesto en el redirect del login satisfactorio. Lo que pasa es que si alguien se pone a navegar por los links de la cabecera de la aplicación sin haber sincronizado con gmusic no habrá nada que se lo impida. Darle una pensada!!

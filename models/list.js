@@ -12,6 +12,7 @@ var listSchema = mongoose.Schema({
         name: String,
         artist: String,
         added: Date,
+        gmusicId: String,
         //duration: String,
     }],
 });

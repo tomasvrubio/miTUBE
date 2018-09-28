@@ -142,7 +142,8 @@ app.use(function(req, res, next){
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
 //TODO: A eliminar
 app.use(function(req, res, next){
-  console.log(req.session);
+  // console.log(req.session);
+  logger.debug(JSON.stringify(req.session));
   next();
 });
 
@@ -202,7 +203,7 @@ app.post('/register', function(req, res){
     email: req.body.email.toLowerCase(),
     pass: Math.random().toString().replace(/^0\.0*/, ''),
   };
-  console.log(cart); //TODO: A eliminar
+  logger.debug(JSON.stringify(cart)); //TODO: A eliminar
 
   Promise.all([
     User.findOne({'email' : cart.email}),
@@ -250,27 +251,27 @@ app.post('/register', function(req, res){
         if (err){
           logger.error("Can't save user in DB");
           logger.error(err);
-          res.render('register', {message: "Ha ocurrido un error técnico"});
+          res.render("register", {message: "Ha ocurrido un error técnico"});
         }
             
-        res.render('email/email_lite', { layout: null, cart: cart }, function(err,html){
-          if(err) console.log('error in email template');
+        res.render("email/email_lite", { layout: null, cart: cart }, function(err,html){
+          if(err) logger.error("Problems using email template");
           mailTransport.sendMail({
             from: '"miTUBE": desarrollovazquezrubio@gmail.com',
             to: cart.email,
-            subject: 'Here is your login information',
+            subject: "Here is your login information",
             html: html,
             generateTextFromHtml: true
           }, function(err){
-            if(err) console.error('Unable to send confirmation: ' + err.stack);
+            if(err) logger.error("Unable to send email: %o",err.stack);  
           });
         });
-        console.log("Usuario almacenado en BBDD");
+        logger.debug("User saved to DB");
         res.render('register', {message: "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso."});
       });
     }
   }).catch(err => {
-    console.error(err.stack);
+    logger.error("Problems searching if exists User or what is the max MAC: "+JSON.stringify(err.stack));
     //TODO: Y a donde voy?
   });
 });
@@ -313,12 +314,12 @@ app.post('/process-user', function(req, res){
   ]).then( ([ usedId, usedName ]) => {
 
     if (usedId){
-      console.log("URL ya utilizada en otra lista del usuario.");
+      logger.debug("URL ya utilizada en otra lista del usuario.");
       return res.redirect(303, '/user');
     }
 
     if (usedName){
-      console.log("Nombre ya utilizado en otra lista del usuario.");
+      logger.debug("Nombre ya utilizado en otra lista del usuario.");
       return res.redirect(303, '/user');
     }
 
@@ -326,13 +327,13 @@ app.post('/process-user', function(req, res){
     .then(nameYT => {
       Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
         Synchronize.generateWorkUpload(listId).then(returnObject => {
-          console.log("Canciones metidas en workTodo.");
+          logger.debug("Canciones metidas en workTodo.");
         }).catch(console.error);
         return res.redirect(303, '/user');
       }).catch(console.error);
     }).catch(err => {
       console.error(err.stack);
-      console.log("Url no válida como lista de Youtube");
+      logger.debug("Url no válida como lista de Youtube");
       return res.redirect(303, '/user');
     }); 
   });
@@ -345,7 +346,7 @@ app.get('/list', isLoggedIn, function(req, res){
     List.findOne({listId:req.query.listid})
   ]).then( ([listUser, list]) => {
     if (listUser == null || list == null){
-      console.log("Lista sin detalles almacenados.");
+      logger.debug("Lista sin detalles almacenados.");
       return res.redirect(303, '/user');
     }
 
@@ -367,7 +368,7 @@ app.get('/list', isLoggedIn, function(req, res){
     };
 
     Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
-      console.log("Comprobada lista "+req.query.listid);
+      logger.debug("Comprobada lista "+req.query.listid);
       res.render('list', context);
     });
   });
@@ -375,33 +376,34 @@ app.get('/list', isLoggedIn, function(req, res){
 
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
-  console.log("El codigo es: "+authCode);
+  logger.debug("El codigo es: "+authCode);
   
   //TODO: Pasar a usar la mac del usuario.
-  Gmusic.getAuth(req.session.email, 'B9:27:EB:F5:91:27', authCode).then(response => {
-    console.log("He terminado getAuth - Valor respuesta: ");
-    console.log(response);
-
-    var context = {
-      logged: req.isAuthenticated(),
-      message: response.message,
-      urlAuth: response.url,
-    };
-
-    //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
-    //TODO: Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
-    if (response.code == 1) {
-      console.log("Usuario sin autorización.");
-      res.render('gmusic', context);
-    } 
-    else if (response.code == 2 || response.code == 3) { //No estoy seguro de que este caso vaya a funcionar bien porque me falta la URL de autenticación. Como he montado la función no la devuelve, ¿no?
-      console.log("Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");     
-      res.render('gmusic', context);
-    } 
-    else if (response.code == 0) {
-      console.log("Usuario autorizado.");
-      res.redirect(303, '/user'); 
-    }
+  User.findOne({email:req.session.email}).then(user => {
+    Gmusic.getAuth(req.session.email, user.mac, authCode).then(response => {
+      logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));
+  
+      var context = {
+        logged: req.isAuthenticated(),
+        message: response.message,
+        urlAuth: response.url,
+      };
+  
+      //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
+      //TODO: Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
+      if (response.code == 1) {
+        logger.debug(req.session.email+": Usuario sin autorización.");
+        res.render('gmusic', context);
+      } 
+      else if (response.code == 2 || response.code == 3) { //No estoy seguro de que este caso vaya a funcionar bien porque me falta la URL de autenticación. Como he montado la función no la devuelve, ¿no?
+        logger.debug(req.session.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");     
+        res.render('gmusic', context);
+      } 
+      else if (response.code == 0) {
+        logger.debug(req.session.email+": Usuario autorizado.");
+        res.redirect(303, '/user'); 
+      }
+    });
   });
 });
 
