@@ -178,8 +178,8 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
-    //successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
+    // successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
+    successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
     failureRedirect: "/",
     failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
@@ -367,8 +367,12 @@ app.get('/list', isLoggedIn, function(req, res){
       })
     };
 
+    //TODO: Corregir la posición de esta llamada. Si quiero mostrar la info actualizada tiene que ir antes de la query a BD
     Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
       logger.debug("Comprobada lista "+req.query.listid);
+      res.render('list', context);
+    }).catch(error => {
+      logger.error("Can't check if list is updated - "+error);
       res.render('list', context);
     });
   });
@@ -403,6 +407,9 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         logger.debug(req.session.email+": Usuario autorizado.");
         res.redirect(303, '/user'); 
       }
+    }).catch(err => {
+      logger.error("Gmusic coudn't be reached.");
+      res.redirect(303, '/logout');
     });
   });
 });
