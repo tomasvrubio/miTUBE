@@ -47,12 +47,14 @@ module.exports = {
 * Implementar llamadas a gmusicapi.
   [x] Generar TOKEN.
   [x] Subir cancion.
-  [] Eliminar cancion. 
+  [] Eliminar cancion.
 
 ``` 
 gmdelete -u "pedrin@gmail.com" -d -f "id:e4482437-03aa-3097-a3e6-9d7f4d535822"
 ```
 El id tengo que ver como lo recupero cuando termino de subir una canción
+
+Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios... Ponerlo como funcionalidad opcional.
 
 
 * ¿Cómo se que un usuario se conecta por primera vez? Lo necesito para que esa primera vez sincronice con googleMusic y consiga su token de autenticación. Luego ya no se debe solicitar nunca más. Se me ocurre variable en BBDD que cargue cuando haga login y que luego ya se almacene en la información del usuario. ¿su cookie o tengo otro sitio mejor y que no esté viajando por la red?

@@ -340,41 +340,40 @@ app.post('/process-user', function(req, res){
 });
 
 app.get('/list', isLoggedIn, function(req, res){
+  Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
+    logger.debug("Comprobada lista "+req.query.listid);
 
-  Promise.all([
-    ListUser.findOne({email:req.session.email, listId: req.query.listid}),
-    List.findOne({listId:req.query.listid})
-  ]).then( ([listUser, list]) => {
-    if (listUser == null || list == null){
-      logger.debug("Lista sin detalles almacenados.");
-      return res.redirect(303, '/user');
-    }
+    Promise.all([
+      ListUser.findOne({email:req.session.email, listId: req.query.listid}),
+      List.findOne({listId:req.query.listid})
+    ]).then( ([listUser, list]) => {
+      if (listUser == null || list == null){
+        logger.debug("Lista sin detalles almacenados.");
+        return res.redirect(303, '/user');
+      }
+  
+      var context = {
+        logged: req.isAuthenticated(),
+        listId: req.query.listid,
+        name: listUser.name,
+        updated: listUser.updated,
+        nameYT: list.nameYT,
+        songs: list.songs.map(function(song){
+          return {
+              songId: song.songId,
+              originalName: song.originalName,
+              name: song.name,
+              artist: song.artist,
+              added: moment(song.added).format('DD / MM / YYYY')
+            }
+        })
+      };
 
-    var context = {
-      logged: req.isAuthenticated(),
-      listId: req.query.listid,
-      name: listUser.name,
-      updated: listUser.updated,
-      nameYT: list.nameYT,
-      songs: list.songs.map(function(song){
-        return {
-            songId: song.songId,
-            originalName: song.originalName,
-            name: song.name,
-            artist: song.artist,
-            added: moment(song.added).format('DD / MM / YYYY')
-          }
-      })
-    };
-
-    //TODO: Corregir la posición de esta llamada. Si quiero mostrar la info actualizada tiene que ir antes de la query a BD
-    Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
-      logger.debug("Comprobada lista "+req.query.listid);
-      res.render('list', context);
-    }).catch(error => {
-      logger.error("Can't check if list is updated - "+error);
       res.render('list', context);
     });
+  }).catch(error => {
+    logger.error("Can't check if list is updated - "+error);
+    res.render('list', context);
   });
 });
 
@@ -382,7 +381,6 @@ app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   logger.debug("El codigo es: "+authCode);
   
-  //TODO: Pasar a usar la mac del usuario.
   User.findOne({email:req.session.email}).then(user => {
     Gmusic.getAuth(req.session.email, user.mac, authCode).then(response => {
       logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));

@@ -48,9 +48,7 @@ async function loop() {
             logger.debug("Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
               console.log(returnObject);
-              //TODO: ¿y ahora como me quedo con este id que me devuelve para la canción? He visto que para una misma canción y distintos usuarios devuelve exactamente el mismo id. ¿Me sirve para poder eliminarla después?
-              // ./tmp/FYH8DsU2WCk.mp3 (3c2ca648-b7e1-3cba-aee3-5f1a8da8f7c2)
-              // ./tmp/5k65sjY7csQ.mp3 (33a6b071-d50d-3a59-a615-579759d8afdf)	
+              //TODO: Almacenar uuid devuelto en el registro de la canción de List
 
               if (returnObject == 0){
                 logger.debug("Ended uploading song.");
