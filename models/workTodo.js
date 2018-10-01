@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 //Trabajo con canciones que está pendiente.
 var workTodoSchema = mongoose.Schema({
 	songId: String,
+	gmusicId: String,
 	listId: String,
 	listName: String,
 	email: String, 
