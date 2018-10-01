@@ -5,6 +5,7 @@ var workDoneSchema = mongoose.Schema({
 	songId: String,
 	listId: String,
 	email: String,
+	action: String,
 	dateLastMovement: Date,
 });
 

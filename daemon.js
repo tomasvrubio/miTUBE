@@ -49,6 +49,8 @@ async function loop() {
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
               console.log(returnObject);
               //TODO: Almacenar uuid devuelto en el registro de la canción de List
+              //¿Como modifico el gmusicId de una song dentro de List?
+
 
               if (returnObject == 0){
                 logger.debug("Ended uploading song.");
@@ -57,6 +59,7 @@ async function loop() {
                   songId: work.songId,
                   listId: work.listId,
                   email: work.email,
+                  action: "upl",
                   dateLastMovement: Date.now()
                 });
 

@@ -377,6 +377,19 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+//Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
+app.get('/userSync', isLoggedIn, function(req, res){
+  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.email).then(returnObject => {
+    logger.debug("Comprobadas todas las listas del usuario");
+  }).catch(err => {
+    console.log(err);
+  });
+
+  logger.debug("Lanzada comprobación listas usuario");
+
+  return res.redirect(303, '/user');
+});
+
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   logger.debug("El codigo es: "+authCode);
