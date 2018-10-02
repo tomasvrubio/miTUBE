@@ -10,6 +10,7 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 * gmusicapi-scripts (pip3 install gmusicapi-scripts --user)
 * youtube-dl (pip3 install youtube-dl --user)
   * Requerido instalar "ffmpeg" [FEDORA]
+  * Actualización cuando empecemos a detectar errores en descarga.
 * mid3v2
 
 
@@ -45,12 +46,7 @@ module.exports = {
 * Implementar llamadas a gmusicapi.
   [x] Generar TOKEN.
   [x] Subir cancion.
-  [] Eliminar cancion.
-
-``` 
-gmdelete -u "pedrin@gmail.com" -d -f "id:e4482437-03aa-3097-a3e6-9d7f4d535822"
-```
-El id tengo que ver como lo recupero cuando termino de subir una canción
+  [x] Eliminar cancion.
 
 Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios... Ponerlo como funcionalidad opcional.
 
@@ -60,4 +56,7 @@ Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios..
 * Corregir pantallas que se muestran mientras se va a avanzando en la autorización de gmusic. Mostrar información de lo que hay que hacer. Cuando ya sólo queda añadir el método de pago indicar que hay que pulsar botón para refrescar la consulta y que si todo va bien se redirigirá al usuario a su página de listas.
   * Si quiero que entre por primera vez en google music: https://play.google.com/music
 
-* ¿Que hago con los trabajos que marco como "err"? Me gustaría hacer una página de admin desde los que pudiese relanzarlos (lo más seguro de que fallen es que no se hayan podido descargar porque haya que actualizar youtube-dl).
+* ¿Que hago con los trabajos que marco como "err"? Me gustaría hacer una página de admin desde los que pudiese relanzarlos (lo más seguro de que fallen es que no se hayan podido descargar porque haya que actualizar youtube-dl).De err voy a tener "err-dwn" para descarga y "err-upl" para subida al espacio de google del usuario. Me falta un tercero que sería "err-del" para eliminar canciones y no poder acceder al perfil del usuario.
+
+* Hacer una página de Admin desde la que pueda ver el volumen de trabajos pendientes, en error, poder ver gráficas de uso (para trastear con otras librerías), datos de los usuarios... También una pestaña donde pueda autorizar el acceso de los usuarios. Aún así también lo podré hacer desde un link que llegue al correo del administrador.
+

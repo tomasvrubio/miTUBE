@@ -1,17 +1,17 @@
-var nodemailer = require('nodemailer')
+var nodemailer = require('nodemailer'),
     mongoose = require('mongoose'),
     fs = require('fs');
     credentials = require('./credentials.js');
 
 var WorkTodo = require('./models/workTodo.js'),
     WorkDone = require('./models/workDone.js'),
-    User = require('./models/user.js');
+    User = require('./models/user.js'),
+    List = require('./models/list.js');
 
 var Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl.js')(),
     logger = require('./lib/logger');
 
-//Database 
 mongoose.connect(credentials.mongo.connectionString);
 
 var active = 1; //To mantain de loop alive
@@ -48,12 +48,16 @@ async function loop() {
             logger.debug("Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
               console.log(returnObject);
-              //TODO: Almacenar uuid devuelto en el registro de la canción de List
-              //¿Como modifico el gmusicId de una song dentro de List?
 
-
-              if (returnObject == 0){
+              if (returnObject.code == 0){
                 logger.debug("Ended uploading song.");
+
+                List.findOneAndUpdate(
+                  {listId:work.listId, "songs.songId":work.songId}, 
+                  {"$set": { "songs.$.gmusicId":returnObject.uuid }}
+                ).then(returnObject => {
+                  logger.debug("Uuid introduced into List. Returned: "+JSON.stringify(returnObject));
+                });
 
                 WorkDone.insertMany({
                   songId: work.songId,
@@ -81,7 +85,7 @@ async function loop() {
           }
           else{
             logger.error("No file found for song "+work.songId);
-            work.state = "err";
+            work.state = "err-upl";
             work.dateLastMovement = Date.now();
             work.save();
           }
@@ -108,11 +112,10 @@ async function loop() {
             }
             else if (returnObject == 1){
               logger.error("Can't download song "+work.songId);
-              //Paso las canciones a "err" para que no las esté reintentando??? Luego desde una web de administración podría hacer que todas rearrancasen.
-              //Para este caso debería ver si hay una nueva versión del programa. //En caso de que no lo hubiese, como puedo estar fallando durante horas, debería dormir el programa unos cuantos minutos. ¿Y me podría avisar?
+
               WorkTodo.updateMany(
                 {songId:work.songId, state:"new"},
-                {$set: { state:"err", dateLastMovement:Date.now() }}, function(err, newwork){
+                {$set: { state:"err-dwn", dateLastMovement:Date.now() }}, function(err, newwork){
                   logger.debug("Songs marked as 'err': ");
                   console.log(newwork);
                 }

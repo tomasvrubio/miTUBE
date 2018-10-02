@@ -9,6 +9,7 @@ var express = require('express'),
     moment = require('moment'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
+    spawn = require("child_process").spawn,
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
     User = require('./models/user.js');
@@ -441,4 +442,11 @@ app.use(function(err, req, res, next){
 
 app.listen(app.get('port'), function(){
   logger.info( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
+});
+
+
+//Call to daemon:
+const child = spawn('node ./daemon.js', {
+  stdio: 'inherit',
+  shell: true
 });
