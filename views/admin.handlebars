@@ -1,0 +1,42 @@
+<h1>Place where the admin can do things for the rest of the users</h1>
+
+
+<h6>Works in error state</h6>
+<!-- Mostrar resultados en tabla -->
+{{!-- TODO:
+
+    * Poner un botón selector a la izquierda, y uno para seleccionar a todos. Y tener un botón de relanzamiento de trabajos.
+
+    * Poder solicitar actualizaciones de todos, de usuarios o de listas.
+
+    * Autorizar acceso a aplicación. Tabla con solicitudes. Igual que el primero con un selector a la izquierda y un botón para lanzar la autorización.
+
+    * Tener algún tipo de estadísticas de movimiento por usuarios. Subida, creación de listas. 
+--}}
+
+<div>
+    <table id="miTabla" class="table">
+    <thead>
+        <tr>
+            <th scope="col">SongId</th>
+            <th scope="col">List</th>
+            <th scope="col">User</th>
+            <th scope="col">State</th>
+            <th scope="col">Date Last Movement</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each works}}
+        <tr>
+            <th><a href="https://www.youtube.com/watch?v={{songId}}">{{songId}}</a></th>
+            <th>{{listName}}</th>
+            <th>{{email}}</th>
+            <th>{{state}}</th>
+            <th>{{date}}</th>
+        </tr>
+    {{/each}}
+    </tbody>
+    </table>
+</div>
+
+

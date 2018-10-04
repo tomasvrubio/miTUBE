@@ -12,6 +12,7 @@ var express = require('express'),
     spawn = require("child_process").spawn,
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
+    WorkTodo = require('./models/workTodo.js'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
@@ -60,7 +61,7 @@ mongoose.connect(credentials.mongo.connectionString);
 
 
 app.use(favicon(__dirname + '/public/favicon.png'));
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public', {dotfiles: 'allow'}));
 app.use(require('body-parser').urlencoded({extended:true})); //Para poder usar variables de formulario en req.body
 app.use(require('cookie-parser')(credentials.cookieSecret));
 app.use(require('express-session')({
@@ -143,7 +144,6 @@ app.use(function(req, res, next){
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
 //TODO: A eliminar
 app.use(function(req, res, next){
-  // console.log(req.session);
   logger.debug(JSON.stringify(req.session));
   next();
 });
@@ -179,11 +179,12 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    // successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
-    successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
+    successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
+    //successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
     failureRedirect: "/",
     failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
+    logger.debug("¿Paso por aquí?");
     //Por esta función pasa en caso de que haya hecho un successRedirect y no haya indicado arriba la dirección. Para algún caso me puede interesar y hacer algo más con la petición recibida.  
     //console.log(req.session);
     //res.redirect(303, "/user");
@@ -399,30 +400,54 @@ app.all('/gmusic', isLoggedIn, function(req, res){
     Gmusic.getAuth(req.session.email, user.mac, authCode).then(response => {
       logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));
   
-      var context = {
-        logged: req.isAuthenticated(),
-        message: response.message,
-        urlAuth: response.url,
-      };
-  
-      //Ahora en función de lo que me devuelva me dirigiré a un sitio u otro.
-      //TODO: Codigos 1, 2 y 3 pueden ir agrupados? En ese caso será un if 0 y luego else.
-      if (response.code == 1) {
-        logger.debug(req.session.email+": Usuario sin autorización.");
-        res.render('gmusic', context);
-      } 
-      else if (response.code == 2 || response.code == 3) { //No estoy seguro de que este caso vaya a funcionar bien porque me falta la URL de autenticación. Como he montado la función no la devuelve, ¿no?
-        logger.debug(req.session.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");     
-        res.render('gmusic', context);
-      } 
-      else if (response.code == 0) {
-        logger.debug(req.session.email+": Usuario autorizado.");
+      if (response.code == 0) {
+        logger.debug(req.session.email+": Usuario autorizado googleMusic.");
+
+        req.session.gmusicAuth = true; 
         res.redirect(303, '/user'); 
+      } else {
+        var context = {
+          logged: req.isAuthenticated(),
+          gmusicAuth: req.session.gmusicAuth || false,
+          message: response.message,
+          urlAuth: response.url,
+        };
+
+        if (response.code == 1)
+          logger.debug(req.session.email+": Usuario sin autorización googleMusic.");
+        else
+          logger.debug(req.session.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");
+        
+        res.render('gmusic', context);
       }
     }).catch(err => {
       logger.error("Gmusic coudn't be reached.");
       res.redirect(303, '/logout');
     });
+  });
+});
+
+//Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
+
+app.get('/admin', isLoggedIn, function(req, res){
+  WorkTodo.find({state: {$in: [/^err/]}}, function(err, errorWorks){ 
+    console.log(errorWorks);
+    var context = {
+      logged: req.isAuthenticated(),
+      works: errorWorks.map(function(work){
+        return {
+          songId: work.songId,
+          listName: work.listName,
+          email: work.email,
+          state: work.state,
+          date: work.dateLastMovement,
+         }
+      })
+    };
+    
+    res.render('admin', context);
+  }).catch(err => {
+    logger.debug("Impossible to load admin works. Err: "+err);
   });
 });
 
@@ -445,8 +470,9 @@ app.listen(app.get('port'), function(){
 });
 
 
-//Call to daemon:
-const child = spawn('node ./daemon.js', {
-  stdio: 'inherit',
-  shell: true
-});
+//COMENTAR CUANDO ESTOY CON INTERNET MOVIL PARA NO GASTAR DATOS
+// Call to daemon:
+// const child = spawn('node ./daemon.js', {
+//   stdio: 'inherit',
+//   shell: true
+// });
