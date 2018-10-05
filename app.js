@@ -101,7 +101,8 @@ passport.use('local-login', new LocalStrategy({
 
         // all is well, return user
         else{
-          req.session.email = req.body.email; 
+          req.session.email = req.body.email;
+          req.session.role = user.role;
           return done(null, user);
         }
       });
@@ -145,6 +146,7 @@ app.use(function(req, res, next){
 //TODO: A eliminar
 app.use(function(req, res, next){
   logger.debug(JSON.stringify(req.session));
+
   next();
 });
 
@@ -160,7 +162,7 @@ function isLoggedIn(req, res, next) {
 }
 
 
-
+//TODO: ¿Como puedo crear un context por defecto y luego ya ir completandolo en cada route en función de lo que necesite?
 //--------------Routing
 
 
@@ -171,9 +173,13 @@ app.get('/', function(req, res){
 
   var context = {
     logged: req.isAuthenticated(),
+    admin: req.session.admin || false,
+    gmusicAuth: req.session.gmusicAuth || false,
     name: req.session.username || "Anonymous",
     csrf: 'CSRF token goes here'
   };
+  logger.debug(JSON.stringify(context));
+
   res.render('home', context);
 });
 
@@ -199,6 +205,7 @@ app.get('/register', function(req, res){
   res.render('register', { csrf: 'CSRF token goes here' });
 });
 
+//TODO: Tendré que pasar context a register.
 app.post('/register', function(req, res){
   var cart = {
     name: req.body.name,
@@ -226,7 +233,8 @@ app.post('/register', function(req, res){
         newMacArray[5] = "00";
       }
         
-    } else {
+    } else { //Primer usuario de la aplicación. TODO: Hacerle role: "admin"
+      var newRole = "admin";
       var newMacArray = [
         "b8", "27", "eb", 
         Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
@@ -246,7 +254,7 @@ app.post('/register', function(req, res){
         email: cart.email,
         mac: newMac,
         created: Date.now(),
-        role: "deactivated"
+        role: newRole || "disabled", //TODO: Rol de la gente cuando el admin les autoriza? people?
       });
       newUser.password =  newUser.generateHash(cart.pass);
       newUser.save(function(err) {
@@ -255,7 +263,8 @@ app.post('/register', function(req, res){
           logger.error(err);
           res.render("register", {message: "Ha ocurrido un error técnico"});
         }
-            
+        
+        //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
         res.render("email/email_lite", { layout: null, cart: cart }, function(err,html){
           if(err) logger.error("Problems using email template");
           mailTransport.sendMail({
@@ -280,7 +289,8 @@ app.post('/register', function(req, res){
 
 app.get('/about', function(req, res){
   var context = {
-    logged: req.isAuthenticated()
+    logged: req.isAuthenticated(),
+    gmusicAuth: req.session.gmusicAuth || false,
   };
 
   res.render('about', context);
@@ -290,6 +300,7 @@ app.get('/user', isLoggedIn, function(req, res){
   ListUser.find({email:req.session.email}, function(err, lists){ 
     var context = {
       logged: req.isAuthenticated(),
+      gmusicAuth: req.session.gmusicAuth || false,
       lists: lists.map(function(list){
       return {
           listId: list.listId,
@@ -356,6 +367,7 @@ app.get('/list', isLoggedIn, function(req, res){
   
       var context = {
         logged: req.isAuthenticated(),
+        gmusicAuth: req.session.gmusicAuth || false,
         listId: req.query.listid,
         name: listUser.name,
         updated: listUser.updated,
@@ -392,6 +404,8 @@ app.get('/userSync', isLoggedIn, function(req, res){
   return res.redirect(303, '/user');
 });
 
+
+//Usuario entra a la aplicación. Lo primero que hace es comprobarse si ha dado autorizacion a gmusic. Si ha dado se le muestra todo normal menos la parte de admin (a menos que lo sea). Si no ha dado la auth se va a quedar en la pantalla hasta que lo haga.
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   logger.debug("El codigo es: "+authCode);
@@ -412,6 +426,8 @@ app.all('/gmusic', isLoggedIn, function(req, res){
           message: response.message,
           urlAuth: response.url,
         };
+
+        logger.debug(context.gmusicAuth);
 
         if (response.code == 1)
           logger.debug(req.session.email+": Usuario sin autorización googleMusic.");
@@ -434,6 +450,7 @@ app.get('/admin', isLoggedIn, function(req, res){
     console.log(errorWorks);
     var context = {
       logged: req.isAuthenticated(),
+      gmusicAuth: req.session.gmusicAuth || false,
       works: errorWorks.map(function(work){
         return {
           songId: work.songId,
