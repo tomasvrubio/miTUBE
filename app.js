@@ -101,8 +101,10 @@ passport.use('local-login', new LocalStrategy({
 
         // all is well, return user
         else{
-          req.session.email = req.body.email;
-          req.session.role = user.role;
+          req.session.userdata.email = req.body.email;
+          req.session.userdata.role = user.role;
+          req.session.userdata.admin = (user.role == "admin");
+          req.session.userdata.username = user.username;
           return done(null, user);
         }
       });
@@ -167,15 +169,17 @@ function isLoggedIn(req, res, next) {
 
 
 app.get('/', function(req, res){
-  //En caso de estar autenticado la home será la página de listas del usuario
+  //If authenticated - Userpage is home
   if (req.isAuthenticated())
     return res.redirect(303, '/user');
 
+  req.session.userdata = {};
+
   var context = {
     logged: req.isAuthenticated(),
-    admin: req.session.admin || false,
-    gmusicAuth: req.session.gmusicAuth || false,
-    name: req.session.username || "Anonymous",
+    admin: req.session.userdata.admin || false,
+    gmusicAuth: req.session.userdata.gmusicAuth || false,
+    name: req.session.userdata.username || "Anonymous",
     csrf: 'CSRF token goes here'
   };
   logger.debug(JSON.stringify(context));
@@ -185,19 +189,26 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
-    //successRedirect: "/user", //Lo dejo mientras sigo haciendo pruebas para que vaya más rápido. Eliminarlo.
+    //successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
+    //successRedirect: "/user", //TODO: Eliminar tras terminar con pruebas.
     failureRedirect: "/",
     failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
     logger.debug("¿Paso por aquí?");
-    //Por esta función pasa en caso de que haya hecho un successRedirect y no haya indicado arriba la dirección. Para algún caso me puede interesar y hacer algo más con la petición recibida.  
-    //console.log(req.session);
+    console.log(req.session);
     //res.redirect(303, "/user");
+
+    //Aquí es donde tengo que revisar si el usuario ya está con un rol. Si no tiene aún no le puedo dejar entrar. Mostraría algún mensaje por pantalla indicando que debe esperar y que si quiere escriba al Admin.
+    if (req.session.userdata.role == "disabled"){
+      
+    } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
+      res.redirect(303, "/gmusic");
+    }    
 });
 
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
+  req.session.userdata = {};
   res.redirect(303,"/");
 });
 
@@ -218,6 +229,7 @@ app.post('/register', function(req, res){
     User.findOne({'email' : cart.email}),
     User.aggregate([{$group : {_id : null, macMax : {$max : "$mac"}}}])
   ]).then( ([user, macData]) => {
+    //----------------- Sólo hacer si se va a crear el usuario
     var macMax = macData[0].macMax;
     logger.debug("Actual max MAC is: "+macMax);
 
@@ -233,7 +245,7 @@ app.post('/register', function(req, res){
         newMacArray[5] = "00";
       }
         
-    } else { //Primer usuario de la aplicación. TODO: Hacerle role: "admin"
+    } else {
       var newRole = "admin";
       var newMacArray = [
         "b8", "27", "eb", 
@@ -244,6 +256,8 @@ app.post('/register', function(req, res){
 
     var newMac = newMacArray.join(":");
     logger.debug("New MAC is: "+newMac)
+    //-------------------- Hasta aquí habria que meter
+
 
     if (user){
       logger.debug("Allready registered user");
@@ -290,22 +304,26 @@ app.post('/register', function(req, res){
 app.get('/about', function(req, res){
   var context = {
     logged: req.isAuthenticated(),
-    gmusicAuth: req.session.gmusicAuth || false,
+    admin: req.session.userdata.admin || false,
+    name: req.session.userdata.username || "Anonymous",
+    gmusicAuth: req.session.userdata.gmusicAuth || false,
   };
 
   res.render('about', context);
 });
 
 app.get('/user', isLoggedIn, function(req, res){
-  ListUser.find({email:req.session.email}, function(err, lists){ 
+  ListUser.find({email:req.session.userdata.email}, function(err, lists){ 
     var context = {
       logged: req.isAuthenticated(),
-      gmusicAuth: req.session.gmusicAuth || false,
+      admin: req.session.userdata.admin || false,
+      gmusicAuth: req.session.userdata.gmusicAuth || false,
+      name: req.session.userdata.username || "Anonymous",
       lists: lists.map(function(list){
-      return {
-          listId: list.listId,
-          name: list.name,
-          created: moment(list.created).format('DD / MM / YYYY')
+        return {
+            listId: list.listId,
+            name: list.name,
+            created: moment(list.created).format('DD / MM / YYYY')
         }
       })
     };
@@ -322,8 +340,8 @@ app.post('/process-user', function(req, res){
     var listId = req.body.url;
 
   Promise.all([
-    ListUser.find({email:req.session.email, listId: listId}).countDocuments(),
-    ListUser.find({email:req.session.email, name: req.body.name}).countDocuments()
+    ListUser.find({email:req.session.userdata.email, listId: listId}).countDocuments(),
+    ListUser.find({email:req.session.userdata.email, name: req.body.name}).countDocuments()
   ]).then( ([ usedId, usedName ]) => {
 
     if (usedId){
@@ -336,7 +354,7 @@ app.post('/process-user', function(req, res){
       return res.redirect(303, '/user');
     }
 
-    Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.email)
+    Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.userdata.email)
     .then(nameYT => {
       Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
         Synchronize.generateWorkUpload(listId).then(returnObject => {
@@ -357,7 +375,7 @@ app.get('/list', isLoggedIn, function(req, res){
     logger.debug("Comprobada lista "+req.query.listid);
 
     Promise.all([
-      ListUser.findOne({email:req.session.email, listId: req.query.listid}),
+      ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
       List.findOne({listId:req.query.listid})
     ]).then( ([listUser, list]) => {
       if (listUser == null || list == null){
@@ -367,9 +385,10 @@ app.get('/list', isLoggedIn, function(req, res){
   
       var context = {
         logged: req.isAuthenticated(),
-        gmusicAuth: req.session.gmusicAuth || false,
+        gmusicAuth: req.session.userdata.gmusicAuth || false,
+        admin: req.session.userdata.admin || false,
+        name: req.session.userdata.username || "Anonymous",
         listId: req.query.listid,
-        name: listUser.name,
         updated: listUser.updated,
         nameYT: list.nameYT,
         songs: list.songs.map(function(song){
@@ -393,7 +412,7 @@ app.get('/list', isLoggedIn, function(req, res){
 
 //Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
 app.get('/userSync', isLoggedIn, function(req, res){
-  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.email).then(returnObject => {
+  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.userdata.email).then(returnObject => {
     logger.debug("Comprobadas todas las listas del usuario");
   }).catch(err => {
     console.log(err);
@@ -410,19 +429,21 @@ app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   logger.debug("El codigo es: "+authCode);
   
-  User.findOne({email:req.session.email}).then(user => {
-    Gmusic.getAuth(req.session.email, user.mac, authCode).then(response => {
+  User.findOne({email:req.session.userdata.email}).then(user => {
+    Gmusic.getAuth(req.session.userdata.email, user.mac, authCode).then(response => {
       logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));
   
       if (response.code == 0) {
-        logger.debug(req.session.email+": Usuario autorizado googleMusic.");
+        logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic.");
 
-        req.session.gmusicAuth = true; 
+        req.session.userdata.gmusicAuth = true; 
         res.redirect(303, '/user'); 
       } else {
         var context = {
           logged: req.isAuthenticated(),
-          gmusicAuth: req.session.gmusicAuth || false,
+          gmusicAuth: req.session.userdata.gmusicAuth || false,
+          admin: req.session.userdata.admin || false,
+          name: req.session.userdata.username || "Anonymous",
           message: response.message,
           urlAuth: response.url,
         };
@@ -430,9 +451,9 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         logger.debug(context.gmusicAuth);
 
         if (response.code == 1)
-          logger.debug(req.session.email+": Usuario sin autorización googleMusic.");
+          logger.debug(req.session.userdata.email+": Usuario sin autorización googleMusic.");
         else
-          logger.debug(req.session.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");
+          logger.debug(req.session.userdata.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");
         
         res.render('gmusic', context);
       }
@@ -450,7 +471,9 @@ app.get('/admin', isLoggedIn, function(req, res){
     console.log(errorWorks);
     var context = {
       logged: req.isAuthenticated(),
-      gmusicAuth: req.session.gmusicAuth || false,
+      gmusicAuth: req.session.userdata.gmusicAuth || false,
+      admin: req.session.userdata.admin || false,
+      name: req.session.userdata.username || "Anonymous",
       works: errorWorks.map(function(work){
         return {
           songId: work.songId,

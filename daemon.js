@@ -25,6 +25,8 @@ const sleep = (milliseconds) => {
 async function loop() {
   do {
     logger.info("Another iteration of the Daemon.");
+
+    //Search for songs to update
     await Promise.all([
       WorkTodo.find({state:"upl"}),
       User.find({},{"_id":0, "email":1, "mac":1})
@@ -91,7 +93,11 @@ async function loop() {
           }
         }
       }
+
+      //Search for songs to delete
+      //Aquí deberíamos buscar si hay trabajos para eliminar canciones. En caso de que los haya y tenga la pass del usuario lanzarlos. Si no ponerlos en estado err-del
       
+      //Search for songs to download
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
           logger.debug("Nothing to download. Sleeping...");
