@@ -16,13 +16,6 @@
 
     <link rel="stylesheet" href="css/main.css">
 
-    {{!-- TODO: ¿Cómo hacer para que el menú no se coma el texto? ¿Como hago esto automatico? --}}
-    <style>
-      body {
-        padding-top: 50px;
-        padding-bottom: 20px;
-      }
-    </style>
   </head>
 
   <body>
@@ -30,8 +23,8 @@
     <nav class="navbar fixed-top navbar-expand-md navbar-light bg-light py-1">
 
       {{!-- Icono + Nombre aplicación --}}
-      {{#if logged}}
-        {{#if gmusicAuth}}
+      {{#if userdata.logged}}
+        {{#if userdata.gmusicAuth}}
       <a class="navbar-brand" href="/">
         {{else}}
       <a class="navbar-brand" href="gmusic">
@@ -40,7 +33,7 @@
       <a class="navbar-brand" href="/">
       {{/if}}
         <img src="img/headphones2.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-        mitube
+        <strong>mitube</strong>
       </a>
 
 
@@ -51,12 +44,12 @@
       <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
         {{!-- Opciones menú --}}
         <ul class="navbar-nav mr-auto">
-        {{#if logged}}
-          {{#if gmusicAuth}}
+        {{#if userdata.logged}}
+          {{#if userdata.gmusicAuth}}
           <li class="nav-item active">
             <a class="nav-link" href="user">Mis listas</a>
           </li>
-            {{#if admin}}
+            {{#if userdata.admin}}
           <li class="nav-item">
             <a class="nav-link" href="admin">Administración</a>
           </li>
@@ -64,7 +57,7 @@
           {{/if}}
         {{/if}}
           <li class="nav-item">
-            <a class="nav-link" href="gmusic">Funcionamiento</a>
+            <a class="nav-link" href="manual">Funcionamiento</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="about">Sobre mí</a>
@@ -74,8 +67,8 @@
         {{!--TODO: Poner un separador, entre esto y lo anterior, sobretodo para cuando esté en el menú hamburguesa se vea la diferencia  --}}
         {{!-- Opciones de usuario --}}
         <ul class="navbar-nav navbar-right">
-        {{#if logged}}
-          <li class="nav-item"><span class="navbar-text"><strong>{{name}}</strong></span></li>
+        {{#if userdata.logged}}
+          <li class="nav-item"><span class="navbar-text"><strong>{{userdata.username}}</strong></span></li>
           <li class="nav-item"><a class="nav-link" href="logout"><span class="glyphicon glyphicon-log-out"></span>Salir</a></li>
         {{else}}
           <li class="nav-item"><a class="nav-link" href="/"><span class="glyphicon glyphicon-log-in"></span>Entrar</a></li>
@@ -85,16 +78,16 @@
       </div>
     </nav>
 
-    
+    {{!-- <div class="container"> --}}
     {{{body}}}
-
-
+    {{!-- </div> --}}
+{{!-- 
     {{#if flash}}
       <div class="alert alert-dismissible alert-{{flash.type}}">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;<button>
         <strong>{{flash.intro}}</strong> {{{flash.message}}}
       </div>
-    {{/if}}
+    {{/if}} --}}
 
 
   </body>

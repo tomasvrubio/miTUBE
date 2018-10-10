@@ -57,7 +57,7 @@ var mailTransport = nodemailer.createTransport({
 });
 
 //Database 
-mongoose.connect(credentials.mongo.connectionString);
+mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
 
 
 app.use(favicon(__dirname + '/public/favicon.png'));
@@ -147,19 +147,44 @@ app.use(function(req, res, next){
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
 //TODO: A eliminar
 app.use(function(req, res, next){
-  logger.debug(JSON.stringify(req.session));
+  logger.debug("Session data: "+JSON.stringify(req.session));
 
   next();
+});
+
+//Add userData to context
+app.use(function(req, res, next){
+  if (!req.session.userdata) {
+    res.locals.userdata = {
+      logged: req.isAuthenticated(),
+      admin: false,
+      gmusicAuth: false,
+      username: "Anonymous",
+    };
+  } else {
+    res.locals.userdata = req.session.userdata;
+    res.locals.userdata.logged = req.isAuthenticated();
+  }
+
+ 	next();
 });
 
 
 
 //--------------Middleware propio
-//route middleware to ensure user is logged in
+//Ensure user is loggIn
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated())
       return next();
-  res.status(404);
+  res.status(403);
+  res.render('403');
+}
+
+//Ensure user is admin
+function adminOnly(req, res, next){
+  if(req.isAuthenticated() && req.session.userdata.role==="admin") 
+    return next();
+	res.status(404);
   res.render('404');
 }
 
@@ -176,13 +201,10 @@ app.get('/', function(req, res){
   req.session.userdata = {};
 
   var context = {
-    logged: req.isAuthenticated(),
-    admin: req.session.userdata.admin || false,
-    gmusicAuth: req.session.userdata.gmusicAuth || false,
-    name: req.session.userdata.username || "Anonymous",
+    userdata: res.locals.userdata,
     csrf: 'CSRF token goes here'
   };
-  logger.debug(JSON.stringify(context));
+  logger.debug("Context: "+JSON.stringify(context));
 
   res.render('home', context);
 });
@@ -198,9 +220,9 @@ app.post('/process-home', passport.authenticate("local-login",{
     console.log(req.session);
     //res.redirect(303, "/user");
 
-    //Aquí es donde tengo que revisar si el usuario ya está con un rol. Si no tiene aún no le puedo dejar entrar. Mostraría algún mensaje por pantalla indicando que debe esperar y que si quiere escriba al Admin.
     if (req.session.userdata.role == "disabled"){
-      
+      //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
+      //¿Redirigir a logout?
     } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
       res.redirect(303, "/gmusic");
     }    
@@ -303,22 +325,26 @@ app.post('/register', function(req, res){
 
 app.get('/about', function(req, res){
   var context = {
-    logged: req.isAuthenticated(),
-    admin: req.session.userdata.admin || false,
-    name: req.session.userdata.username || "Anonymous",
-    gmusicAuth: req.session.userdata.gmusicAuth || false,
+    userdata: res.locals.userdata,
   };
+  logger.debug("Context: "+JSON.stringify(context));
 
   res.render('about', context);
+});
+
+app.get('/manual', function(req, res){
+  var context = {
+    userdata: res.locals.userdata,
+  };
+  logger.debug("Context: "+JSON.stringify(context));
+
+  res.render('manual', context);
 });
 
 app.get('/user', isLoggedIn, function(req, res){
   ListUser.find({email:req.session.userdata.email}, function(err, lists){ 
     var context = {
-      logged: req.isAuthenticated(),
-      admin: req.session.userdata.admin || false,
-      gmusicAuth: req.session.userdata.gmusicAuth || false,
-      name: req.session.userdata.username || "Anonymous",
+      userdata: res.locals.userdata,
       lists: lists.map(function(list){
         return {
             listId: list.listId,
@@ -327,6 +353,7 @@ app.get('/user', isLoggedIn, function(req, res){
         }
       })
     };
+    logger.debug("Context: "+JSON.stringify(context));
     
     res.render('user', context);
   });
@@ -384,10 +411,7 @@ app.get('/list', isLoggedIn, function(req, res){
       }
   
       var context = {
-        logged: req.isAuthenticated(),
-        gmusicAuth: req.session.userdata.gmusicAuth || false,
-        admin: req.session.userdata.admin || false,
-        name: req.session.userdata.username || "Anonymous",
+        userdata: res.locals.userdata,
         listId: req.query.listid,
         updated: listUser.updated,
         nameYT: list.nameYT,
@@ -401,6 +425,7 @@ app.get('/list', isLoggedIn, function(req, res){
             }
         })
       };
+      logger.debug("Context: "+JSON.stringify(context));
 
       res.render('list', context);
     });
@@ -440,15 +465,11 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         res.redirect(303, '/user'); 
       } else {
         var context = {
-          logged: req.isAuthenticated(),
-          gmusicAuth: req.session.userdata.gmusicAuth || false,
-          admin: req.session.userdata.admin || false,
-          name: req.session.userdata.username || "Anonymous",
+          userdata: res.locals.userdata,
           message: response.message,
           urlAuth: response.url,
         };
-
-        logger.debug(context.gmusicAuth);
+        logger.debug(context);
 
         if (response.code == 1)
           logger.debug(req.session.userdata.email+": Usuario sin autorización googleMusic.");
@@ -466,14 +487,11 @@ app.all('/gmusic', isLoggedIn, function(req, res){
 
 //Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
 
-app.get('/admin', isLoggedIn, function(req, res){
+app.get('/admin', adminOnly, function(req, res){
   WorkTodo.find({state: {$in: [/^err/]}}, function(err, errorWorks){ 
     console.log(errorWorks);
     var context = {
-      logged: req.isAuthenticated(),
-      gmusicAuth: req.session.userdata.gmusicAuth || false,
-      admin: req.session.userdata.admin || false,
-      name: req.session.userdata.username || "Anonymous",
+      userdata: res.locals.userdata,
       works: errorWorks.map(function(work){
         return {
           songId: work.songId,

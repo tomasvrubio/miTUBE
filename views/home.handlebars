@@ -1,20 +1,11 @@
-<h1>Welcome {{name}} to miTUBE</h1>
-
-{{!-- <form action="/process-home" method="POST">
-    <input type="hidden" name="hush" val="hidden, but not secret!">
-    <div>
-        <label for="fieldName">Your name is: </label>
-        <input type="text" id="fieldName" name="name" required>
-        <label for="fieldPass">Your pass is: </label>
-        <input type="password" id="fieldPass" name="pass" required>
+<form action="/process-home" method="POST" class="form-signin">
+    <h1 class="h3 mb-3 font-weight-normal">Accede a la aplicación</h1>
+    <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
+    <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
+    <div class="checkbox mb-3">
+    {{!-- <label>
+        <input type="checkbox" value="remember-me"> Recordar
+    </label> --}}
     </div>
-    <div>
-        <button type="submit">Submit</button>
-    </div>
-</form> --}}
-
-<form method="POST" action="/process-home">    
-  <input type="text" name="email" placeholder="email">  
-  <input type="password" name="password" placeholder="password">
-  <button type="submit">Login</button>
-</form> 
+    <button class="btn btn-lg btn-dark btn-block" type="submit">Entrar</button>
+</form>
