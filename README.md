@@ -60,3 +60,6 @@ Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios..
 
 * Hacer una página de Admin desde la que pueda ver el volumen de trabajos pendientes, en error, poder ver gráficas de uso (para trastear con otras librerías), datos de los usuarios... También una pestaña donde pueda autorizar el acceso de los usuarios. Aún así también lo podré hacer desde un link que llegue al correo del administrador.
 
+* usuarios pruebas:
+
+{"name":"Nuevo","email":"nuevo@gmail.com","pass":"6299682331407033"}

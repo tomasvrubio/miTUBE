@@ -87,7 +87,7 @@ passport.use('local-login', new LocalStrategy({
 
     // asynchronous
     process.nextTick(function() {
-      User.findOne({ 'email' : email }, function(err, user) {
+      User.findOne({email: email}, function(err, user) {
         // if there are any errors, return the error
         if (err)
             return done(err);
@@ -136,9 +136,9 @@ passport.deserializeUser(function(id, done) {
 app.use(flash());
 
 app.use(function(req, res, next){
-  res.locals.success_message = req.flash('success_message');
-  res.locals.error_message = req.flash('error_message');
-  res.locals.error = req.flash('error');
+  res.locals.success_message = req.flash("success_message");
+  res.locals.error_message = req.flash("error_message");
+  res.locals.error = req.flash("error");
   res.locals.user = req.user || null;
   next();
  });
@@ -159,6 +159,7 @@ app.use(function(req, res, next){
       logged: req.isAuthenticated(),
       admin: false,
       gmusicAuth: false,
+      home: "/",
       username: "Anonymous",
     };
   } else {
@@ -211,27 +212,28 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    //successRedirect: "/gmusic", //TODO: Bueno pero lento al tener que llamar a gmusic. Activarlo. 
-    //successRedirect: "/user", //TODO: Eliminar tras terminar con pruebas.
+    //successRedirect: "/gmusic", //No necesario. Así salto a la función de abajo.
     failureRedirect: "/",
-    failureFlash: 'Invalid username or password.' //Me falla porque dice que no encuentra req.flash
+    failureFlash: "Invalid username or password." //Me falla porque dice que no encuentra req.flash
   }), function(req, res){
-    logger.debug("¿Paso por aquí?");
-    console.log(req.session);
+   
     //res.redirect(303, "/user");
 
     if (req.session.userdata.role == "disabled"){
+      req.session.userdata.home = "wait";
+      res.redirect(303, '/wait');
       //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
       //¿Redirigir a logout?
     } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
-      res.redirect(303, "/gmusic");
+      req.session.userdata.home = "gmusic"
+      res.redirect(303, '/gmusic');
     }    
 });
 
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
   req.session.userdata = {};
-  res.redirect(303,"/");
+  res.redirect(303, '/');
 });
 
 app.get('/register', function(req, res){
@@ -248,8 +250,8 @@ app.post('/register', function(req, res){
   logger.debug(JSON.stringify(cart)); //TODO: A eliminar
 
   Promise.all([
-    User.findOne({'email' : cart.email}),
-    User.aggregate([{$group : {_id : null, macMax : {$max : "$mac"}}}])
+    User.findOne({email: cart.email}),
+    User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
   ]).then( ([user, macData]) => {
     //----------------- Sólo hacer si se va a crear el usuario
     var macMax = macData[0].macMax;
@@ -321,6 +323,15 @@ app.post('/register', function(req, res){
     logger.error("Problems searching if exists User or what is the max MAC: "+JSON.stringify(err.stack));
     //TODO: Y a donde voy?
   });
+});
+
+app.get('/wait', function(req, res){
+  var context = {
+    userdata: res.locals.userdata,
+  };
+  logger.debug("Context: "+JSON.stringify(context));
+
+  res.render('wait', context);
 });
 
 app.get('/about', function(req, res){
@@ -461,6 +472,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
       if (response.code == 0) {
         logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic.");
 
+        req.session.userdata.home = "/";
         req.session.userdata.gmusicAuth = true; 
         res.redirect(303, '/user'); 
       } else {

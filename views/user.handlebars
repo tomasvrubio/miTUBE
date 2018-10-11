@@ -1,37 +1,40 @@
-<h1>Shows the lists that the user has in his account</h1>
+<div class="container-fluid">
 
-<form action="/process-user" method="POST">
-    <input type="hidden" name="hush" val="hidden, but not secret!">
+    <h1>Shows the lists that the user has in his account</h1>
+
+    <form action="/process-user" method="POST">
+        <input type="hidden" name="hush" val="hidden, but not secret!">
+        <div>
+            <label for="fieldName">Insert a new list to sync: </label>
+            <input type="text" id="fieldName" name="name" placeholder="List name" required>
+            <input type="text" id="fieldURL" name="url" placeholder="Youtube url" required>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+
+    <div><a href="userSync">Actualizar listas</a></div>
+
+    <!-- Mostrar resultados en tabla -->
     <div>
-        <label for="fieldName">Insert a new list to sync: </label>
-        <input type="text" id="fieldName" name="name" placeholder="List name" required>
-        <input type="text" id="fieldURL" name="url" placeholder="Youtube url" required>
-        <button type="submit">Submit</button>
+        <table id="miTabla" class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">ListId</th>
+                <th scope="col">Date Added</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{#each lists}}
+        {{!-- Terminar de hacer los links --}}
+            <tr>
+                <th><a href="list?listid={{listId}}">{{name}}</a></th>
+                <th>{{listId}}</th>
+                <th>{{created}}</th>
+            </tr>
+        {{/each}}
+        </tbody>
+        </table>
     </div>
-</form>
 
-<div><a href="userSync">Actualizar listas</a></div>
-
-<!-- Mostrar resultados en tabla -->
-<div>
-    <table id="miTabla" class="table">
-    <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">ListId</th>
-            <th scope="col">Date Added</th>
-        </tr>
-    </thead>
-    <tbody>
-    {{#each lists}}
-    {{!-- Terminar de hacer los links --}}
-        <tr>
-            <th><a href="list?listid={{listId}}">{{name}}</a></th>
-            <th>{{listId}}</th>
-            <th>{{created}}</th>
-        </tr>
-    {{/each}}
-    </tbody>
-    </table>
 </div>
-
