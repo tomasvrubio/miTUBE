@@ -136,6 +136,7 @@ async function loop() {
       });
     });
 
+    //TODO: Si pierdo la autorización del usuario debo mandarle un mail solicitándosela.
     //  SI HUBIESE ALGÚN ERROR DEMASIADO GRAVE SALIR DEL BUCLE Y FINALIZAR DEMONIO?
   } while (active);
 }

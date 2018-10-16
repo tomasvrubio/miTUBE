@@ -1,40 +1,47 @@
 <div class="container-fluid">
 
-    <h1>Shows the lists that the user has in his account</h1>
+    <div class="contenedor-list">
+        <h3>Mis listas</h3>
 
-    <form action="/process-user" method="POST">
-        <input type="hidden" name="hush" val="hidden, but not secret!">
-        <div>
-            <label for="fieldName">Insert a new list to sync: </label>
-            <input type="text" id="fieldName" name="name" placeholder="List name" required>
-            <input type="text" id="fieldURL" name="url" placeholder="Youtube url" required>
-            <button type="submit">Submit</button>
+        <div class="card border-dark bg-light card-nuevaLista">
+            <div class="card-header">¿Tienes una nueva?</div>
+            <div class="card-body text-secondary">
+                <form action="/process-user" method="POST" class="form-list">
+                    <input type="hidden" name="hush" val="hidden, but not secret!">
+                    <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>
+                    <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube" required>
+                    <button class="btn btn-sm btn-dark btn-block float-right" type="submit">Aceptar</button>
+                </form>
+            </div>
         </div>
-    </form>
 
-    <div><a href="userSync">Actualizar listas</a></div>
+        <div class="boton-actListas">
+            <a href="userSync" class="btn btn-outline-dark btn-sm btn-block" role="button">Actualizar todas tus listas</a>
+        </div>
 
-    <!-- Mostrar resultados en tabla -->
-    <div>
-        <table id="miTabla" class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">ListId</th>
-                <th scope="col">Date Added</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#each lists}}
-        {{!-- Terminar de hacer los links --}}
-            <tr>
-                <th><a href="list?listid={{listId}}">{{name}}</a></th>
-                <th>{{listId}}</th>
-                <th>{{created}}</th>
-            </tr>
-        {{/each}}
-        </tbody>
-        </table>
+        <!-- Mostrar resultados en tabla -->
+        <div class="table-list">
+            <table id="miTabla" class="table table-hover">
+            <caption>Tabla de listas sincronizadas</caption>
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col" class="d-none d-md-table-cell">Identificador</th>
+                    <th scope="col" class="text-right">Fecha incorporación</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#each lists}}
+            {{!-- Terminar de hacer los links --}}
+                <tr>
+                    <th><a href="list?listid={{listId}}">{{name}}</a></th>
+                    <th class="d-none d-md-table-cell">{{listId}}</th>
+                    <th class="text-right">{{created}}</th>
+                </tr>
+            {{/each}}
+            </tbody>
+            </table>
+        </div>
+
     </div>
-
 </div>

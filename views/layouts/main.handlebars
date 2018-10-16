@@ -22,16 +22,7 @@
     
     <nav class="navbar fixed-top navbar-expand-md navbar-light bg-light py-1">
 
-      {{!-- Icono + Nombre aplicación --}}
-      {{#if userdata.logged}}
-        {{#if userdata.gmusicAuth}}
-      <a class="navbar-brand" href="/">
-        {{else}}
-      <a class="navbar-brand" href="gmusic">
-        {{/if}}
-      {{else}}
-      <a class="navbar-brand" href="/">
-      {{/if}}
+      <a class="navbar-brand" href={{userdata.home}}>
         <img src="img/headphones2.svg" width="30" height="30" class="d-inline-block align-top" alt="">
         <strong>mitube</strong>
       </a>

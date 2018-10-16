@@ -13,27 +13,72 @@ body {
     background-color: #f5f5f5;
 }
 
-.form {
+.form-user {
     width: 100%;
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
 }
 
-.form input {
+.form-user input {
     margin-bottom: -1px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    /* border-top-left-radius: 0;
+    border-top-right-radius: 0; */
 }
 
-.form .btn {
+.form-user .btn {
     margin-top: 10px;
 }
 
-.form .form-control:focus {
+.form-user .form-control:focus {
     z-index: 2;
 }
 
 .container {
     width: 100%;
+}
+
+.table-list {
+    margin: 0 auto;
+    padding-top: 10px;
+}
+
+.form-list {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-list input {
+    margin-bottom: -1px;
+    /* border-top-left-radius: 0;
+    border-top-right-radius: 0; */
+}
+
+.form-list .btn {
+    margin-top: 5px;
+    max-width: 100px;
+}
+
+.contenedor-list {
+    width: 95%;
+    margin: 0 auto;
+    padding-bottom: 0px;
+}
+
+.card-nuevaLista {
+    margin: 0 auto 10px auto;
+    padding-bottom: 0px;
+}
+
+.boton-actListas {
+    margin: 0 auto;
+    padding-top: 0px;
+}
+
+.card-body {
+    padding: 1%;
+}
+
+.card-header {
+    padding: 5px 20px;
 }

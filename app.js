@@ -190,7 +190,6 @@ function adminOnly(req, res, next){
 }
 
 
-//TODO: ¿Como puedo crear un context por defecto y luego ya ir completandolo en cada route en función de lo que necesite?
 //--------------Routing
 
 
@@ -473,6 +472,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic.");
 
         req.session.userdata.home = "/";
+        //Tras la inclusión de "home", me hace falta seguir teniendo gmusicAuth?
         req.session.userdata.gmusicAuth = true; 
         res.redirect(303, '/user'); 
       } else {
