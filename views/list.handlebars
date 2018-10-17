@@ -1,31 +1,61 @@
-<h1>Show the details about a synchronized list</h1>
+<div class="container-fluid">
 
-<div>   
-    <p>Información de la lista</p>
-</div>
+    <div class="contenedor-list">
+        {{!-- A mostrar:
+                * Nombre lista
+                * Nombre lista en YT (con enlace a pestaña nueva)
+                * Número de canciones
+                * Fecha creación?
+                * Fecha última modificación
+                * Habilitar sincronización
+                * 
+        --}}
+
+        <div class="card text-white bg-dark mb-3 card-listDetails" >
+            <div class="card-header text-center bold color-negro"><strong>{{name}}</strong></div>
+            <div class="card-body color-negro">
+                <div class="row justify-content-between">
+                    <span class="col-6"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}" target="_blank">{{nameYT}}</a></span>
+                    <span class="col-4 card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
+                </div>
+
+                <div class="row justify-content-end">
+                    <span class="col align-self-end card-text text-right"><strong>Registro lista: </strong>{{created}}</span>
+                </div>
+                <div class="row justify-content-end">
+                    <span class="col align-self-end card-text text-right"><strong>Última modificación: </strong>{{modified}}</span>  
+                </div>
+                <div class="row justify-content-center text-center">
+                    {{!-- <span class="col-4 card-text"><strong>Habilitar SYNC</strong></span> --}}
+                        <a href="#" class="btn btn-light btn-sm btn-block" role="button">Habilitar SYNC</a>
+                </div>              
+            </div>
+        </div>
 
 
+        <!-- Mostrar resultados en tabla -->
+        <div class="table-list">
+            <table id="miTabla" class="table table-hover">
+            <caption>Tabla de canciones de una lista</caption>
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col" class="d-none d-md-table-cell">Identificador</th>
+                    <th scope="col" class="text-right">Fecha incorporación</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#each songs}}
+            {{!-- Terminar de hacer los links --}}
+                <tr>
+                    <th>{{originalName}}</th>
+                    <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}"  target="_blank">{{songId}}</a></th>
+                    <th class="text-right">{{added}}</th>
+                </tr>
+            {{/each}}
+            </tbody>
+            </table>
+        </div>
 
-<!-- Mostrar resultados en tabla -->
-<div>
-    <p>Detalle de las canciones de la lista</p>
-    <table id="miTabla" class="table">
-    <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">SongId</th>
-            <th scope="col">Date Added</th>
-        </tr>
-    </thead>
-    <tbody>
-    {{#each songs}}
-    {{!-- Terminar de hacer los links --}}
-        <tr>
-            <th>{{originalName}}</th>
-            <th><a href="https://www.youtube.com/watch?v={{songId}}">{{songId}}</a></th>
-            <th>{{added}}</th>
-        </tr>
-    {{/each}}
-    </tbody>
-    </table>
+    </div>
 </div>

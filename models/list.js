@@ -5,7 +5,8 @@ var listSchema = mongoose.Schema({
     listId: String,
     nameYT: String, //Nombre de la lista en yt
     etag: String,
-    updated: Date,
+    modified: Date,
+    updated: Date, //¿Y si lo llamo checked?
     songs: [{
         songId: {type: String}, 
         originalName: String,

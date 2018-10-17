@@ -359,7 +359,7 @@ app.get('/user', isLoggedIn, function(req, res){
         return {
             listId: list.listId,
             name: list.name,
-            created: moment(list.created).format('DD / MM / YYYY')
+            created: moment(list.created).format('DD MMM YYYY')
         }
       })
     };
@@ -423,15 +423,18 @@ app.get('/list', isLoggedIn, function(req, res){
       var context = {
         userdata: res.locals.userdata,
         listId: req.query.listid,
-        updated: listUser.updated,
+        created: moment(listUser.created).format('DD MMM YYYY  HH:mm:ss'),
+        modified: moment(list.modified).format('DD MMM YYYY  HH:mm:ss') || null,
+        name: listUser.name,
         nameYT: list.nameYT,
+        numSongs: list.songs.length,
         songs: list.songs.map(function(song){
           return {
               songId: song.songId,
               originalName: song.originalName,
               name: song.name,
               artist: song.artist,
-              added: moment(song.added).format('DD / MM / YYYY')
+              added: moment(song.added).format('DD MMM YYYY')
             }
         })
       };
