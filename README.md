@@ -43,10 +43,6 @@ module.exports = {
 
 * Montar entorno Producción (Cap 12).
 * Usar https -> Seguir tutorial que tengo en el móvil.
-* Implementar llamadas a gmusicapi.
-  [x] Generar TOKEN.
-  [x] Subir cancion.
-  [x] Eliminar cancion.
 
 Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios... Ponerlo como funcionalidad opcional.
 

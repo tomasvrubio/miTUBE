@@ -1,15 +1,6 @@
 <div class="container-fluid">
 
     <div class="contenedor-list">
-        {{!-- A mostrar:
-                * Nombre lista
-                * Nombre lista en YT (con enlace a pestaña nueva)
-                * Número de canciones
-                * Fecha creación?
-                * Fecha última modificación
-                * Habilitar sincronización
-                * 
-        --}}
 
         <div class="card text-white bg-dark mb-3 card-listDetails" >
             <div class="card-header text-center bold color-negro"><strong>{{name}}</strong></div>
@@ -25,9 +16,9 @@
                 <div class="row justify-content-end">
                     <span class="col align-self-end card-text text-right"><strong>Última modificación: </strong>{{modified}}</span>  
                 </div>
+                {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo o desactivarlo sin recargar página? --}}
                 <div class="row justify-content-center text-center">
-                    {{!-- <span class="col-4 card-text"><strong>Habilitar SYNC</strong></span> --}}
-                        <a href="#" class="btn btn-light btn-sm btn-block" role="button">Habilitar SYNC</a>
+                    <a href="#" class="btn btn-success btn-sm btn-square text-center" role="button">SYNC Activada</a>
                 </div>              
             </div>
         </div>
@@ -35,13 +26,13 @@
 
         <!-- Mostrar resultados en tabla -->
         <div class="table-list">
-            <table id="miTabla" class="table table-hover">
+            <table id="miTabla" class="table table-sm table-hover">
             <caption>Tabla de canciones de una lista</caption>
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">Nombre</th>
                     <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-                    <th scope="col" class="text-right">Fecha incorporación</th>
+                    <th scope="col" class="text-center">Fecha</th>
                 </tr>
             </thead>
             <tbody>

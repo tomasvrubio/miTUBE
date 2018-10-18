@@ -22,6 +22,7 @@ body {
 
 .form-user input {
     margin-bottom: -1px;
+    border-radius: 0;
     /* border-top-left-radius: 0;
     border-top-right-radius: 0; */
 }
@@ -50,8 +51,7 @@ body {
 
 .form-list input {
     margin-bottom: -1px;
-    /* border-top-left-radius: 0;
-    border-top-right-radius: 0; */
+    border-radius: 0;
 }
 
 .form-list .btn {
@@ -65,9 +65,13 @@ body {
     padding-bottom: 0px;
 }
 
+.card {
+    border-radius: 0;
+}
+
 .card-nuevaLista {
-    margin: 0 auto 0px auto;
-    padding-bottom: 0px;
+    margin: 0 auto 10px auto;
+    /* padding-bottom: 0px; */
 }
 
 .boton-actListas {
@@ -93,5 +97,9 @@ body {
 } */
 
 .color-negro {
-    background-color: #212529;   
+    background-color: #212529;  
+}
+
+.btn.btn-square {
+    border-radius: 0;
 }

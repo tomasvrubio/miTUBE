@@ -423,8 +423,8 @@ app.get('/list', isLoggedIn, function(req, res){
       var context = {
         userdata: res.locals.userdata,
         listId: req.query.listid,
-        created: moment(listUser.created).format('DD MMM YYYY  HH:mm:ss'),
-        modified: moment(list.modified).format('DD MMM YYYY  HH:mm:ss') || null,
+        created: moment(listUser.created).format('DD MMM YYYY  HH:mm'),
+        modified: moment(list.modified).format('DD MMM YYYY  HH:mm') || null,
         name: listUser.name,
         nameYT: list.nameYT,
         numSongs: list.songs.length,

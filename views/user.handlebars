@@ -12,18 +12,34 @@
                     <input type="hidden" name="hush" val="hidden, but not secret!">
                     <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>
                     <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube" required>
-                    <button class="btn btn-sm btn-dark btn-block float-right color-negro" type="submit">Aceptar</button>
+                    <button class="btn btn-sm btn-dark btn-square btn-block float-right color-negro" type="submit">Aceptar</button>
                 </form>
             </div>
+
+<div class="card-body text-secondary">
+            <form action="/process-user" method="POST" >
+                    <div class="form-row align-items-center">
+                        <div class="col-5">
+                            <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>                        
+                        </div>
+                        <div class="col-5">
+                            <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube" required>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-sm btn-dark btn-square btn-block float-right color-negro" type="submit">Aceptar</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
         </div>
 
         <div class="boton-actListas">
-            <a href="userSync" class="btn btn-outline-dark btn-sm btn-block" role="button">Actualizar todas tus listas</a>
+            <a href="userSync" class="btn btn-outline-dark btn-sm btn-square btn-block" role="button">Actualizar todas tus listas</a>
         </div>
 
         <!-- Mostrar resultados en tabla -->
         <div class="table-list">
-            <table id="miTabla" class="table table-hover">
+            <table id="miTabla" class="table table-sm table-hover">
             <caption>Tabla de listas sincronizadas</caption>
             <thead class="thead-dark">
                 <tr>
