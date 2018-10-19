@@ -3,4 +3,13 @@
     <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
     <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
     <button class="btn btn-lg btn-dark btn-square btn-block color-negro" type="submit">Entrar</button>
+
+    {{#if alert}}
+    <div class="alert alert-warning" role="alert" style="margin-top: 20px;">
+        {{alert}}
+    </div>
+    {{/if}}
 </form>
+
+{{!-- Aquí mostrar un mensaje de alerta si no puede entrar el usuario  --}}
+

@@ -229,6 +229,47 @@ app.post('/process-home', passport.authenticate("local-login",{
     }    
 });
 
+// app.post('/process-home', function(req, res, next) {
+
+//   passport.authenticate("local-login", function(err, user, info){
+//     if (err) return next(err);
+//     if (!user) { 
+//       req.session.alert = "Usuario no existente o contraseña inválida";
+//       return res.redirect('/'); 
+//     }
+
+//     req.logIn(user, function(err) {
+//       if (err) { return next(err); }
+
+//       if (req.session.userdata.role == "disabled"){
+//         req.session.userdata.home = "wait";
+//         res.redirect(303, '/wait');
+//         //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
+//         //¿Redirigir a logout?
+//       } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
+//         req.session.userdata.home = "gmusic"
+//         return res.redirect(303, '/gmusic');
+//       }  
+//     });
+//   });
+// });
+
+ 
+//   //res.redirect(303, "/user");
+
+//   if (req.session.userdata.role == "disabled"){
+//     req.session.userdata.home = "wait";
+//     res.redirect(303, '/wait');
+//     //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
+//     //¿Redirigir a logout?
+//   } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
+//     req.session.userdata.home = "gmusic"
+//     res.redirect(303, '/gmusic');
+//   }    
+// });
+
+
+
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
   req.session.userdata = {};
