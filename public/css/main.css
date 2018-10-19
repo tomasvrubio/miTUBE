@@ -45,8 +45,9 @@ body {
 }
 
 .form-list {
-    max-width: 500px;
+    /* max-width: 500px; */
     margin: 0 auto;
+    margin-top: 5px;
 }
 
 .form-list input {
@@ -55,8 +56,8 @@ body {
 }
 
 .form-list .btn {
-    margin-top: 5px;
-    max-width: 100px;
+    /* margin-top: 5px; */
+    /* max-width: 100px; */
 }
 
 .contenedor-list {
