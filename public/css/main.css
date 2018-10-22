@@ -45,7 +45,6 @@ body {
 }
 
 .form-list {
-    /* max-width: 500px; */
     margin: 0 auto;
     margin-top: 5px;
 }
@@ -55,15 +54,14 @@ body {
     border-radius: 0;
 }
 
-.form-list .btn {
-    /* margin-top: 5px; */
-    /* max-width: 100px; */
-}
-
 .contenedor-list {
     width: 95%;
     margin: 0 auto;
     padding-bottom: 0px;
+}
+
+.alert {
+    border-radius: 0;
 }
 
 .card {
@@ -88,19 +86,21 @@ body {
     padding: 5px 20px;
 }
 
-/* .card-listDetails .card-header {
-    background-color: #212529;
-    padding-bottom: 0px;
-}
-.card-listDetails .card-body {
-    background-color: #212529;
-    padding-bottom: 0px;
-} */
-
 .color-negro {
     background-color: #212529;  
 }
 
+.btn-outline-dark:hover, .btn-outline-dark:focus, .btn-outline-dark:active {
+    background-color: #212529;
+}
+
 .btn.btn-square {
     border-radius: 0;
+}
+
+.active .nav-link{
+    background-color: #FFF;
+    color: #000;
+    border-radius: 4px;
+    filter: invert(1);
 }

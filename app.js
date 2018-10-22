@@ -135,13 +135,13 @@ passport.deserializeUser(function(id, done) {
 // });
 app.use(flash());
 
-app.use(function(req, res, next){
-  res.locals.success_message = req.flash("success_message");
-  res.locals.error_message = req.flash("error_message");
-  res.locals.error = req.flash("error");
-  res.locals.user = req.user || null;
-  next();
- });
+// app.use(function(req, res, next){
+//   res.locals.success_message = req.flash("success_message");
+//   res.locals.error_message = req.flash("error_message");
+//   res.locals.error = req.flash("error");
+//   res.locals.user = req.user || null;
+//   next();
+//  });
 
 
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
@@ -154,7 +154,7 @@ app.use(function(req, res, next){
 
 //Add userData to context
 app.use(function(req, res, next){
-  if (!req.session.userdata) {
+  if (req.session.userdata == null) {
     res.locals.userdata = {
       logged: req.isAuthenticated(),
       admin: false,
@@ -165,6 +165,7 @@ app.use(function(req, res, next){
   } else {
     res.locals.userdata = req.session.userdata;
     res.locals.userdata.logged = req.isAuthenticated();
+    if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
   }
 
  	next();
@@ -202,8 +203,12 @@ app.get('/', function(req, res){
 
   var context = {
     userdata: res.locals.userdata,
-    csrf: 'CSRF token goes here'
+    csrf: 'CSRF token goes here',
+    alert: req.flash("error") || null,
+    active: {"home": true},
   };
+
+  logger.debug(req.flash("error"));
   logger.debug("Context: "+JSON.stringify(context));
 
   res.render('home', context);
@@ -211,63 +216,19 @@ app.get('/', function(req, res){
 
 //TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
 app.post('/process-home', passport.authenticate("local-login",{
-    //successRedirect: "/gmusic", //No necesario. Así salto a la función de abajo.
+    //successRedirect: " ", //Sin este parámetro se va a la función de abajo
     failureRedirect: "/",
-    failureFlash: "Invalid username or password." //Me falla porque dice que no encuentra req.flash
+    failureFlash: "Usuario o contraseña inválidos"
   }), function(req, res){
-   
-    //res.redirect(303, "/user");
 
     if (req.session.userdata.role == "disabled"){
       req.session.userdata.home = "wait";
       res.redirect(303, '/wait');
-      //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
-      //¿Redirigir a logout?
     } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
       req.session.userdata.home = "gmusic"
       res.redirect(303, '/gmusic');
     }    
 });
-
-// app.post('/process-home', function(req, res, next) {
-
-//   passport.authenticate("local-login", function(err, user, info){
-//     if (err) return next(err);
-//     if (!user) { 
-//       req.session.alert = "Usuario no existente o contraseña inválida";
-//       return res.redirect('/'); 
-//     }
-
-//     req.logIn(user, function(err) {
-//       if (err) { return next(err); }
-
-//       if (req.session.userdata.role == "disabled"){
-//         req.session.userdata.home = "wait";
-//         res.redirect(303, '/wait');
-//         //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
-//         //¿Redirigir a logout?
-//       } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
-//         req.session.userdata.home = "gmusic"
-//         return res.redirect(303, '/gmusic');
-//       }  
-//     });
-//   });
-// });
-
- 
-//   //res.redirect(303, "/user");
-
-//   if (req.session.userdata.role == "disabled"){
-//     req.session.userdata.home = "wait";
-//     res.redirect(303, '/wait');
-//     //Mostrar mensaje de que no se ha activado aún su perfil. Que tiene que esperar o avisar al Admin.
-//     //¿Redirigir a logout?
-//   } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
-//     req.session.userdata.home = "gmusic"
-//     res.redirect(303, '/gmusic');
-//   }    
-// });
-
 
 
 app.get('/logout', isLoggedIn, function(req, res){
@@ -277,56 +238,67 @@ app.get('/logout', isLoggedIn, function(req, res){
 });
 
 app.get('/register', function(req, res){
-  res.render('register', { csrf: 'CSRF token goes here' });
+  var context = {
+    userdata: res.locals.userdata,
+    csrf: 'CSRF token goes here',
+    alert: req.flash("info") || null,
+    active: {"register": true},
+  };
+
+  res.render('register', context);
 });
 
-//TODO: Tendré que pasar context a register.
+
 app.post('/register', function(req, res){
   var cart = {
     name: req.body.name,
     email: req.body.email.toLowerCase(),
-    pass: Math.random().toString().replace(/^0\.0*/, ''),
   };
-  logger.debug(JSON.stringify(cart)); //TODO: A eliminar
 
   Promise.all([
     User.findOne({email: cart.email}),
     User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
   ]).then( ([user, macData]) => {
-    //----------------- Sólo hacer si se va a crear el usuario
-    var macMax = macData[0].macMax;
-    logger.debug("Actual max MAC is: "+macMax);
-
-    if (macMax){
-      var newMacArray = macMax.split(":");
-      var incrementalNumber = parseInt(newMacArray[5],16);
-      if (incrementalNumber<255){
-        newMacArray[5] = (incrementalNumber+1).toString(16);
-      }
-      else{
-        incrementalNumber = parseInt(newMacArray[4],16);
-        newMacArray[4] = (incrementalNumber+1).toString(16);
-        newMacArray[5] = "00";
-      }
-        
-    } else {
-      var newRole = "admin";
-      var newMacArray = [
-        "b8", "27", "eb", 
-        Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
-        "00"
-      ];
-    }
-
-    var newMac = newMacArray.join(":");
-    logger.debug("New MAC is: "+newMac)
-    //-------------------- Hasta aquí habria que meter
-
 
     if (user){
       logger.debug("Allready registered user");
-      res.render('register', {message: "Usuario ya registrado previamente"});
+      req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
+      res.redirect(303, "/register");
+
     } else {
+      //Generate password
+      cart.pass = Math.random().toString().replace(/^0\.0*/, '');
+      logger.debug(JSON.stringify(cart));
+      //Generate MAC
+      var macMax = macData[0].macMax;
+      logger.debug("Actual max MAC is: "+macMax);
+
+      if (macMax){
+        var newMacArray = macMax.split(":");
+        var incrementalNumber = parseInt(newMacArray[5],16);
+        if (incrementalNumber<255){
+          newMacArray[5] = (incrementalNumber+1).toString(16);
+        }
+        else{
+          incrementalNumber = parseInt(newMacArray[4],16);
+          newMacArray[4] = (incrementalNumber+1).toString(16);
+          newMacArray[5] = "00";
+        }
+          
+      } else {
+        //First user is Admin and gets a random MAC
+        var newRole = "admin";
+        var newMacArray = [
+          "b8", "27", "eb", 
+          Math.floor(Math.random()*255).toString(16), 
+          Math.floor(Math.random()*240).toString(16),
+          "00"
+        ];
+      }
+
+      var newMac = newMacArray.join(":");
+      logger.debug("New MAC is: "+newMac);
+
       var newUser = new User({
         username: cart.name,
         email: cart.email,
@@ -337,33 +309,125 @@ app.post('/register', function(req, res){
       newUser.password =  newUser.generateHash(cart.pass);
       newUser.save(function(err) {
         if (err){
-          logger.error("Can't save user in DB");
-          logger.error(err);
-          res.render("register", {message: "Ha ocurrido un error técnico"});
+          logger.error("Can't save user in DB: "+JSON.stringify(err.stack));
+          req.flash("info", "Ha ocurrido un error técnico");
+          res.redirect(303, "/register");
         }
         
         //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
-        res.render("email/email_lite", { layout: null, cart: cart }, function(err,html){
-          if(err) logger.error("Problems using email template");
+        res.render("email/email_lite", {layout: null, cart}, function(err,html){
+          if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
           mailTransport.sendMail({
-            from: '"miTUBE": desarrollovazquezrubio@gmail.com',
+            from: '"mitube": '+credentials.gmail.user,
             to: cart.email,
-            subject: "Here is your login information",
+            subject: "Información sobre tu usuario",
             html: html,
             generateTextFromHtml: true
           }, function(err){
-            if(err) logger.error("Unable to send email: %o",err.stack);  
+            if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
           });
         });
         logger.debug("User saved to DB");
-        res.render('register', {message: "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso."});
+  
+        req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
+        res.redirect(303, "/register");
       });
     }
   }).catch(err => {
-    logger.error("Problems searching if exists User or what is the max MAC: "+JSON.stringify(err.stack));
-    //TODO: Y a donde voy?
+    logger.error("Problems searching if exists User or max MAC: "+JSON.stringify(err.stack));
+    req.flash("info", "Error. Reintentar registro");
+    res.redirect(303, "/register");
   });
 });
+
+// app.post('/register', function(req, res){
+//   var cart = {
+//     name: req.body.name,
+//     email: req.body.email.toLowerCase(),
+//     pass: Math.random().toString().replace(/^0\.0*/, ''),
+//   };
+//   logger.debug(JSON.stringify(cart)); //TODO: A eliminar
+
+//   Promise.all([
+//     User.findOne({email: cart.email}),
+//     User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
+//   ]).then( ([user, macData]) => {
+//     //----------------- Sólo hacer si se va a crear el usuario
+//     var macMax = macData[0].macMax;
+//     logger.debug("Actual max MAC is: "+macMax);
+
+//     if (macMax){
+//       var newMacArray = macMax.split(":");
+//       var incrementalNumber = parseInt(newMacArray[5],16);
+//       if (incrementalNumber<255){
+//         newMacArray[5] = (incrementalNumber+1).toString(16);
+//       }
+//       else{
+//         incrementalNumber = parseInt(newMacArray[4],16);
+//         newMacArray[4] = (incrementalNumber+1).toString(16);
+//         newMacArray[5] = "00";
+//       }
+        
+//     } else {
+//       var newRole = "admin";
+//       var newMacArray = [
+//         "b8", "27", "eb", 
+//         Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
+//         "00"
+//       ];
+//     }
+
+//     var newMac = newMacArray.join(":");
+//     logger.debug("New MAC is: "+newMac)
+//     //-------------------- Hasta aquí habria que meter
+
+
+//     if (user){
+//       logger.debug("Allready registered user");
+//       req.flash("info", "Usuario ya registrado previamente");
+//       res.redirect(303, "/register");
+//     } else {
+//       var newUser = new User({
+//         username: cart.name,
+//         email: cart.email,
+//         mac: newMac,
+//         created: Date.now(),
+//         role: newRole || "disabled", //TODO: Rol de la gente cuando el admin les autoriza? people?
+//       });
+//       newUser.password =  newUser.generateHash(cart.pass);
+//       newUser.save(function(err) {
+//         if (err){
+//           logger.error("Can't save user in DB");
+//           logger.error(err);
+
+//           req.flash("info", "Ha ocurrido un error técnico");
+//           res.redirect(303, "/register");
+//         }
+        
+//         //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
+//         res.render("email/email_lite", { layout: null, cart: cart }, function(err,html){
+//           if(err) logger.error("Problems using email template");
+//           mailTransport.sendMail({
+//             from: '"miTUBE": desarrollovazquezrubio@gmail.com',
+//             to: cart.email,
+//             subject: "Here is your login information",
+//             html: html,
+//             generateTextFromHtml: true
+//           }, function(err){
+//             if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
+//           });
+//         });
+//         logger.debug("User saved to DB");
+  
+//         req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
+//         res.redirect(303, "/register");
+//       });
+//     }
+//   }).catch(err => {
+//     logger.error("Problems searching if exists User or what is the max MAC: "+JSON.stringify(err.stack));
+//     //TODO: Y a donde voy?
+//   });
+// });
 
 app.get('/wait', function(req, res){
   var context = {
@@ -377,6 +441,7 @@ app.get('/wait', function(req, res){
 app.get('/about', function(req, res){
   var context = {
     userdata: res.locals.userdata,
+    active: {"about": true},
   };
   logger.debug("Context: "+JSON.stringify(context));
 
@@ -386,6 +451,7 @@ app.get('/about', function(req, res){
 app.get('/manual', function(req, res){
   var context = {
     userdata: res.locals.userdata,
+    active: {"manual": true},
   };
   logger.debug("Context: "+JSON.stringify(context));
 
@@ -400,9 +466,10 @@ app.get('/user', isLoggedIn, function(req, res){
         return {
             listId: list.listId,
             name: list.name,
-            created: moment(list.created).format('DD MMM YYYY')
+            created: moment(list.created).format('DD MMM YYYY'),
         }
-      })
+      }),
+      active: {"user": true},
     };
     logger.debug("Context: "+JSON.stringify(context));
     
@@ -547,6 +614,7 @@ app.get('/admin', adminOnly, function(req, res){
   WorkTodo.find({state: {$in: [/^err/]}}, function(err, errorWorks){ 
     console.log(errorWorks);
     var context = {
+      active: {"admin": true},
       userdata: res.locals.userdata,
       works: errorWorks.map(function(work){
         return {

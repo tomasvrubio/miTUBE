@@ -4,8 +4,14 @@
     <input type="text" name="name" class="form-control" placeholder="Nombre" required autofocus>
     <input type="email" name="email" class="form-control" placeholder="Email" required>
     <button class="btn btn-lg btn-dark btn-block btn-square color-negro" type="submit">Registrarse</button>
-</form>
 
+    {{#if alert}}
+    <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+        {{alert}}
+    </div>
+    {{/if}}
+</form>
+{{!-- 
 {{#if message}}
     <p>{{message}}</p>
-{{/if}}
+{{/if}} --}}

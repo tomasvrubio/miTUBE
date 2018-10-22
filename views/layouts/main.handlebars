@@ -1,4 +1,6 @@
 <!doctype html>
+
+
 <html>
   <head>
     <title>mitube</title>
@@ -37,7 +39,7 @@
         <ul class="navbar-nav mr-auto align-middle">
         {{#if userdata.logged}}
           {{#if userdata.gmusicAuth}}
-          <li class="nav-item active">
+          <li class="nav-item {{#if active.user}}active{{/if}}">
             <a class="nav-link" href="user">
               <img src="img/list.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-lg-inline-block">Mis listas</span>
@@ -45,7 +47,7 @@
             </a> 
           </li>
             {{#if userdata.admin}}
-          <li class="nav-item">
+          <li class="nav-item {{#if active.admin}}active{{/if}}">
             <a class="nav-link" href="admin">
               <img src="img/settings.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-lg-inline-block">Admin</span>
@@ -54,15 +56,15 @@
             {{/if}}
           {{/if}}
         {{/if}}
-          <li class="nav-item">
+          <li class="nav-item {{#if active.manual}}active{{/if}}">
             <a class="nav-link" href="manual">
               <img src="img/file-text.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-lg-inline-block">Funcionamiento</span>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item {{#if active.about}}active{{/if}}">
             <a class="nav-link" href="about">
-              <img src="img/help-circle.svg" width="20" height="20" class="d-inline-block" alt="">
+              <img src="img/info.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-lg-inline-block">Sobre mí</span>
             </a>
           </li>
@@ -84,13 +86,13 @@
             </a>
           </li>
         {{else}}
-          <li class="nav-item">
+          <li class="nav-item {{#if active.home}}active{{/if}}">
             <a class="nav-link" href="/">
               <img src="img/user-check.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-md-inline-block">Entrar</span>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item {{#if active.register}}active{{/if}}">
             <a class="nav-link" href="register">
               <img src="img/user-plus.svg" width="20" height="20" class="d-inline-block" alt="">
               <span class="d-sm-none d-md-inline-block">Registrarse</span>
@@ -101,16 +103,8 @@
       </div>
     </nav>
 
-    {{!-- <div class="container"> --}}
+
     {{{body}}}
-    {{!-- </div> --}}
-{{!-- 
-    {{#if flash}}
-      <div class="alert alert-dismissible alert-{{flash.type}}">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;<button>
-        <strong>{{flash.intro}}</strong> {{{flash.message}}}
-      </div>
-    {{/if}} --}}
 
 
   </body>
