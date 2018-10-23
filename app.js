@@ -149,7 +149,7 @@ app.use(flash());
 app.use(function(req, res, next){
   logger.debug("Session data: "+JSON.stringify(req.session));
 
-  next();
+  return next();
 });
 
 //Add userData to context
@@ -163,12 +163,17 @@ app.use(function(req, res, next){
       username: "Anonymous",
     };
   } else {
+    //TODO: ¿Lo pongo en un middleware en el que hago sólo este tipo de redirecciones? Código más limpio.
+    //Para los usuarios creados pero que aún no tienen permiso en la aplicación
+    if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 )
+      return res.redirect(303, "/wait");
+
     res.locals.userdata = req.session.userdata;
     res.locals.userdata.logged = req.isAuthenticated();
     if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
   }
 
- 	next();
+ 	return next();
 });
 
 
@@ -340,94 +345,6 @@ app.post('/register', function(req, res){
   });
 });
 
-// app.post('/register', function(req, res){
-//   var cart = {
-//     name: req.body.name,
-//     email: req.body.email.toLowerCase(),
-//     pass: Math.random().toString().replace(/^0\.0*/, ''),
-//   };
-//   logger.debug(JSON.stringify(cart)); //TODO: A eliminar
-
-//   Promise.all([
-//     User.findOne({email: cart.email}),
-//     User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
-//   ]).then( ([user, macData]) => {
-//     //----------------- Sólo hacer si se va a crear el usuario
-//     var macMax = macData[0].macMax;
-//     logger.debug("Actual max MAC is: "+macMax);
-
-//     if (macMax){
-//       var newMacArray = macMax.split(":");
-//       var incrementalNumber = parseInt(newMacArray[5],16);
-//       if (incrementalNumber<255){
-//         newMacArray[5] = (incrementalNumber+1).toString(16);
-//       }
-//       else{
-//         incrementalNumber = parseInt(newMacArray[4],16);
-//         newMacArray[4] = (incrementalNumber+1).toString(16);
-//         newMacArray[5] = "00";
-//       }
-        
-//     } else {
-//       var newRole = "admin";
-//       var newMacArray = [
-//         "b8", "27", "eb", 
-//         Math.floor(Math.random()*255).toString(16), Math.floor(Math.random()*240).toString(16),
-//         "00"
-//       ];
-//     }
-
-//     var newMac = newMacArray.join(":");
-//     logger.debug("New MAC is: "+newMac)
-//     //-------------------- Hasta aquí habria que meter
-
-
-//     if (user){
-//       logger.debug("Allready registered user");
-//       req.flash("info", "Usuario ya registrado previamente");
-//       res.redirect(303, "/register");
-//     } else {
-//       var newUser = new User({
-//         username: cart.name,
-//         email: cart.email,
-//         mac: newMac,
-//         created: Date.now(),
-//         role: newRole || "disabled", //TODO: Rol de la gente cuando el admin les autoriza? people?
-//       });
-//       newUser.password =  newUser.generateHash(cart.pass);
-//       newUser.save(function(err) {
-//         if (err){
-//           logger.error("Can't save user in DB");
-//           logger.error(err);
-
-//           req.flash("info", "Ha ocurrido un error técnico");
-//           res.redirect(303, "/register");
-//         }
-        
-//         //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
-//         res.render("email/email_lite", { layout: null, cart: cart }, function(err,html){
-//           if(err) logger.error("Problems using email template");
-//           mailTransport.sendMail({
-//             from: '"miTUBE": desarrollovazquezrubio@gmail.com',
-//             to: cart.email,
-//             subject: "Here is your login information",
-//             html: html,
-//             generateTextFromHtml: true
-//           }, function(err){
-//             if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
-//           });
-//         });
-//         logger.debug("User saved to DB");
-  
-//         req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
-//         res.redirect(303, "/register");
-//       });
-//     }
-//   }).catch(err => {
-//     logger.error("Problems searching if exists User or what is the max MAC: "+JSON.stringify(err.stack));
-//     //TODO: Y a donde voy?
-//   });
-// });
 
 app.get('/wait', function(req, res){
   var context = {
@@ -569,8 +486,6 @@ app.get('/userSync', isLoggedIn, function(req, res){
   return res.redirect(303, '/user');
 });
 
-
-//Usuario entra a la aplicación. Lo primero que hace es comprobarse si ha dado autorizacion a gmusic. Si ha dado se le muestra todo normal menos la parte de admin (a menos que lo sea). Si no ha dado la auth se va a quedar en la pantalla hasta que lo haga.
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   logger.debug("El codigo es: "+authCode);
@@ -608,14 +523,25 @@ app.all('/gmusic', isLoggedIn, function(req, res){
   });
 });
 
-//Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
-
 app.get('/admin', adminOnly, function(req, res){
-  WorkTodo.find({state: {$in: [/^err/]}}, function(err, errorWorks){ 
+
+  Promise.all([
+    User.find({role: "disabled"}),
+    WorkTodo.find({state: {$in: [/^err/]}}),
+  ]).then( ([disabledUsers, errorWorks]) => {
+
+    console.log(disabledUsers);
     console.log(errorWorks);
     var context = {
       active: {"admin": true},
       userdata: res.locals.userdata,
+      disabledUsers: disabledUsers.map(function(user){
+        return {
+          username: user.username,
+          email: user.email,
+          created: moment(user.created).format('DD MMM YYYY'),
+        }
+      }),
       works: errorWorks.map(function(work){
         return {
           songId: work.songId,
@@ -624,12 +550,12 @@ app.get('/admin', adminOnly, function(req, res){
           state: work.state,
           date: work.dateLastMovement,
          }
-      })
+      }),
     };
     
     res.render('admin', context);
   }).catch(err => {
-    logger.debug("Impossible to load admin works. Err: "+err);
+    logger.debug("Impossible to load admin data. Err: "+JSON.stringify(err.stack));
   });
 });
 

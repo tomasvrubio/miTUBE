@@ -1,7 +1,36 @@
+<div class="container-fluid">
 <h1>Place where the admin can do things for the rest of the users</h1>
 
 
-<h6>Works in error state</h6>
+<h6>Usuarios que necesitan autorización:</h6>
+
+<div class="table-list">
+    <table id="miTabla" class="table table-sm table-hover">
+    <caption>Tabla de usuarios deshabilitados</caption>
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col" class="d-none d-md-table-cell">Nombre</th>
+            <th scope="col" class="text-center">Fecha</th>
+            <th scope="col" class="text-center">Habilitar</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each disabledUsers}}
+        <tr>
+            <th>{{email}}</th>
+            <th class="d-none d-md-table-cell">{{username}}</th>
+            <th class="text-center">{{created}}</th>
+            <th class="text-center"><a href="authorize?username={{username}}" class="btn btn-success btn-sm btn-square btn-block btn-table">OK</a></th>
+        </tr>
+    {{/each}}
+    </tbody>
+    </table>
+</div>
+
+
+
+
 <!-- Mostrar resultados en tabla -->
 {{!-- TODO:
 
@@ -13,9 +42,9 @@
 
     * Tener algún tipo de estadísticas de movimiento por usuarios. Subida, creación de listas. 
 --}}
-
+{{!-- <h6>Trabajos en error</h6>
 <div>
-    <table id="miTabla" class="table">
+    <table id="miTabla2" class="table">
     <thead>
         <tr>
             <th scope="col">SongId</th>
@@ -37,6 +66,6 @@
     {{/each}}
     </tbody>
     </table>
+</div> --}}
+
 </div>
-
-
