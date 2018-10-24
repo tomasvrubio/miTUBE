@@ -25,7 +25,11 @@
         </div>
 
         <div class="boton-actListas">
-            <a href="userSync" class="btn btn-outline-dark btn-sm btn-square btn-block" role="button">Actualizar todas tus listas</a>
+            <form action="/user" method="post">
+                <input type="hidden" name="email" value="{{userdata.email}}"/>
+                <input type="hidden" name="other" value="something"/>
+                <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
+            </form>
         </div>
 
         <!-- Mostrar resultados en tabla -->

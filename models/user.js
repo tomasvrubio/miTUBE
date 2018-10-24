@@ -9,7 +9,7 @@ var userSchema = mongoose.Schema({
 	role: String,
 	created: Date,
 	mac: String,
-	synchronized: {type:Boolean,default:false},
+	synchronized: {type:Boolean, default:false},
 });
 
 //De uno que he visto por internet

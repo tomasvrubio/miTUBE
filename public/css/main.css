@@ -110,9 +110,20 @@ body {
     vertical-align: middle;
 }
 
+.nav-link:hover {
+    background-color: #FFF;
+    color: #000;
+    border-radius: 4px;
+    filter: invert(0.05);
+}
+
 .active .nav-link{
     background-color: #FFF;
     color: #000;
     border-radius: 4px;
     filter: invert(1);
 }
+
+/* .col .btn {
+    padding: 0 10px;
+}  */

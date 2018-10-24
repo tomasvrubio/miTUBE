@@ -148,6 +148,7 @@ app.use(flash());
 //TODO: A eliminar
 app.use(function(req, res, next){
   logger.debug("Session data: "+JSON.stringify(req.session));
+  console.log(req.body);
 
   return next();
 });
@@ -394,6 +395,21 @@ app.get('/user', isLoggedIn, function(req, res){
   });
 });
 
+app.post('/user', isLoggedIn, function(req, res){
+
+  var email = req.body.email;
+
+  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
+    logger.debug("Comprobadas todas las listas del usuario");
+  }).catch(err => {
+    console.log(err);
+  });
+
+  logger.debug("Lanzada comprobación listas usuario");
+
+  return res.redirect(303, '/user');
+});
+
 app.post('/process-user', function(req, res){
 
   if (req.body.url.includes("http"))
@@ -453,6 +469,7 @@ app.get('/list', isLoggedIn, function(req, res){
         name: listUser.name,
         nameYT: list.nameYT,
         numSongs: list.songs.length,
+        sync: listUser.sync,
         songs: list.songs.map(function(song){
           return {
               songId: song.songId,
@@ -473,18 +490,19 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+
 //Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
-app.get('/userSync', isLoggedIn, function(req, res){
-  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.userdata.email).then(returnObject => {
-    logger.debug("Comprobadas todas las listas del usuario");
-  }).catch(err => {
-    console.log(err);
-  });
+// app.get('/userSync', isLoggedIn, function(req, res){
+//   Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.userdata.email).then(returnObject => {
+//     logger.debug("Comprobadas todas las listas del usuario");
+//   }).catch(err => {
+//     console.log(err);
+//   });
 
-  logger.debug("Lanzada comprobación listas usuario");
+//   logger.debug("Lanzada comprobación listas usuario");
 
-  return res.redirect(303, '/user');
-});
+//   return res.redirect(303, '/user');
+// });
 
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
@@ -557,6 +575,13 @@ app.get('/admin', adminOnly, function(req, res){
   }).catch(err => {
     logger.debug("Impossible to load admin data. Err: "+JSON.stringify(err.stack));
   });
+});
+
+
+app.post("/admin", function(req, res){
+
+  
+  return res.redirect(303, "/admin");
 });
 
 // custom 404 page

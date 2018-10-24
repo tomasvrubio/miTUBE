@@ -1,5 +1,4 @@
 <div class="container-fluid">
-<h1>Place where the admin can do things for the rest of the users</h1>
 
 
 <h6>Usuarios que necesitan autorización:</h6>
@@ -21,12 +20,40 @@
             <th>{{email}}</th>
             <th class="d-none d-md-table-cell">{{username}}</th>
             <th class="text-center">{{created}}</th>
-            <th class="text-center"><a href="authorize?username={{username}}" class="btn btn-success btn-sm btn-square btn-block btn-table">OK</a></th>
+            <th class="text-center">
+                <div class="row">
+                    <div class="col">
+                        {{!-- <a href="authorize?username={{username}}" class="btn btn-success btn-sm btn-block btn-square btn-table">OK</a> --}}
+                        <form action="/admin" method="post">
+                            <input type="hidden" name="action" value="auth"/>
+                            <input type="hidden" name="value" value="OK"/>
+                            <input type="hidden" name="email" value="{{email}}"/>
+                            <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">OK</button>
+                        </form>
+                    </div>
+                    <div class="col">
+                        {{!-- <a href="authorize?username={{username}}" class="btn btn-danger btn-sm btn-block btn-square btn-table">KO</a> --}}
+                        <form action="/admin" method="post">
+                            <input type="hidden" name="action" value="auth"/>
+                            <input type="hidden" name="value" value="KO"/>
+                            <input type="hidden" name="email" value="{{email}}"/>
+                            <button class="btn btn-danger btn-sm btn-block btn-square btn-table" type="submit">KO</button>
+                        </form>
+                    </div>
+                </div>
+            </th>
         </tr>
     {{/each}}
     </tbody>
     </table>
 </div>
+
+
+<form action="/user" method="post">
+                <input type="hidden" name="email" value="{{userdata.email}}"/>
+                <input type="hidden" name="other" value="something"/>
+                <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
+            </form>
 
 
 
