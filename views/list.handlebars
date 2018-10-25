@@ -17,12 +17,18 @@
                     <span class="col align-self-end card-text text-right"><strong>Última modificación: </strong>{{modified}}</span>  
                 </div>
                 {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo o desactivarlo sin recargar página? --}}
-                <div class="row justify-content-center text-center">          
+                <div class="row justify-content-center text-center">
+                <form action="/list" method="post">
+                <input type="hidden" name="action" value="syncToogle"/>
+                <input type="hidden" name="listId" value="{{listId}}"/>
                 {{#if sync}}
-                    <a href="#" class="btn btn-success btn-sm btn-square text-center" role="button">SYNC Activada</a>
+                    <input type="hidden" name="sync" value="false"/>
+                    <button class="btn btn-success btn-sm btn-square text-center" type="submit">SYNC Activada</button>
                 {{else}}
-                    <a href="#" class="btn btn-danger btn-sm btn-square text-center" role="button">SYNC Desactivada</a>
+                    <input type="hidden" name="sync" value="true"/>
+                    <button class="btn btn-danger btn-sm btn-square text-center" type="submit">SYNC Desactivada</button>
                 {{/if}}
+                </form>
                 </div>              
             </div>
         </div>
@@ -41,7 +47,6 @@
             </thead>
             <tbody>
             {{#each songs}}
-            {{!-- Terminar de hacer los links --}}
                 <tr>
                     <th>{{originalName}}</th>
                     <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}"  target="_blank">{{songId}}</a></th>

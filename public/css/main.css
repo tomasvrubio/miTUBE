@@ -127,3 +127,13 @@ body {
 /* .col .btn {
     padding: 0 10px;
 }  */
+
+.block-green {
+    padding: 10% 20%;
+    background-color: #28a745;
+}
+
+.block-red {
+    padding: 10% 20%;
+    background-color: #dc3545;
+}

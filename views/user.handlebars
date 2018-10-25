@@ -26,8 +26,8 @@
 
         <div class="boton-actListas">
             <form action="/user" method="post">
+                <input type="hidden" name="action" value="updateUser"/>
                 <input type="hidden" name="email" value="{{userdata.email}}"/>
-                <input type="hidden" name="other" value="something"/>
                 <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
             </form>
         </div>
@@ -41,15 +41,16 @@
                     <th scope="col">Nombre</th>
                     <th scope="col" class="d-none d-md-table-cell">Identificador</th>
                     <th scope="col" class="text-right">Fecha incorporación</th>
+                    <th scope="col col-1" class="text-center">SYNC</th>
                 </tr>
             </thead>
             <tbody>
             {{#each lists}}
-            {{!-- Terminar de hacer los links --}}
                 <tr>
                     <th><a href="list?listid={{listId}}">{{name}}</a></th>
                     <th class="d-none d-md-table-cell">{{listId}}</th>
                     <th class="text-right">{{created}}</th>
+                    <th><div class={{#if sync}}"block-green"{{else}}"block-red"{{/if}}> </div></th>
                 </tr>
             {{/each}}
             </tbody>

@@ -382,9 +382,10 @@ app.get('/user', isLoggedIn, function(req, res){
       userdata: res.locals.userdata,
       lists: lists.map(function(list){
         return {
-            listId: list.listId,
-            name: list.name,
-            created: moment(list.created).format('DD MMM YYYY'),
+          listId: list.listId,
+          name: list.name,
+          created: moment(list.created).format('DD MMM YYYY'),
+          sync: list.sync,
         }
       }),
       active: {"user": true},
@@ -397,15 +398,22 @@ app.get('/user', isLoggedIn, function(req, res){
 
 app.post('/user', isLoggedIn, function(req, res){
 
-  var email = req.body.email;
+  if (req.body.action == "updateUser"){ 
+    var email = req.body.email;
 
-  Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
-    logger.debug("Comprobadas todas las listas del usuario");
-  }).catch(err => {
-    console.log(err);
-  });
+    Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
+      logger.debug("Comprobadas todas las listas del usuario");
+    }).catch(err => {
+      console.log(err);
+    });
 
-  logger.debug("Lanzada comprobación listas usuario");
+    logger.debug("Lanzada comprobación listas usuario");
+  } else if (req.body.action == "newList") {
+    //TODO: Meter aquí lo de process-user
+
+
+    logger.debug("Añadida nueva lista");
+  }
 
   return res.redirect(303, '/user');
 });
@@ -460,6 +468,8 @@ app.get('/list', isLoggedIn, function(req, res){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
       }
+
+      console.log(listUser);
   
       var context = {
         userdata: res.locals.userdata,
@@ -490,19 +500,19 @@ app.get('/list', isLoggedIn, function(req, res){
   });
 });
 
+app.post('/list', isLoggedIn, function(req, res){
 
-//Esta sincronización la debería lanzar sin irme de la pantalla de listas. Una llamada a esa función pero sin tener que refrescar la pantalla.
-// app.get('/userSync', isLoggedIn, function(req, res){
-//   Synchronize.checkUpdatedUser(credentials.youtube.apiKey, req.session.userdata.email).then(returnObject => {
-//     logger.debug("Comprobadas todas las listas del usuario");
-//   }).catch(err => {
-//     console.log(err);
-//   });
+  if (req.body.action == "syncToogle"){ 
+    var email = res.locals.userdata.email,
+        listId = req.body.listId,
+        sync = req.body.sync;
 
-//   logger.debug("Lanzada comprobación listas usuario");
+    Synchronize.toogleSync(email, listId, sync);
+  }
 
-//   return res.redirect(303, '/user');
-// });
+  return res.redirect(303, '/list?listid='+listId);
+});
+
 
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
@@ -578,9 +588,25 @@ app.get('/admin', adminOnly, function(req, res){
 });
 
 
-app.post("/admin", function(req, res){
+app.post("/admin", adminOnly, function(req, res){
+  if (req.body.action == "auth"){
+    if (req.body.value == "OK"){
+      User.findOneAndUpdate(
+        {email: req.body.email},
+        {$set: {role: "basic"}}, function(err){
+          logger.debug("User "+req.body.email+" given access.");
+        }
+      );
+    } else {
+      User.findOneAndUpdate(
+        {email: req.body.email},
+        {$set: {role: "rejected"}}, function(err){
+          logger.debug("User "+req.body.email+" not allowed.");
+        }
+      );
+    }
+  }
 
-  
   return res.redirect(303, "/admin");
 });
 
