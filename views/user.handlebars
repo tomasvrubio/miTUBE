@@ -1,61 +1,67 @@
 <div class="container-fluid">
 
-    <div class="contenedor-list">
-        <h3>Mis listas</h3>
+  <div class="contenedor-list">
+    <h3>Mis listas</h3>
 
-        {{!-- Si la pantalla pasa de una anchura ponerlo todo en una línea y si no ponerlo en multilinea como está ahora --}}
+    {{!-- Si la pantalla pasa de una anchura ponerlo todo en una línea y si no ponerlo en multilinea como está ahora
+    --}}
 
-        <div class="card border-dark bg-light card-nuevaLista">
-            <div class="card-header">¿Tienes una lista nueva?</div>
-            <div class="card-body text-secondary">
-            <form action="/process-user" method="POST" >
-                    <div class="form-row align-items-center form-list">
-                        <div class="col-12 col-sm-5">
-                            <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>                        
-                        </div>
-                        <div class="col-12 col-sm-5">
-                            <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube" required>
-                        </div>
-                        <div class="col-sm-2 col-4 ml-auto">
-                            <button class="btn btn-sm btn-dark btn-square btn-block color-negro" type="submit">Aceptar</button>
-                        </div>
-                    </div>
-                </form>
-                </div>
-        </div>
-
-        <div class="boton-actListas">
-            <form action="/user" method="post">
-                <input type="hidden" name="action" value="updateUser"/>
-                <input type="hidden" name="email" value="{{userdata.email}}"/>
-                <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
-            </form>
-        </div>
-
-        <!-- Mostrar resultados en tabla -->
-        <div class="table-list">
-            <table id="miTabla" class="table table-sm table-hover">
-            <caption>Tabla de listas sincronizadas</caption>
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-                    <th scope="col" class="text-right">Fecha incorporación</th>
-                    <th scope="col col-1" class="text-center">SYNC</th>
-                </tr>
-            </thead>
-            <tbody>
-            {{#each lists}}
-                <tr>
-                    <th><a href="list?listid={{listId}}">{{name}}</a></th>
-                    <th class="d-none d-md-table-cell">{{listId}}</th>
-                    <th class="text-right">{{created}}</th>
-                    <th><div class={{#if sync}}"block-green"{{else}}"block-red"{{/if}}> </div></th>
-                </tr>
-            {{/each}}
-            </tbody>
-            </table>
-        </div>
-
+    <div class="card border-dark bg-light card-nuevaLista">
+      <div class="card-header">¿Tienes una lista nueva?</div>
+      <div class="card-body text-secondary">
+        <form action="/user" method="POST">
+          <div class="form-row align-items-center form-list">
+            <input type="hidden" name="action" value="newList" />
+            <div class="col-12 col-sm-5">
+              <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista"
+                required>
+            </div>
+            <div class="col-12 col-sm-5">
+              <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube"
+                required>
+            </div>
+            <div class="col-sm-2 col-4 ml-auto">
+              <button class="btn btn-sm btn-dark btn-square btn-block color-negro" type="submit">Aceptar</button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
+
+    <div class="boton-actListas">
+      <form action="/user" method="post">
+        <input type="hidden" name="action" value="updateUser" />
+        <input type="hidden" name="email" value="{{userdata.email}}" />
+        <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
+      </form>
+    </div>
+
+    <!-- Mostrar resultados en tabla -->
+    <div class="table-list">
+      <table id="miTabla" class="table table-sm table-hover">
+        <caption>Tabla de listas sincronizadas</caption>
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="d-none d-md-table-cell">Identificador</th>
+            <th scope="col" class="text-right">Fecha incorporación</th>
+            <th scope="col col-1" class="text-center">SYNC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each lists}}
+          <tr>
+            <th><a href="list?listid={{listId}}">{{name}}</a></th>
+            <th class="d-none d-md-table-cell">{{listId}}</th>
+            <th class="text-right">{{created}}</th>
+            <th>
+              <div class={{#if sync}}"block-green" {{else}}"block-red" {{/if}}> </div>
+            </th>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

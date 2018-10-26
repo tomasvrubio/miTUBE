@@ -5,7 +5,7 @@ var express = require('express'),
     mongoose = require('mongoose'),
     passport = require('passport'),
     LocalStrategy = require('passport-local'),
-    passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
+    //passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
     moment = require('moment'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
@@ -126,23 +126,7 @@ passport.deserializeUser(function(id, done) {
 });
 
 
-
-//Flash messages - (CAP9 - Using Sessions to Implement Flash Messages)
-// app.use(function(req, res, next){
-//   res.locals.flash = req.session.flash;
-//   delete req.session.flash;
-//   next();
-// });
 app.use(flash());
-
-// app.use(function(req, res, next){
-//   res.locals.success_message = req.flash("success_message");
-//   res.locals.error_message = req.flash("error_message");
-//   res.locals.error = req.flash("error");
-//   res.locals.user = req.user || null;
-//   next();
-//  });
-
 
 //Pintamos las peticiones mientras seguimos desarrollando para saber el flujo de la aplicación
 //TODO: A eliminar
@@ -410,51 +394,45 @@ app.post('/user', isLoggedIn, function(req, res){
     logger.debug("Lanzada comprobación listas usuario");
   } else if (req.body.action == "newList") {
     //TODO: Meter aquí lo de process-user
+    if (req.body.url.includes("http"))
+      var listId = req.body.url.split("list=")[1];
+    else
+      var listId = req.body.url;
 
+    Promise.all([
+      ListUser.find({email:req.session.userdata.email, listId: listId}).countDocuments(),
+      ListUser.find({email:req.session.userdata.email, name: req.body.name}).countDocuments()
+    ]).then( ([ usedId, usedName ]) => {
 
-    logger.debug("Añadida nueva lista");
+      if (usedId){
+        logger.debug("URL ya utilizada en otra lista del usuario.");
+        return res.redirect(303, '/user');
+      }
+
+      if (usedName){
+        logger.debug("Nombre ya utilizado en otra lista del usuario.");
+        return res.redirect(303, '/user');
+      }
+
+      Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.userdata.email)
+      .then(nameYT => {
+        Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
+          Synchronize.generateWorkUpload(listId).then(returnObject => {
+            logger.debug("Canciones metidas en workTodo.");
+          }).catch(console.error);
+          return res.redirect(303, '/user');
+        }).catch(console.error);
+      }).catch(err => {
+        console.error(err.stack);
+        logger.debug("Url no válida como lista de Youtube");
+        return res.redirect(303, '/user');
+      }); 
+    });
   }
 
   return res.redirect(303, '/user');
 });
 
-app.post('/process-user', function(req, res){
-
-  if (req.body.url.includes("http"))
-    var listId = req.body.url.split("list=")[1];
-  else
-    var listId = req.body.url;
-
-  Promise.all([
-    ListUser.find({email:req.session.userdata.email, listId: listId}).countDocuments(),
-    ListUser.find({email:req.session.userdata.email, name: req.body.name}).countDocuments()
-  ]).then( ([ usedId, usedName ]) => {
-
-    if (usedId){
-      logger.debug("URL ya utilizada en otra lista del usuario.");
-      return res.redirect(303, '/user');
-    }
-
-    if (usedName){
-      logger.debug("Nombre ya utilizado en otra lista del usuario.");
-      return res.redirect(303, '/user');
-    }
-
-    Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.userdata.email)
-    .then(nameYT => {
-      Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
-        Synchronize.generateWorkUpload(listId).then(returnObject => {
-          logger.debug("Canciones metidas en workTodo.");
-        }).catch(console.error);
-        return res.redirect(303, '/user');
-      }).catch(console.error);
-    }).catch(err => {
-      console.error(err.stack);
-      logger.debug("Url no válida como lista de Youtube");
-      return res.redirect(303, '/user');
-    }); 
-  });
-});
 
 app.get('/list', isLoggedIn, function(req, res){
   Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
@@ -535,7 +513,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
           message: response.message,
           urlAuth: response.url,
         };
-        logger.debug(context);
+        logger.debug("Context: "+JSON.stringify(context));
 
         if (response.code == 1)
           logger.debug(req.session.userdata.email+": Usuario sin autorización googleMusic.");

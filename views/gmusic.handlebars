@@ -1,10 +1,25 @@
-<h1><a href="{{urlAuth}}" target="_blank">Here</a> you can authorize the APP to connect to your Google Music Profile.</h1>
+<div class="container-fluid">
+  <div class="gmusic-body">
+    <h4 class="text-center">La aplicación necesita acceder a tu <strong>perfil de Google Music</strong> para poder
+      realizar todas sus funciones.</h4>
 
-<form method="POST" action="/gmusic">    
-  <input type="text" name="authCode" placeholder="Codigo autorización">
-  <button type="submit">Aceptar</button>
-</form>
+    <h4 class="text-center"><strong>Accede al siguiente enlace</strong> para obtener el código que introducirás en mitube.</h4>
 
-{{#if message}}
-    <p><b>Resultado intento sincronización: </b>{{message}}</p>
-{{/if}}
+    <a href={{urlAuth}} target="_blank">
+      <button class="btn btn-lg btn-dark btn-square btn-block color-negro">Obtener código</button>
+    </a>
+
+    <h4 class="text-center">Después vuelve a esta página y <strong>pégalo en el recuadro</strong>:</h4>
+
+    <form action="/gmusic" method="POST" class="form-user">
+      <input type="text" name="authCode" class="form-control" placeholder="Codigo autorización">
+      <button type="submit" class="btn btn-lg btn-dark btn-square btn-block color-negro">Aceptar</button>
+
+      {{#if message}}
+      <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+        <p><b>Resultado intento sincronización: </b>{{message}}</p>
+      </div>
+      {{/if}}
+    </form>
+  </div>
+</div>

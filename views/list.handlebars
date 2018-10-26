@@ -1,61 +1,63 @@
 <div class="container-fluid">
 
-    <div class="contenedor-list">
+  <div class="contenedor-list">
 
-        <div class="card text-white bg-dark mb-3 card-listDetails" >
-            <div class="card-header text-center bold color-negro"><strong>{{name}}</strong></div>
-            <div class="card-body color-negro">
-                <div class="row justify-content-between">
-                    <span class="col-6"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}" target="_blank">{{nameYT}}</a></span>
-                    <span class="col-4 card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
-                </div>
-
-                <div class="row justify-content-end">
-                    <span class="col align-self-end card-text text-right"><strong>Registro lista: </strong>{{created}}</span>
-                </div>
-                <div class="row justify-content-end">
-                    <span class="col align-self-end card-text text-right"><strong>Última modificación: </strong>{{modified}}</span>  
-                </div>
-                {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo o desactivarlo sin recargar página? --}}
-                <div class="row justify-content-center text-center">
-                <form action="/list" method="post">
-                <input type="hidden" name="action" value="syncToogle"/>
-                <input type="hidden" name="listId" value="{{listId}}"/>
-                {{#if sync}}
-                    <input type="hidden" name="sync" value="false"/>
-                    <button class="btn btn-success btn-sm btn-square text-center" type="submit">SYNC Activada</button>
-                {{else}}
-                    <input type="hidden" name="sync" value="true"/>
-                    <button class="btn btn-danger btn-sm btn-square text-center" type="submit">SYNC Desactivada</button>
-                {{/if}}
-                </form>
-                </div>              
-            </div>
+    <div class="card text-white bg-dark mb-3 card-listDetails">
+      <div class="card-header text-center bold color-negro"><strong>{{name}}</strong></div>
+      <div class="card-body color-negro">
+        <div class="row justify-content-between">
+          <span class="col-6"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
+              target="_blank">{{nameYT}}</a></span>
+          <span class="col-4 card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
         </div>
 
-
-        <!-- Mostrar resultados en tabla -->
-        <div class="table-list">
-            <table id="miTabla" class="table table-sm table-hover">
-            <caption>Tabla de canciones de una lista</caption>
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-                    <th scope="col" class="text-center">Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-            {{#each songs}}
-                <tr>
-                    <th>{{originalName}}</th>
-                    <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}"  target="_blank">{{songId}}</a></th>
-                    <th class="text-right">{{added}}</th>
-                </tr>
-            {{/each}}
-            </tbody>
-            </table>
+        <div class="row justify-content-end">
+          <span class="col align-self-end card-text text-right"><strong>Registro lista: </strong>{{created}}</span>
         </div>
-
+        <div class="row justify-content-end">
+          <span class="col align-self-end card-text text-right"><strong>Última modificación: </strong>{{modified}}</span>
+        </div>
+        {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo
+        o desactivarlo sin recargar página? --}}
+        <div class="row justify-content-center text-center">
+          <form action="/list" method="post">
+            <input type="hidden" name="action" value="syncToogle" />
+            <input type="hidden" name="listId" value="{{listId}}" />
+            {{#if sync}}
+            <input type="hidden" name="sync" value="false" />
+            <button class="btn btn-success btn-sm btn-square text-center" type="submit">SYNC Activada</button>
+            {{else}}
+            <input type="hidden" name="sync" value="true" />
+            <button class="btn btn-danger btn-sm btn-square text-center" type="submit">SYNC Desactivada</button>
+            {{/if}}
+          </form>
+        </div>
+      </div>
     </div>
+
+
+    <!-- Mostrar resultados en tabla -->
+    <div class="table-list">
+      <table id="miTabla" class="table table-sm table-hover">
+        <caption>Tabla de canciones de una lista</caption>
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="d-none d-md-table-cell">Identificador</th>
+            <th scope="col" class="text-center">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each songs}}
+          <tr>
+            <th>{{originalName}}</th>
+            <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank">{{songId}}</a></th>
+            <th class="text-right">{{added}}</th>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>
