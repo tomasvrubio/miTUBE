@@ -161,15 +161,15 @@ body {
   padding-top: 0px;
 }
 
-a:hover {
+.gmusic-body a:hover {
   color: #FFF;
   text-decoration: none;
 }
 
-a:active {
+.gmusic-body a:active {
   color: #FFF;
 }
 
-a:visited {
+.gmusic-body a:visited {
   color: #FFF;
 }

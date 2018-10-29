@@ -18,6 +18,7 @@ var express = require('express'),
 
 var Synchronize = require('./lib/synchronize.js')(),
     Gmusic = require('./lib/gmusic.js')(),
+    YoutubeDL = require('./lib/youtubedl')(),
     logger = require('./lib/logger');
 
 var handlebars = require('express-handlebars').create({
@@ -305,12 +306,12 @@ app.post('/register', function(req, res){
         }
         
         //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
-        res.render("email/email_lite", {layout: null, cart}, function(err,html){
+        res.render("email/email_register", {layout: null, cart}, function(err,html){
           if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
           mailTransport.sendMail({
             from: '"mitube": '+credentials.gmail.user,
             to: cart.email,
-            subject: "Información sobre tu usuario",
+            subject: "Usuario dado de alta",
             html: html,
             generateTextFromHtml: true
           }, function(err){
@@ -571,8 +572,25 @@ app.post("/admin", adminOnly, function(req, res){
     if (req.body.value == "OK"){
       User.findOneAndUpdate(
         {email: req.body.email},
-        {$set: {role: "basic"}}, function(err){
+        {$set: {role: "basic"}}, function(err, user){
           logger.debug("User "+req.body.email+" given access.");
+          //Mandar mail indicando que ya le han dado autorización
+          var cart = {
+            name: user.username,
+            email: user.email,
+          };
+          res.render("email/email_auth", {layout: null, cart}, function(err,html){
+            if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
+            mailTransport.sendMail({
+              from: '"mitube": '+credentials.gmail.user,
+              to: cart.email,
+              subject: "Acceso confirmado",
+              html: html,
+              generateTextFromHtml: true
+            }, function(err){
+              if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
+            });
+          });
         }
       );
     } else {
@@ -583,6 +601,9 @@ app.post("/admin", adminOnly, function(req, res){
         }
       );
     }
+  } else if (req.body.action == "update") {
+    
+    YoutubeDL.updateTool();
   }
 
   return res.redirect(303, "/admin");

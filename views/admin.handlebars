@@ -26,7 +26,7 @@
                 <form action="/admin" method="post">
                   <input type="hidden" name="action" value="auth" />
                   <input type="hidden" name="value" value="OK" />
-                  <input type="hidden" name="email" value="{{email}}" />
+                  <input type="hidden" name="email" value={{email}} />
                   <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">OK</button>
                 </form>
               </div>
@@ -34,7 +34,7 @@
                 <form action="/admin" method="post">
                   <input type="hidden" name="action" value="auth" />
                   <input type="hidden" name="value" value="KO" />
-                  <input type="hidden" name="email" value="{{email}}" />
+                  <input type="hidden" name="email" value={{email}} />
                   <button class="btn btn-danger btn-sm btn-block btn-square btn-table" type="submit">KO</button>
                 </form>
               </div>
@@ -44,6 +44,20 @@
         {{/each}}
       </tbody>
     </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header color-negro text-white">
+      ACTUALIZACIÓN <strong>youtube-dl</strong>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      <p class="card-text">Al pulsar el siguiente botón se actualiza la herramienta que descarga las canciones de YouTube a la última versión (si es que hay una más reciente a la instalada actualmente).</p>
+      <form action="/admin" method="post">
+        <input type="hidden" name="action" value="update" />
+        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar actualización</button>
+      </form>
+    </div>
   </div>
 
 
