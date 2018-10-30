@@ -246,6 +246,12 @@ app.post('/register', function(req, res){
     email: req.body.email.toLowerCase(),
   };
 
+  if (!cart.email.endsWith("@gmail.com")){
+    logger.debug("Not gmail account");
+    req.flash("info", "Para poder utilizar la aplicación hay que registrarse con un correo de GMAIL");
+    return res.redirect(303, "/register");
+  }
+
   Promise.all([
     User.findOne({email: cart.email}),
     User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
@@ -254,7 +260,7 @@ app.post('/register', function(req, res){
     if (user){
       logger.debug("Allready registered user");
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
-      res.redirect(303, "/register");
+      return res.redirect(303, "/register");
 
     } else {
       //Generate password
@@ -327,7 +333,7 @@ app.post('/register', function(req, res){
   }).catch(err => {
     logger.error("Problems searching if exists User or max MAC: "+JSON.stringify(err.stack));
     req.flash("info", "Error. Reintentar registro");
-    res.redirect(303, "/register");
+    return res.redirect(303, "/register");
   });
 });
 
