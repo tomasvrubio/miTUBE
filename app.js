@@ -16,7 +16,8 @@ var express = require('express'),
     User = require('./models/user.js');
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
-var Synchronize = require('./lib/synchronize.js')(),
+var UserManagement = require('./lib/userManagement.js')(),
+    Synchronize = require('./lib/synchronize.js')(),
     Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl')(),
     logger = require('./lib/logger');
@@ -241,97 +242,24 @@ app.get('/register', function(req, res){
 
 
 app.post('/register', function(req, res){
-  var cart = {
-    name: req.body.name,
-    email: req.body.email.toLowerCase(),
-  };
+  var name = req.body.name;
+  var email = req.body.email.toLowerCase();
 
-  if (!cart.email.endsWith("@gmail.com")){
+  if (!email.endsWith("@gmail.com")){
     logger.debug("Not gmail account");
     req.flash("info", "Para poder utilizar la aplicación hay que registrarse con un correo de GMAIL");
     return res.redirect(303, "/register");
   }
 
-  Promise.all([
-    User.findOne({email: cart.email}),
-    User.aggregate([{$group: {_id: null, macMax: {$max: "$mac"}}}])
-  ]).then( ([user, macData]) => {
-
-    if (user){
-      logger.debug("Allready registered user");
+  UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
+    if (confirmation == "OK"){
+      req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
+      return res.redirect(303, "/register");
+    } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
       return res.redirect(303, "/register");
-
-    } else {
-      //Generate password
-      cart.pass = Math.random().toString().replace(/^0\.0*/, '');
-      logger.debug(JSON.stringify(cart));
-      //Generate MAC
-      var macMax = macData[0].macMax;
-      logger.debug("Actual max MAC is: "+macMax);
-
-      if (macMax){
-        var newMacArray = macMax.split(":");
-        var incrementalNumber = parseInt(newMacArray[5],16);
-        if (incrementalNumber<255){
-          newMacArray[5] = (incrementalNumber+1).toString(16);
-        }
-        else{
-          incrementalNumber = parseInt(newMacArray[4],16);
-          newMacArray[4] = (incrementalNumber+1).toString(16);
-          newMacArray[5] = "00";
-        }
-          
-      } else {
-        //First user is Admin and gets a random MAC
-        var newRole = "admin";
-        var newMacArray = [
-          "b8", "27", "eb", 
-          Math.floor(Math.random()*255).toString(16), 
-          Math.floor(Math.random()*240).toString(16),
-          "00"
-        ];
-      }
-
-      var newMac = newMacArray.join(":");
-      logger.debug("New MAC is: "+newMac);
-
-      var newUser = new User({
-        username: cart.name,
-        email: cart.email,
-        mac: newMac,
-        created: Date.now(),
-        role: newRole || "disabled", //TODO: Rol de la gente cuando el admin les autoriza? people?
-      });
-      newUser.password =  newUser.generateHash(cart.pass);
-      newUser.save(function(err) {
-        if (err){
-          logger.error("Can't save user in DB: "+JSON.stringify(err.stack));
-          req.flash("info", "Ha ocurrido un error técnico");
-          res.redirect(303, "/register");
-        }
-        
-        //TODO: Revisar en que caso se mandan mails y no permitir acceder a los usuarios que aún no han sido autorizados. 
-        res.render("email/email_register", {layout: null, cart}, function(err,html){
-          if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
-          mailTransport.sendMail({
-            from: '"mitube": '+credentials.gmail.user,
-            to: cart.email,
-            subject: "Usuario dado de alta",
-            html: html,
-            generateTextFromHtml: true
-          }, function(err){
-            if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
-          });
-        });
-        logger.debug("User saved to DB");
-  
-        req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
-        res.redirect(303, "/register");
-      });
     }
   }).catch(err => {
-    logger.error("Problems searching if exists User or max MAC: "+JSON.stringify(err.stack));
     req.flash("info", "Error. Reintentar registro");
     return res.redirect(303, "/register");
   });
