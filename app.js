@@ -254,11 +254,10 @@ app.post('/register', function(req, res){
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
       req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
-      return res.redirect(303, "/register");
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
-      return res.redirect(303, "/register");
     }
+    return res.redirect(303, "/register");
   }).catch(err => {
     req.flash("info", "Error. Reintentar registro");
     return res.redirect(303, "/register");
@@ -308,6 +307,8 @@ app.get('/user', isLoggedIn, function(req, res){
         }
       }),
       active: {"user": true},
+      alert: req.flash("info") || null,
+      success: req.flash("success") || null,
     };
     logger.debug("Context: "+JSON.stringify(context));
     
@@ -327,6 +328,8 @@ app.post('/user', isLoggedIn, function(req, res){
     });
 
     logger.debug("Lanzada comprobación listas usuario");
+    return res.redirect(303, '/user');
+
   } else if (req.body.action == "newList") {
     //TODO: Meter aquí lo de process-user
     if (req.body.url.includes("http"))
@@ -341,11 +344,13 @@ app.post('/user', isLoggedIn, function(req, res){
 
       if (usedId){
         logger.debug("URL ya utilizada en otra lista del usuario.");
+        req.flash("info", "URL ya utilizada en otra lista del usuario.");
         return res.redirect(303, '/user');
       }
 
       if (usedName){
         logger.debug("Nombre ya utilizado en otra lista del usuario.");
+        req.flash("info", "Nombre ya utilizado en otra lista del usuario.");
         return res.redirect(303, '/user');
       }
 
@@ -355,17 +360,17 @@ app.post('/user', isLoggedIn, function(req, res){
           Synchronize.generateWorkUpload(listId).then(returnObject => {
             logger.debug("Canciones metidas en workTodo.");
           }).catch(console.error);
+          req.flash("success", "Nueva lista creada.");
           return res.redirect(303, '/user');
         }).catch(console.error);
       }).catch(err => {
         console.error(err.stack);
         logger.debug("Url no válida como lista de Youtube");
+        req.flash("info", "URL no válida como lista de Youtube.");
         return res.redirect(303, '/user');
       }); 
     });
   }
-
-  return res.redirect(303, '/user');
 });
 
 
@@ -375,8 +380,9 @@ app.get('/list', isLoggedIn, function(req, res){
 
     Promise.all([
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
-      List.findOne({listId:req.query.listid})
-    ]).then( ([listUser, list]) => {
+      List.findOne({listId:req.query.listid}),
+      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}),
+    ]).then( ([listUser, list, works]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
@@ -392,6 +398,7 @@ app.get('/list', isLoggedIn, function(req, res){
         name: listUser.name,
         nameYT: list.nameYT,
         numSongs: list.songs.length,
+        numWorks: works.length || 0,
         sync: listUser.sync,
         songs: list.songs.map(function(song){
           return {
@@ -471,8 +478,8 @@ app.get('/admin', adminOnly, function(req, res){
     WorkTodo.find({state: {$in: [/^err/]}}),
   ]).then( ([disabledUsers, errorWorks]) => {
 
-    console.log(disabledUsers);
-    console.log(errorWorks);
+    // console.log(disabledUsers);
+    // console.log(errorWorks);
     var context = {
       active: {"admin": true},
       userdata: res.locals.userdata,
@@ -503,38 +510,45 @@ app.get('/admin', adminOnly, function(req, res){
 
 app.post("/admin", adminOnly, function(req, res){
   if (req.body.action == "auth"){
-    if (req.body.value == "OK"){
-      User.findOneAndUpdate(
-        {email: req.body.email},
-        {$set: {role: "basic"}}, function(err, user){
-          logger.debug("User "+req.body.email+" given access.");
-          //Mandar mail indicando que ya le han dado autorización
-          var cart = {
-            name: user.username,
-            email: user.email,
-          };
-          res.render("email/email_auth", {layout: null, cart}, function(err,html){
-            if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
-            mailTransport.sendMail({
-              from: '"mitube": '+credentials.gmail.user,
-              to: cart.email,
-              subject: "Acceso confirmado",
-              html: html,
-              generateTextFromHtml: true
-            }, function(err){
-              if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
-            });
-          });
-        }
-      );
-    } else {
-      User.findOneAndUpdate(
-        {email: req.body.email},
-        {$set: {role: "rejected"}}, function(err){
-          logger.debug("User "+req.body.email+" not allowed.");
-        }
-      );
-    }
+    //TODO: Meter lógica en una función
+    var parms = {
+      email: req.body.email,
+      value: req.body.value,
+    };
+    UserManagement.authUser(parms, credentials.gmail.user, res, mailTransport);
+
+    // if (req.body.value == "OK"){
+    //   User.findOneAndUpdate(
+    //     {email: req.body.email},
+    //     {$set: {role: "basic"}}, function(err, user){
+    //       logger.debug("User "+req.body.email+" given access.");
+    //       //Mandar mail indicando que ya le han dado autorización
+    //       var cart = {
+    //         name: user.username,
+    //         email: user.email,
+    //       };
+    //       res.render("email/email_auth", {layout: null, cart}, function(err,html){
+    //         if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
+    //         mailTransport.sendMail({
+    //           from: '"mitube": '+credentials.gmail.user,
+    //           to: cart.email,
+    //           subject: "Acceso confirmado",
+    //           html: html,
+    //           generateTextFromHtml: true
+    //         }, function(err){
+    //           if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
+    //         });
+    //       });
+    //     }
+    //   );
+    // } else {
+    //   User.findOneAndUpdate(
+    //     {email: req.body.email},
+    //     {$set: {role: "rejected"}}, function(err){
+    //       logger.debug("User "+req.body.email+" not allowed.");
+    //     }
+    //   );
+    // }
   } else if (req.body.action == "update") {
     
     YoutubeDL.updateTool();

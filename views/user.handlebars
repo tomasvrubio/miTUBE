@@ -25,6 +25,16 @@
             </div>
           </div>
         </form>
+        {{#if alert}}
+        <div id="alertNewList" class="alert alert-danger" role="alert" style="margin: 5px;">
+          {{alert}}
+        </div>
+        {{/if}}
+        {{#if success}}
+        <div id="alertNewList" class="alert alert-success" role="alert" style="margin: 5px;">
+          {{success}}
+        </div>
+        {{/if}}
       </div>
     </div>
 
@@ -65,3 +75,25 @@
 
   </div>
 </div>
+
+
+{{!-- JAVASCRIPT --}}
+<script>
+  const alertNewList = document.getElementById("alertNewList");
+  const fieldName = document.getElementById("fieldName");
+  const fieldURL = document.getElementById("fieldURL");
+
+  if (alertNewList != null) {
+    setTimeout(function() {
+      alertNewList.style.display = "none";
+    }, 10000);
+
+    fieldName.addEventListener("focus", function() {
+      alertNewList.style.display = "none";
+    });
+
+    fieldURL.addEventListener("focus", function() {
+      alertNewList.style.display = "none";
+    });
+  }  
+</script>

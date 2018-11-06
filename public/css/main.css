@@ -17,6 +17,11 @@ body {
   font-size: 0.875rem;
 }
 
+.navbar
+{
+    border-bottom: 2px solid #000;
+}
+
 .form-user {
   width: 100%;
   max-width: 330px;
@@ -45,7 +50,7 @@ body {
 
 .table-list {
   margin: 0 auto;
-  padding-top: 10px;
+  padding-top: 5px;
 }
 
 .form-list {
