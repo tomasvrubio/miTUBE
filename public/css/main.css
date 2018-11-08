@@ -135,12 +135,14 @@ body {
 }  */
 
 .block-green {
-  padding: 10% 20%;
+  padding: 10% 10%;
+  margin: 0 30%; 
   background-color: #28a745;
 }
 
 .block-red {
-  padding: 10% 20%;
+  padding: 10% 10%;
+  margin: 0 30%; 
   background-color: #dc3545;
 }
 
@@ -176,4 +178,8 @@ body {
 
 .gmusic-body a:visited {
   color: #FFF;
+}
+
+.indicador {
+  padding: 0px 3px;
 }

@@ -6,15 +6,15 @@
       <div class="card-header text-center bold color-negro"><h3><strong>{{name}}</strong></h3></div>
       <div class="card-body color-negro">
         <div class="row justify-content-between">
-          <span class="col-6"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
+          <span class="col-12"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
               target="_blank">{{nameYT}}</a></span>
-          <span class="col-4 card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
+          <span class="col-12 ml-auto card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
         {{!-- </div>
         <div class="row justify-content-end"> --}}
-          <span class="col-5 ml-auto card-text text-right"><strong>#Pendientes: </strong>{{numWorks}}</span>
+          <span class="col-12 ml-auto card-text text-right"><strong>#Pendientes: </strong><span id="numWorksId" class="indicador">{{numWorks}}</span></span>
         </div>
         <div class="row justify-content-end">
-          <span class="col-5 align-self-end card-text text-right"><strong>Registro: </strong>{{created}}</span>
+          <span class="col align-self-end card-text text-right"><strong>Registro: </strong>{{created}}</span>
         </div>
         <div class="row justify-content-end">
           <span class="col align-self-end card-text text-right"><strong>Modificación: </strong>{{modified}}</span>
@@ -63,3 +63,14 @@
 
   </div>
 </div>
+
+{{!-- JAVASCRIPT --}}
+<script>
+  const indicador = document.getElementById("numWorksId");
+
+  if ({{numWorks}} == 0)
+    indicador.style.backgroundColor = "#28a745";
+  else
+    indicador.style.backgroundColor = "#f38609";  
+
+</script>

@@ -376,8 +376,58 @@ app.post('/user', isLoggedIn, function(req, res){
 
 
 app.get('/list', isLoggedIn, function(req, res){
+  // Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
+  //   logger.debug("Comprobada lista "+req.query.listid);
+
+  //   Promise.all([
+  //     ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
+  //     List.findOne({listId:req.query.listid}),
+  //     WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}),
+  //   ]).then( ([listUser, list, works]) => {
+  //     if (listUser == null || list == null){
+  //       logger.debug("Lista sin detalles almacenados.");
+  //       return res.redirect(303, '/user');
+  //     }
+
+  //     console.log(listUser);
+  
+  //     var context = {
+  //       userdata: res.locals.userdata,
+  //       listId: req.query.listid,
+  //       created: moment(listUser.created).format('DD MMM YYYY  HH:mm'),
+  //       modified: moment(list.modified).format('DD MMM YYYY  HH:mm') || null,
+  //       name: listUser.name,
+  //       nameYT: list.nameYT,
+  //       numSongs: list.songs.length,
+  //       numWorks: works.length || 0,
+  //       sync: listUser.sync,
+  //       songs: list.songs.map(function(song){
+  //         return {
+  //             songId: song.songId,
+  //             originalName: song.originalName,
+  //             name: song.name,
+  //             artist: song.artist,
+  //             added: moment(song.added).format('DD MMM YYYY')
+  //           }
+  //       })
+  //     };
+  //     logger.debug("Context: "+JSON.stringify(context));
+
+  //     res.render('list', context);
+  //   });
+  // }).catch(error => {
+  //   logger.error("Can't check if list is updated - "+error);
+  //   res.render('list', context); //TODO: El contexto no existe. No tiene sentido actualmente esta representación.
+  // });
+
+
   Synchronize.checkUpdatedList(credentials.youtube.apiKey, req.query.listid).then(returnObject => {
     logger.debug("Comprobada lista "+req.query.listid);
+
+  }).catch(error => {
+    logger.error("Can't check if list is updated - "+error);
+    
+  }).then(returnObject => {
 
     Promise.all([
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
@@ -415,10 +465,8 @@ app.get('/list', isLoggedIn, function(req, res){
 
       res.render('list', context);
     });
-  }).catch(error => {
-    logger.error("Can't check if list is updated - "+error);
-    res.render('list', context);
   });
+
 });
 
 app.post('/list', isLoggedIn, function(req, res){
