@@ -100,7 +100,6 @@ body {
 }
 
 .btn-outline-dark:hover,
-.btn-outline-dark:focus,
 .btn-outline-dark:active {
   background-color: #212529;
 }

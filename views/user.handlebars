@@ -38,12 +38,13 @@
       </div>
     </div>
 
-    <div class="boton-actListas">
-      <form action="/user" method="post">
+    <div id ="divUpdateUser" class="boton-actListas">
+      {{!-- <form action="/user" method="post">
         <input type="hidden" name="action" value="updateUser" />
-        <input type="hidden" name="email" value="{{userdata.email}}" />
-        <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">Actualizar todas tus listas</button>
-      </form>
+        <input type="hidden" name="email" value="{{userdata.email}}" /> --}}
+        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block">Actualizar todas tus listas</button>
+        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>
+      {{!-- </form> --}}
     </div>
 
     <!-- Mostrar resultados en tabla -->
@@ -79,6 +80,7 @@
 
 {{!-- JAVASCRIPT --}}
 <script>
+
   const alertNewList = document.getElementById("alertNewList");
   const fieldName = document.getElementById("fieldName");
   const fieldURL = document.getElementById("fieldURL");
@@ -86,7 +88,7 @@
   if (alertNewList != null) {
     setTimeout(function() {
       alertNewList.style.display = "none";
-    }, 10000);
+    }, 5000);
 
     fieldName.addEventListener("focus", function() {
       alertNewList.style.display = "none";
@@ -95,5 +97,40 @@
     fieldURL.addEventListener("focus", function() {
       alertNewList.style.display = "none";
     });
-  }  
+  }
+
+  const buttonUpdateUser = document.getElementById("btnUpdateUser");
+  const alertUpdateUser = document.getElementById("alertUpdateUser");
+
+  buttonUpdateUser.addEventListener("click", function(){
+    //Buena manera de utilizarlo:
+    fetch('user', {
+      method: 'post',
+      body: 'action=updateUser&email={{userdata.email}}',
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .then(data => {
+      if(data.success=true){
+        console.log("exito");
+        alertUpdateUser.style.display = "block";
+        setTimeout(function() {
+          alertUpdateUser.style.display = "none";
+        }, 5000);
+      }
+    })
+    .catch(error => console.log('error is', error));
+  });
+
+
+
 </script>

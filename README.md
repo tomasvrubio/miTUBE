@@ -59,3 +59,38 @@ Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios..
 * usuarios pruebas:
 
 {"name":"Nuevo","email":"nuevo@gmail.com","pass":"6299682331407033"}
+
+
+
+* Notas para Fetch:
+
+//Si lo llamo con la info en JSON
+fetch('/url', {
+  method: 'post',
+  body: JSON.stringify(data),
+  headers: { 'Content-type': 'application/json' }
+})
+
+//Si lo llamo con la información en la URL
+fetch('/url', {
+  method: 'post',
+  body: 'firstName=Nikhil&favColor=blue&password=easytoguess',
+  headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+})
+
+//Plantilla:
+  fetch('url', {
+    ...
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json()
+    } else {
+      return Promise.reject({
+        status: response.status,
+        statusText: response.statusText
+      });
+    }
+  })
+  .then(data => console.log('data is', data))
+  .catch(error => console.log('error is', error));

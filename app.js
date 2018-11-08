@@ -328,7 +328,8 @@ app.post('/user', isLoggedIn, function(req, res){
     });
 
     logger.debug("Lanzada comprobación listas usuario");
-    return res.redirect(303, '/user');
+    //return res.redirect(303, '/user');
+    return res.json({success: true});
 
   } else if (req.body.action == "newList") {
     //TODO: Meter aquí lo de process-user
