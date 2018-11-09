@@ -24,7 +24,7 @@ const sleep = (milliseconds) => {
 //Declaration of the loop in async mode so we can call "await" inside to wait for promise end.
 async function loop() {
   do {
-    logger.info("Another iteration of the Daemon.");
+    logger.info("Daemon - Another iteration.");
 
     //Search for songs to update
     await Promise.all([
@@ -35,30 +35,30 @@ async function loop() {
       userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
 
       if (uploads.length==0)
-        logger.debug("Nothing to upload.");
+        logger.debug("Daemon - Nothing to upload.");
       else{
-        logger.debug("Songs to upload...");
+        logger.debug("Daemon - Songs to upload...");
         for (const work of uploads){  
           if (fs.existsSync("./tmp/"+work.songId+".mp3")){
             
             await YoutubeDL.changeMetadataAlbum(work.songId, work.listName).then(returnObject => {
-              logger.debug("Album metadata changed to "+work.listName+" for song "+work.songId);
+              logger.debug("Daemon - Album metadata changed to "+work.listName+" for song "+work.songId);
             }).catch(err => {
               logger.error(err.stack);
             });
             
-            logger.debug("Uploading song "+work.songId+" for user "+work.email);
+            logger.debug("Daemon - Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
               console.log(returnObject);
 
-              if (returnObject.code == 0){
-                logger.debug("Ended uploading song.");
+              if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar la subida.
+                logger.debug("Daemon - Ended uploading song.");
 
                 List.findOneAndUpdate(
                   {listId:work.listId, "songs.songId":work.songId}, 
                   {"$set": { "songs.$.gmusicId":returnObject.uuid }}
                 ).then(returnObject => {
-                  logger.debug("Uuid introduced into List. Returned: "+JSON.stringify(returnObject));
+                  logger.debug("Daemon - Uuid introduced into List.");
                 });
 
                 WorkDone.insertMany({
@@ -70,11 +70,11 @@ async function loop() {
                 });
 
                 WorkTodo.find({songId: work.songId, state:"upl"}).countDocuments().then(uplWork => {
-                  logger.debug('Pending uploads of '+work.songId+': '+uplWork);
+                  logger.debug("Daemon - Pending uploads of "+work.songId+": "+uplWork);
                   if (uplWork == 1){
                     fs.unlink("./tmp/"+work.songId+".mp3", function (err) {
                         if (err) throw err;
-                        logger.debug('File '+work.songId+' deleted');
+                        logger.debug("Daemon - File "+work.songId+" deleted");
                     }); 
                   }
                 });
@@ -86,7 +86,7 @@ async function loop() {
             });
           }
           else{
-            logger.error("No file found for song "+work.songId);
+            logger.error("Daemon - No file found for song "+work.songId);
             work.state = "err-upl";
             work.dateLastMovement = Date.now();
             work.save();
@@ -100,38 +100,53 @@ async function loop() {
       //Search for songs to download
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
-          logger.debug("Nothing to download. Sleeping...");
-          await sleep(10000); //TODO: Adjust SLEEP TIME (ms)
+          logger.debug("Daemon - Nothing to download. Sleeping...");
+          await sleep(30000); //TODO: Adjust SLEEP TIME (ms)
         } 
         else {
-          logger.debug("Need to download "+work.songId);
+          logger.debug("Daemon - Need to download "+work.songId);
 
-          await YoutubeDL.download(work.songId).then(returnObject => {
+          await YoutubeDL.download(work.songId).then(async function(returnObject){
             if (returnObject == 0) {
-              logger.debug("Song "+work.songId+" downloaded");
+              logger.debug("Daemon - Song "+work.songId+" downloaded.");
               WorkTodo.updateMany(
                 {songId:work.songId, state:"new"},
                 {$set: { state:"upl", dateLastMovement:Date.now() }}, function(err){
-                  logger.debug("Works of "+work.songId+" with 'new' state moved to 'upl' state.");
+                  logger.debug("Daemon - Works of "+work.songId+" with 'new' state moved to 'upl' state.");
                 }
               );
+
+              await YoutubeDL.adjustAudio(work.songId).then(returnObject => {
+                logger.debug("Daemon - Volume adjusted for song "+work.songId);
+              }).catch(err => {
+                logger.error(err.stack);
+              });
             }
             else if (returnObject == 1){
-              logger.error("Can't download song "+work.songId);
-
-              WorkTodo.updateMany(
-                {songId:work.songId, state:"new"},
-                {$set: { state:"err-dwn", dateLastMovement:Date.now() }}, function(err, newwork){
-                  logger.debug("Songs marked as 'err': ");
-                  console.log(newwork);
+              logger.error("Daemon - Can't download song "+work.songId);
+              logger.info("Daemon - Need to see if there is new version of youtube-dl.");
+              //Tratar de actualizar el programa de descargas.
+              await YoutubeDL.updateTool().then(returnObject => {
+                if (returnObject.code == 0)
+                  logger.debug("Daemon - youtube-dl updated.");
+                else {
+                  logger.debug("Daemon - youtube-dl hasn't new version.");
+                  WorkTodo.updateMany(
+                    {songId:work.songId, state:"new"},
+                    {$set: { state:"err-dwn", dateLastMovement:Date.now() }}, function(err, newwork){
+                      logger.debug("Daemon - Songs marked as 'err-dwn': "+JSON.stringify(newwork)); 
+                    }
+                  );
                 }
-              );  
+              }).catch(err => {
+                logger.error(err.stack);            
+              });               
             }
           }).catch(err => {
             logger.error(err.stack);
           });
           
-          await sleep(1000);
+          // await sleep(1000);
         }
       });
     });
