@@ -96,6 +96,56 @@ async function loop() {
 
       //Search for songs to delete
       //Aquí deberíamos buscar si hay trabajos para eliminar canciones. En caso de que los haya y tenga la pass del usuario lanzarlos. Si no ponerlos en estado err-del
+      await Promise.all([
+        WorkTodo.find({state:"del"}),
+        User.find({},{"_id":0, "email":1, "gpassword":1, "mac":1})
+      ]).then(async ([deletes, users]) => {  
+
+        userPass = Object.assign({}, ...users.map(person => ({[person.email]: person.gpassword})));
+        userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
+
+        // console.log(userPass);
+
+        if (deletes.length==0)
+          logger.debug("Daemon - Nothing to delete.");
+        else{
+          logger.debug("Daemon - Songs to delete...");
+          for (const work of deletes){  
+            if (userPass[work.email]){
+              logger.debug("Daemon - Have gPassword. Can remove song from gMusic.");
+              console.log(work.email+userPass[work.email]+userMacs[work.email]+work.gmusicId);
+
+              //Elimino el trabajo de gmusic.
+              await Gmusic.delete(work.email, userPass[work.email], userMacs[work.email], work.gmusicId).then(returnObject=> {
+
+                if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar el borrado.
+                  logger.debug("Daemon - Ended deleting song.");
+                  //Una vez terminado muevo el trabajo a workDone.
+                  
+                  WorkDone.insertMany({
+                    songId: work.songId,
+                    listId: work.listId,
+                    email: work.email,
+                    action: "del",
+                    dateLastMovement: Date.now()
+                  });
+
+                  work.remove();
+                }
+              }).catch(err => {
+                logger.error(err.stack);
+              });              
+
+            } else{
+              logger.debug("Daemon - Don't have gPassword. Move 'del' works to 'err-del'.");
+              // work.state = "err-del";
+              // work.dateLastMovement = Date.now();
+              // work.save();
+            }             
+          }
+        }
+      });
+
       
       //Search for songs to download
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
@@ -144,11 +194,10 @@ async function loop() {
             }
           }).catch(err => {
             logger.error(err.stack);
-          });
-          
-          // await sleep(1000);
-        }
+          });          
+        }        
       });
+      
     });
 
     //TODO: Si pierdo la autorización del usuario debo mandarle un mail solicitándosela.

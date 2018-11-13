@@ -588,7 +588,7 @@ app.listen(app.get('port'), function(){
 
 //COMENTAR CUANDO ESTOY CON INTERNET MOVIL PARA NO GASTAR DATOS
 // Call to daemon:
-const child = spawn('node ./daemon.js', {
-  stdio: 'inherit',
-  shell: true
-});
+// const child = spawn('node ./daemon.js', {
+//   stdio: 'inherit',
+//   shell: true
+// });

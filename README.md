@@ -8,6 +8,7 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 * python3
 * pip
 * gmusicapi-scripts (pip3 install gmusicapi-scripts --user)
+* Nuevo programa: gms [google-music-scripts] (pip3 install google-music-scripts --user)
 * youtube-dl (pip3 install youtube-dl --user)
   * Requerido instalar "ffmpeg" [FEDORA]
   * Actualización cuando empecemos a detectar errores en descarga.
@@ -94,3 +95,9 @@ fetch('/url', {
   })
   .then(data => console.log('data is', data))
   .catch(error => console.log('error is', error));
+
+
+  * Hay nueva librería para toda la gestión con google music:
+  https://github.com/thebigmunch/google-music-scripts
+
+  
