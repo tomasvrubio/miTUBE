@@ -485,11 +485,12 @@ app.get('/admin', adminOnly, function(req, res){
 
   Promise.all([
     User.find({role: "disabled"}),
-    WorkTodo.find({state: {$in: [/^err/]}}),
+    //WorkTodo.find({state: {$in: [/^err/]}}),
+    WorkTodo.aggregate([{$group: { _id: { user: "$email", state: "$state"}, count: { $sum: 1} }}]),
   ]).then( ([disabledUsers, errorWorks]) => {
 
     // console.log(disabledUsers);
-    // console.log(errorWorks);
+    console.log(errorWorks);
     var context = {
       active: {"admin": true},
       userdata: res.locals.userdata,
@@ -500,15 +501,15 @@ app.get('/admin', adminOnly, function(req, res){
           created: moment(user.created).format('DD MMM YYYY'),
         }
       }),
-      works: errorWorks.map(function(work){
-        return {
-          songId: work.songId,
-          listName: work.listName,
-          email: work.email,
-          state: work.state,
-          date: work.dateLastMovement,
-         }
-      }),
+      // works: errorWorks.map(function(work){
+      //   return {
+      //     songId: work.songId,
+      //     listName: work.listName,
+      //     email: work.email,
+      //     state: work.state,
+      //     date: work.dateLastMovement,
+      //    }
+      // }),
     };
     
     res.render('admin', context);

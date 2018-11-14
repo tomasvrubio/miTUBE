@@ -19,7 +19,6 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 
 * Descarga repositorio github
 * Lanzar "npm install"
-* Crear BBDD mongodb
 * Introducir las credenciales en *credentials.js*
 * Lanzar "node app.js"
 
@@ -100,4 +99,92 @@ fetch('/url', {
   * Hay nueva librería para toda la gestión con google music:
   https://github.com/thebigmunch/google-music-scripts
 
-  
+  No consigo hacer deletes porque me pide el device_id que no sé de donde sacarlo.
+
+[tomas@fundacion tmp]$ gms search -u "desarrollovazquezrubio@gmail.com" --device-id "0x00112233aabbccdd" -f "title:pedro"
+[2018-11-12 18:32:10] Logging in to Google Music
+Traceback (most recent call last):
+  File "/home/tomas/.local/bin/gms", line 11, in <module>
+    sys.exit(gms())
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
+    rv = self.invoke(ctx)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1066, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 895, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 535, in invoke
+    return callback(*args, **kwargs)
+  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/cli.py", line 391, in search
+    exclude_filters=exclude_filter, all_excludes=all_excludes, yes=yes
+  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/commands.py", line 95, in do_search
+    exclude_filters=exclude_filters, all_excludes=all_excludes
+TypeError: get_google_songs() missing 1 required positional argument: 'mm'
+
+[tomas@fundacion tmp]$ gms delete -u desarrollovazquezrubio@gmail.com -n -f "id:c16548b3-8315-3b27-85ab-8a7f5949838c" --device-id "+eGFGTbiyMktbPuvB5MfsA"
+[2018-11-12 18:11:35] Logging in to Google Music
+Traceback (most recent call last):
+  File "/home/tomas/.local/bin/gms", line 11, in <module>
+    sys.exit(gms())
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
+    rv = self.invoke(ctx)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1066, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 895, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 535, in invoke
+    return callback(*args, **kwargs)
+  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/cli.py", line 264, in delete
+    exclude_filters=exclude_filter, all_excludes=all_excludes, yes=yes
+  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/commands.py", line 15, in do_delete
+    exclude_filters=exclude_filters, all_excludes=all_excludes
+TypeError: get_google_songs() missing 1 required positional argument: 'mm'
+
+
+En cambio la quota si que me funciona porque lo que necesita es la MAC:
+
+[tomas@fundacion tmp]$ gms quota -u desarrollovazquezrubio@gmail.com --uploader-id "B9:27:EB:F5:91:2C"
+[2018-11-12 18:03:46] Logging in to Google Music
+[2018-11-12 18:03:49] Quota -- 10/50000 (0.02%)
+
+
+Y entiendo que subir canciones (o descargar si fuese necesario) también me funcionaría porque parece que también usa la MAC.
+
+
+
+* Controlar cuando el demonio me devuelva esto en un subida:
+2018-11-13T05:48:05.888Z [debug]: Daemon - Uploading song 3tUh-x-fp8Q for user cristomboda@gmail.com
+spawnSTDERR:[2018-11-13 06:48:06] Logging in to Google Music
+
+spawnSTDOUT:Visit:
+
+https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=652850857958.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fmusicmanager&state=pmU90izuu1r3wTLyHKcmoWT8uDHqOP&access_type=offline&prompt=consent
+
+Follow the prompts and paste provided code: 
+
+
+
+* Para sacar un cuadro de mando del ADMIN
+> db.workdones.aggregate([{$group: { _id: { user: "$email", action: "$action"}, count: { $sum: 1} }}])
+{ "_id" : { "user" : "pedrin@gmail.com", "action" : "upl" }, "count" : 69 }
+{ "_id" : { "user" : "cristomboda@gmail.com", "action" : "upl" }, "count" : 3 }
+{ "_id" : { "user" : "pedrin@gmail.com" }, "count" : 8 }
+{ "_id" : { "user" : "cristomboda@gmail.com" }, "count" : 4 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com" }, "count" : 4 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "action" : "upl" }, "count" : 6 }
+
+> db.worktodos.aggregate([{$group: { _id: { user: "$email", state: "$state"}, count: { $sum: 1} }}])
+{ "_id" : { "user" : "pedrin@gmail.com", "state" : "upl" }, "count" : 1 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "upl" }, "count" : 1 }
+{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "err-dwn" }, "count" : 1 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err-dwn" }, "count" : 2 }
+{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "upl" }, "count" : 1 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err" }, "count" : 10 }
+{ "_id" : { "user" : "pedrin@gmail.com", "state" : "err-del" }, "count" : 5 }
+{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err-del" }, "count" : 5 }
+{ "_id" : { "user" : "pedrin@gmail.com", "state" : "err-dwn" }, "count" : 18 }
+{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "err-del" }, "count" : 4 }
+

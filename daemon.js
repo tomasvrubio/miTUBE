@@ -131,16 +131,22 @@ async function loop() {
                   });
 
                   work.remove();
+                } else if (returnObject == 2) {
+                  logger.debug("Daemon - Problems deleting. Move 'del' works to 'err-del'.");
+                  work.state = "err-del";
+                  work.dateLastMovement = Date.now();
+                  work.save();
                 }
+
               }).catch(err => {
                 logger.error(err.stack);
               });              
 
             } else{
               logger.debug("Daemon - Don't have gPassword. Move 'del' works to 'err-del'.");
-              // work.state = "err-del";
-              // work.dateLastMovement = Date.now();
-              // work.save();
+              work.state = "err-del";
+              work.dateLastMovement = Date.now();
+              work.save();
             }             
           }
         }
@@ -197,7 +203,7 @@ async function loop() {
           });          
         }        
       });
-      
+
     });
 
     //TODO: Si pierdo la autorización del usuario debo mandarle un mail solicitándosela.

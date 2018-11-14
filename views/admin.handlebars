@@ -61,6 +61,35 @@
   </div>
 
 
+  <h6>Usuarios y sus trabajos:</h6>
+
+  <div class="table-list">
+    <table id="miTabla" class="table table-sm table-hover">
+      <caption>Tabla de estado de trabajos</caption>
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Email</th>
+          <th scope="col" class="text-center">Pendiente</th>
+          <th scope="col" class="text-center">Error descarga</th>
+          <th scope="col" class="text-center">Error subida</th>
+          <th scope="col" class="text-center">Error borrado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each works}}
+        <tr>
+          <th>{{email}}</th>
+          <th class="text-center">{{pending}}</th>
+          <th class="text-center">{{errDwn}}</th>
+          <th class="text-center">{{errUpl}}</th>
+          <th class="text-center">{{errDel}}</th>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+
   <!-- Mostrar resultados en tabla -->
   {{!-- TODO:
 
