@@ -14,6 +14,8 @@ var express = require('express'),
     ListUser = require('./models/listUser.js'),
     WorkTodo = require('./models/workTodo.js'),
     User = require('./models/user.js');
+    //helpers = require('handlebars-helpers');
+
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var UserManagement = require('./lib/userManagement.js')(),
@@ -22,14 +24,21 @@ var UserManagement = require('./lib/userManagement.js')(),
     YoutubeDL = require('./lib/youtubedl')(),
     logger = require('./lib/logger');
 
+// var helperMath = require('handlebars-helpers')("math");
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
-    helpers: {
-      static: function(name) {
-          return require('./lib/static.js').map(name);
-      }
-  }
+    helpers: require('handlebars-helpers')(), 
+    //TODO: Para poder meter los helpers he tenido que comentar la parte de static. ¿Como meto ambos??        
+    // helpers: {
+    //   handlebarsHelpers: require('handlebars-helpers')(),
+    //   static: function(name) {
+    //     return require('./lib/static.js').map(name);
+    //   },
+    // }
 });
+
+// console.log(handlebars.helpers);
+// console.log(handlebars.helpers.handlebarsHelpers);
 
 var app = express();
 app.engine('handlebars', handlebars.engine);
@@ -485,12 +494,21 @@ app.get('/admin', adminOnly, function(req, res){
 
   Promise.all([
     User.find({role: "disabled"}),
-    //WorkTodo.find({state: {$in: [/^err/]}}),
-    WorkTodo.aggregate([{$group: { _id: { user: "$email", state: "$state"}, count: { $sum: 1} }}]),
-  ]).then( ([disabledUsers, errorWorks]) => {
+    WorkTodo.aggregate([
+      {"$group":{
+        "_id":{"user":"$email","state":"$state"},
+        "counts":{"$sum":1}
+      }},
+      {"$group":{
+        "_id":"$_id.user",
+        "total":{"$sum":"$counts"},
+        "movements":{"$push":{"state":"$_id.state","count":"$counts"}}
+      }}
+    ]),
+  ]).then( ([disabledUsers, currentWork]) => {
 
-    // console.log(disabledUsers);
-    console.log(errorWorks);
+    logger.debug(JSON.stringify(currentWork));
+    
     var context = {
       active: {"admin": true},
       userdata: res.locals.userdata,
@@ -501,15 +519,13 @@ app.get('/admin', adminOnly, function(req, res){
           created: moment(user.created).format('DD MMM YYYY'),
         }
       }),
-      // works: errorWorks.map(function(work){
-      //   return {
-      //     songId: work.songId,
-      //     listName: work.listName,
-      //     email: work.email,
-      //     state: work.state,
-      //     date: work.dateLastMovement,
-      //    }
-      // }),
+      currentWork: currentWork.map(function(work){
+        return {
+          email: work._id,
+          total: work.total,
+          movements: Object.assign({}, ...work.movements.map(mov => ({[mov.state]: mov.count}))),
+        }
+      }),
     };
     
     res.render('admin', context);
@@ -521,48 +537,27 @@ app.get('/admin', adminOnly, function(req, res){
 
 app.post("/admin", adminOnly, function(req, res){
   if (req.body.action == "auth"){
-    //TODO: Meter lógica en una función
+    
     var parms = {
       email: req.body.email,
       value: req.body.value,
     };
     UserManagement.authUser(parms, credentials.gmail.user, res, mailTransport);
 
-    // if (req.body.value == "OK"){
-    //   User.findOneAndUpdate(
-    //     {email: req.body.email},
-    //     {$set: {role: "basic"}}, function(err, user){
-    //       logger.debug("User "+req.body.email+" given access.");
-    //       //Mandar mail indicando que ya le han dado autorización
-    //       var cart = {
-    //         name: user.username,
-    //         email: user.email,
-    //       };
-    //       res.render("email/email_auth", {layout: null, cart}, function(err,html){
-    //         if(err) logger.error("Problems generating email: "+JSON.stringify(err.stack));
-    //         mailTransport.sendMail({
-    //           from: '"mitube": '+credentials.gmail.user,
-    //           to: cart.email,
-    //           subject: "Acceso confirmado",
-    //           html: html,
-    //           generateTextFromHtml: true
-    //         }, function(err){
-    //           if(err) logger.error("Unable to send email: "+JSON.stringify(err.stack));  
-    //         });
-    //       });
-    //     }
-    //   );
-    // } else {
-    //   User.findOneAndUpdate(
-    //     {email: req.body.email},
-    //     {$set: {role: "rejected"}}, function(err){
-    //       logger.debug("User "+req.body.email+" not allowed.");
-    //     }
-    //   );
-    // }
   } else if (req.body.action == "update") {
     
     YoutubeDL.updateTool();
+  
+  } else if (req.body.action == "syncAll") {
+
+    Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
+      logger.debug("Comprobadas todas las listas de la aplicación");
+      //return res.json({success: true}); 
+    }).catch(err => {
+      console.log(err);
+      //TODO: Esto me va a fallar porque no tiene retorno...
+    });
+
   }
 
   return res.redirect(303, "/admin");
@@ -593,3 +588,5 @@ app.listen(app.get('port'), function(){
 //   stdio: 'inherit',
 //   shell: true
 // });
+
+//TODO: Contemplar que al tratar de subir una canción no tenga el token

@@ -1,7 +1,7 @@
 <div class="container-fluid">
 
 
-  <h6>Usuarios que necesitan autorización:</h6>
+  <h6><strong>Usuarios que necesitan autorización:</strong></h6>
 
   <div class="table-list">
     <table id="miTabla" class="table table-sm table-hover">
@@ -61,7 +61,7 @@
   </div>
 
 
-  <h6>Usuarios y sus trabajos:</h6>
+  <h6><strong>Usuarios y sus trabajos:</strong></h6>
 
   <div class="table-list">
     <table id="miTabla" class="table table-sm table-hover">
@@ -76,19 +76,32 @@
         </tr>
       </thead>
       <tbody>
-        {{#each works}}
+        {{#each currentWork}}
         <tr>
           <th>{{email}}</th>
-          <th class="text-center">{{pending}}</th>
-          <th class="text-center">{{errDwn}}</th>
-          <th class="text-center">{{errUpl}}</th>
-          <th class="text-center">{{errDel}}</th>
+          <th class="text-center">{{sum movements.new movements.upl}}</th>
+          <th class="text-center">{{movements.err-dwn}}</th>
+          <th class="text-center">{{movements.err-upl}}</th>
+          <th class="text-center">{{movements.err-del}}</th>
         </tr>
         {{/each}}
       </tbody>
     </table>
   </div>
 
+  <div class="card">
+    <div class="card-header color-negro text-white">
+      Sincronización de <strong>TODAS LAS LISTAS</strong>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      <p class="card-text">Al pulsar el siguiente botón se revisan todas las listas de la aplicación por si hay algún cambio cogerlo y generar los trabajos para cada usuario.</p>
+      <form action="/admin" method="post">
+        <input type="hidden" name="action" value="syncAll" />
+        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar sincronización</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Mostrar resultados en tabla -->
   {{!-- TODO:
@@ -98,35 +111,7 @@
 
   * Poder solicitar actualizaciones de todos, de usuarios o de listas.
 
-  * Autorizar acceso a aplicación. Tabla con solicitudes. Igual que el primero con un selector a la izquierda y un
-  botón para lanzar la autorización.
 
   * Tener algún tipo de estadísticas de movimiento por usuarios. Subida, creación de listas.
   --}}
-  {{!-- <h6>Trabajos en error</h6>
-  <div>
-    <table id="miTabla2" class="table">
-      <thead>
-        <tr>
-          <th scope="col">SongId</th>
-          <th scope="col">List</th>
-          <th scope="col">User</th>
-          <th scope="col">State</th>
-          <th scope="col">Date Last Movement</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each works}}
-        <tr>
-          <th><a href="https://www.youtube.com/watch?v={{songId}}">{{songId}}</a></th>
-          <th>{{listName}}</th>
-          <th>{{email}}</th>
-          <th>{{state}}</th>
-          <th>{{date}}</th>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div> --}}
-
 </div>

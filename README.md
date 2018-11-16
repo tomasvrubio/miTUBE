@@ -46,13 +46,9 @@ module.exports = {
 
 Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios... Ponerlo como funcionalidad opcional.
 
-* ¿Cómo se que un usuario se conecta por primera vez? Lo necesito para que esa primera vez sincronice con googleMusic y consiga su token de autenticación. Luego ya no se debe solicitar nunca más. Se me ocurre variable en BBDD que cargue cuando haga login y que luego ya se almacene en la información del usuario. ¿su cookie o tengo otro sitio mejor y que no esté viajando por la red?
-  * Lo he puesto en el redirect del login satisfactorio. Lo que pasa es que si alguien se pone a navegar por los links de la cabecera de la aplicación sin haber sincronizado con gmusic no habrá nada que se lo impida. Darle una pensada!!
-
 * Corregir pantallas que se muestran mientras se va a avanzando en la autorización de gmusic. Mostrar información de lo que hay que hacer. Cuando ya sólo queda añadir el método de pago indicar que hay que pulsar botón para refrescar la consulta y que si todo va bien se redirigirá al usuario a su página de listas.
   * Si quiero que entre por primera vez en google music: https://play.google.com/music
 
-* ¿Que hago con los trabajos que marco como "err"? Me gustaría hacer una página de admin desde los que pudiese relanzarlos (lo más seguro de que fallen es que no se hayan podido descargar porque haya que actualizar youtube-dl).De err voy a tener "err-dwn" para descarga y "err-upl" para subida al espacio de google del usuario. Me falta un tercero que sería "err-del" para eliminar canciones y no poder acceder al perfil del usuario.
 
 * Hacer una página de Admin desde la que pueda ver el volumen de trabajos pendientes, en error, poder ver gráficas de uso (para trastear con otras librerías), datos de los usuarios... También una pestaña donde pueda autorizar el acceso de los usuarios. Aún así también lo podré hacer desde un link que llegue al correo del administrador.
 
@@ -166,25 +162,4 @@ https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=652850
 Follow the prompts and paste provided code: 
 
 
-
-* Para sacar un cuadro de mando del ADMIN
-> db.workdones.aggregate([{$group: { _id: { user: "$email", action: "$action"}, count: { $sum: 1} }}])
-{ "_id" : { "user" : "pedrin@gmail.com", "action" : "upl" }, "count" : 69 }
-{ "_id" : { "user" : "cristomboda@gmail.com", "action" : "upl" }, "count" : 3 }
-{ "_id" : { "user" : "pedrin@gmail.com" }, "count" : 8 }
-{ "_id" : { "user" : "cristomboda@gmail.com" }, "count" : 4 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com" }, "count" : 4 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "action" : "upl" }, "count" : 6 }
-
-> db.worktodos.aggregate([{$group: { _id: { user: "$email", state: "$state"}, count: { $sum: 1} }}])
-{ "_id" : { "user" : "pedrin@gmail.com", "state" : "upl" }, "count" : 1 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "upl" }, "count" : 1 }
-{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "err-dwn" }, "count" : 1 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err-dwn" }, "count" : 2 }
-{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "upl" }, "count" : 1 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err" }, "count" : 10 }
-{ "_id" : { "user" : "pedrin@gmail.com", "state" : "err-del" }, "count" : 5 }
-{ "_id" : { "user" : "desarrollovazquezrubio@gmail.com", "state" : "err-del" }, "count" : 5 }
-{ "_id" : { "user" : "pedrin@gmail.com", "state" : "err-dwn" }, "count" : 18 }
-{ "_id" : { "user" : "cristomboda@gmail.com", "state" : "err-del" }, "count" : 4 }
-
+* ¿Como hago operaciones con las variables en handlebars?
