@@ -31,7 +31,6 @@ userSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
 
-
 //Para conectar la tabla de usuarios con la autenticación de Passport
 //userSchema.plugin(passportLocalMongoose);  
 

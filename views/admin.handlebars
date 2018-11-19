@@ -46,20 +46,6 @@
     </table>
   </div>
 
-  <div class="card">
-    <div class="card-header color-negro text-white">
-      ACTUALIZACIÓN <strong>youtube-dl</strong>
-    </div>
-    <div class="card-body">
-      <h5 class="card-title"></h5>
-      <p class="card-text">Al pulsar el siguiente botón se actualiza la herramienta que descarga las canciones de YouTube a la última versión (si es que hay una más reciente a la instalada actualmente).</p>
-      <form action="/admin" method="post">
-        <input type="hidden" name="action" value="update" />
-        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar actualización</button>
-      </form>
-    </div>
-  </div>
-
 
   <h6><strong>Usuarios y sus trabajos:</strong></h6>
 
@@ -69,10 +55,22 @@
       <thead class="thead-dark">
         <tr>
           <th scope="col">Email</th>
-          <th scope="col" class="text-center">Pendiente</th>
-          <th scope="col" class="text-center">Error descarga</th>
-          <th scope="col" class="text-center">Error subida</th>
-          <th scope="col" class="text-center">Error borrado</th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Pend</span>
+            <span class="d-none d-lg-block">Pendiente</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Dwn</span>
+            <span class="d-none d-lg-block">Error descarga</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Up</span>
+            <span class="d-none d-lg-block">Error subida</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Del</span>
+            <span class="d-none d-lg-block">Error borrado</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -89,7 +87,23 @@
     </table>
   </div>
 
-  <div class="card">
+
+  <div class="card card-admin">
+    <div class="card-header color-negro text-white">
+      ACTUALIZACIÓN <strong>youtube-dl</strong>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      <p class="card-text">Al pulsar el siguiente botón se actualiza la herramienta que descarga las canciones de YouTube a la última versión (si es que hay una más reciente a la instalada actualmente).</p>
+      <form action="/admin" method="post">
+        <input type="hidden" name="action" value="update" />
+        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar actualización</button>
+      </form>
+    </div>
+  </div>
+  
+
+  <div class="card card-admin">
     <div class="card-header color-negro text-white">
       Sincronización de <strong>TODAS LAS LISTAS</strong>
     </div>

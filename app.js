@@ -262,23 +262,23 @@ app.post('/register', function(req, res){
 
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
-      req.flash("info", "Usuario dado de alta. Debe esperar a que el administrador autorice su acceso. Recibirá un email de confirmación");
+      req.flash("error", "Usuario dado de alta. Ha sido enviada su contraseña al email utilizado en el registro pero debe esperar a que el administrador autorice su acceso.");
+      return res.redirect(303, "/");
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
+      return res.redirect(303, "/register");
     }
-    return res.redirect(303, "/register");
   }).catch(err => {
-
     //In case is the first user of APP the function will return an error so we have to try it again.  
     UserManagement.createFirstUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
-      req.flash("info", "ADMIN Creado.");
+      req.flash("error", "ADMIN Creado.");
+      return res.redirect(303, "/");
     }).catch(err => {
       req.flash("info", "Error. Reintentar registro");
-    }).then(function(){
       return res.redirect(303, "/register");
     });
-
   });
+
 });
 
 

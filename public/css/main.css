@@ -83,18 +83,25 @@ body {
   /* padding-bottom: 0px; */
 }
 
-.boton-actListas {
-  margin: 0 auto;
-  padding-top: 0px;
-}
+.card-header {
+  padding: 5px 20px;
+} 
 
 .card-body {
   padding: 1%;
 }
 
-.card-header {
-  padding: 5px 20px;
+.card-admin {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-bottom: 20px;
 }
+
+.boton-actListas {
+  margin: 0 auto;
+  padding-top: 0px;
+}
+
 
 .color-negro {
   background-color: #212529;
