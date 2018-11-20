@@ -14,10 +14,10 @@
           <span class="col-12 ml-auto card-text text-right"><strong>#Pendientes: </strong><span id="numWorksId" class="indicador">{{numWorks}}</span></span>
         </div>
         <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Registro: </strong>{{created}}</span>
+          <span class="col align-self-end card-text text-right"><strong>Registro: </strong><em>{{created}}</em></span>
         </div>
         <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Modificación: </strong>{{modified}}</span>
+          <span class="col align-self-end card-text text-right"><strong>Modificación: </strong><em>{{modified}}</em></span>
         </div>
         {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo
         o desactivarlo sin recargar página? --}}
@@ -44,17 +44,27 @@
         <caption>Tabla de canciones de una lista</caption>
         <thead class="thead-dark">
           <tr>
-            <th scope="col">Nombre</th>
+            <th scope="col">
+              <span class="d-sm-none">Canción</span>
+              <span class="d-none d-sm-block">Nombre</span>
+            </th>
             <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-            <th scope="col" class="text-center">Fecha</th>
+            <th scope="col" class="text-right d-none d-sm-table-cell col-3">Fecha</th>
           </tr>
         </thead>
         <tbody>
           {{#each songs}}
           <tr>
-            <th>{{originalName}}</th>
+            <th>
+              <span class="d-none d-sm-block">{{originalName}}</span>
+              <div class="d-sm-none row justify-content-between">
+                <span class="col-12">{{originalName}}</span>
+                <span class="col-1"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank" class="indicador" style="background-color: red; color:white;">YT</a></span>
+                <span class="col-6 ml-auto text-right" style="font-size: 0.8rem;"><em>{{added}}</em></span>
+              </div>
+            </th>
             <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank">{{songId}}</a></th>
-            <th class="text-right">{{added}}</th>
+            <th class="text-right d-none d-sm-table-cell">{{added}}</th>
           </tr>
           {{/each}}
         </tbody>

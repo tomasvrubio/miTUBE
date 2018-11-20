@@ -50,7 +50,7 @@ body {
 
 .table-list {
   margin: 0 auto;
-  padding-top: 5px;
+  padding-top: 0px;
 }
 
 .form-list {
@@ -189,6 +189,10 @@ body {
 }
 
 .indicador {
-  padding: 0px 3px;
+  padding: 0.1rem;
+  border-radius: 0.2rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  text-align: center;
 }
 
