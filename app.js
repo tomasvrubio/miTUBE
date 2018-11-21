@@ -10,6 +10,7 @@ var express = require('express'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
     spawn = require("child_process").spawn,
+    cron = require("node-cron"),
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
     WorkTodo = require('./models/workTodo.js'),
@@ -579,6 +580,17 @@ app.use(function(err, req, res, next){
 
 app.listen(app.get('port'), function(){
   logger.info( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
+});
+
+//Programamos un job para que se ejecute todos los días a las 03:00 y sincronice las canciones de toda la aplicación
+cron.schedule('00 03 * * *', () => {
+  
+  Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then( () => {
+    logger.debug("Comprobadas todas las listas de la aplicación");
+  }).catch(err => {
+    console.log(err);
+  });
+
 });
 
 

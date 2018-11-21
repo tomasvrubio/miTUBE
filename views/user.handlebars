@@ -3,11 +3,8 @@
   <div class="contenedor-list">
     <h3>Mis listas</h3>
 
-    {{!-- Si la pantalla pasa de una anchura ponerlo todo en una línea y si no ponerlo en multilinea como está ahora
-    --}}
-
     <div class="card border-dark bg-light card-nuevaLista">
-      <div class="card-header">¿Tienes una lista nueva?</div>
+      <div class="card-header color-negro text-white"><strong>¿Tienes una lista nueva?</strong></div>
       <div class="card-body text-secondary">
         <form action="/user" method="POST">
           <div class="form-row align-items-center form-list">
@@ -21,7 +18,7 @@
                 required>
             </div>
             <div class="col-sm-2 col-4 ml-auto">
-              <button class="btn btn-sm btn-dark btn-square btn-block color-negro" type="submit">Aceptar</button>
+              <button class="btn btn-sm btn-dark btn-square btn-block color-negro" type="submit"><strong>Aceptar</strong></button>
             </div>
           </div>
         </form>
@@ -39,12 +36,8 @@
     </div>
 
     <div id ="divUpdateUser" class="boton-actListas">
-      {{!-- <form action="/user" method="post">
-        <input type="hidden" name="action" value="updateUser" />
-        <input type="hidden" name="email" value="{{userdata.email}}" /> --}}
-        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block">Actualizar todas tus listas</button>
-        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>
-      {{!-- </form> --}}
+        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block"><strong>Actualizar todas tus listas</strong></button>
+        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>  
     </div>
 
     <!-- Mostrar resultados en tabla -->

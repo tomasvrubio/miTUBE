@@ -50,7 +50,7 @@ body {
 
 .table-list {
   margin: 0 auto;
-  padding-top: 0px;
+  padding-top: 10px;
 }
 
 .form-list {
@@ -70,11 +70,11 @@ body {
 }
 
 .alert {
-  border-radius: 0;
+  border-radius: 0px;
 }
 
 .card {
-  border-radius: 0;
+  border-radius: 0px;
   margin-bottom: 20px;
 }
 
@@ -85,6 +85,7 @@ body {
 
 .card-header {
   padding: 5px 20px;
+  border-radius: 0px;
 } 
 
 .card-body {
@@ -196,3 +197,26 @@ body {
   text-align: center;
 }
 
+dt {
+  font-size: 1rem;
+  padding-top: 0.3em;
+}
+
+dd {
+  padding-top: 0.3em;
+}
+
+dd span {
+  display: block;
+  padding-bottom: 0.2em;
+}
+
+dd img {
+  display: block;
+  padding: 0.3em;
+  margin: auto;
+}
+
+.container-fluid {
+  max-width: 1000px;
+}
