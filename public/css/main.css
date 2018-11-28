@@ -199,11 +199,11 @@ body {
 
 dt {
   font-size: 1rem;
-  padding-top: 0.3em;
+  padding-top: 0.5em;
 }
 
 dd {
-  padding-top: 0.3em;
+  padding-top: 0.4em;
 }
 
 dd span {
@@ -219,4 +219,8 @@ dd img {
 
 .container-fluid {
   max-width: 1000px;
+}
+
+dd ul li {
+  padding-top: 0.2em;
 }
