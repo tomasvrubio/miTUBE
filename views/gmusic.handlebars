@@ -3,6 +3,12 @@
     <h4 class="text-center">La aplicación necesita acceder a tu <strong>perfil de Google Music</strong> para poder
       realizar todas sus funciones.</h4>
 
+    {{#is action "upl"}}
+    <h4 class="text-center">Lo que estás haciendo en este paso es autorizar a <strong>mitube</strong> para que pueda <span class="text-danger"><strong>subir canciones a tu biblioteca</strong></span>.</h4>
+    {{else}}
+    <h4 class="text-center">No es que estés repitiendo el paso anterior. Ahora estás autorizando a <strong>mitube</strong> para que pueda <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h4>
+    {{/is}}
+    
     <h4 class="text-center"><strong>Accede al siguiente enlace</strong> para obtener el código que introducirás en mitube.</h4>
 
     <a href={{urlAuth}} target="_blank">
@@ -11,7 +17,7 @@
 
     <h4 class="text-center">Después vuelve a esta página y <strong>pégalo en el recuadro</strong>:</h4>
 
-    <form action="/gmusic" method="POST" class="form-user">
+    <form action={{append "/gmusic?action=" action}} method="POST" class="form-user">
       <input type="text" name="authCode" class="form-control" placeholder="Codigo autorización">
       <button type="submit" class="btn btn-lg btn-dark btn-square btn-block color-negro">Aceptar</button>
 

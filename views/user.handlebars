@@ -22,16 +22,19 @@
             </div>
           </div>
         </form>
+
+        {{#if success}}
+        <div id="alertNewList" class="alert alert-success" role="alert" style="margin: 5px;">
+          Nueva lista creada
+        </div>
+        {{/if}}
+
         {{#if alert}}
         <div id="alertNewList" class="alert alert-danger" role="alert" style="margin: 5px;">
           {{alert}}
         </div>
         {{/if}}
-        {{#if success}}
-        <div id="alertNewList" class="alert alert-success" role="alert" style="margin: 5px;">
-          {{success}}
-        </div>
-        {{/if}}
+        
       </div>
     </div>
 

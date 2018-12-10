@@ -95,83 +95,19 @@ fetch('/url', {
   * Hay nueva librería para toda la gestión con google music:
   https://github.com/thebigmunch/google-music-scripts
 
-  No consigo hacer deletes porque me pide el device_id que no sé de donde sacarlo.
+  Ya he dejado todo integrado (UPLOAD y DELETE).
 
-[tomas@fundacion tmp]$ gms search -u "desarrollovazquezrubio@gmail.com" --device-id "0x00112233aabbccdd" -f "title:pedro"
-[2018-11-12 18:32:10] Logging in to Google Music
-Traceback (most recent call last):
-  File "/home/tomas/.local/bin/gms", line 11, in <module>
-    sys.exit(gms())
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
-    return self.main(*args, **kwargs)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
-    rv = self.invoke(ctx)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1066, in invoke
-    return _process_result(sub_ctx.command.invoke(sub_ctx))
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 895, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 535, in invoke
-    return callback(*args, **kwargs)
-  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/cli.py", line 391, in search
-    exclude_filters=exclude_filter, all_excludes=all_excludes, yes=yes
-  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/commands.py", line 95, in do_search
-    exclude_filters=exclude_filters, all_excludes=all_excludes
-TypeError: get_google_songs() missing 1 required positional argument: 'mm'
+  Otras cosa que puedo utilizar:
 
-[tomas@fundacion tmp]$ gms delete -u desarrollovazquezrubio@gmail.com -n -f "id:c16548b3-8315-3b27-85ab-8a7f5949838c" --device-id "+eGFGTbiyMktbPuvB5MfsA"
-[2018-11-12 18:11:35] Logging in to Google Music
-Traceback (most recent call last):
-  File "/home/tomas/.local/bin/gms", line 11, in <module>
-    sys.exit(gms())
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
-    return self.main(*args, **kwargs)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
-    rv = self.invoke(ctx)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1066, in invoke
-    return _process_result(sub_ctx.command.invoke(sub_ctx))
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 895, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 535, in invoke
-    return callback(*args, **kwargs)
-  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/cli.py", line 264, in delete
-    exclude_filters=exclude_filter, all_excludes=all_excludes, yes=yes
-  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/commands.py", line 15, in do_delete
-    exclude_filters=exclude_filters, all_excludes=all_excludes
-TypeError: get_google_songs() missing 1 required positional argument: 'mm'
+  * quota : Para saber cuanto espacio ha utilizado el usuario
 
+  [tomas@fundacion tmp]$ gms quota -u desarrollovazquezrubio@gmail.com --uploader-id "B9:27:EB:F5:91:2C"
+  [2018-11-12 18:03:46] Logging in to Google Music
+  [2018-11-12 18:03:49] Quota -- 10/50000 (0.02%)
 
-No sé como pasarle los filtros a gms...
-[tomas@fundacion tmp]$ gms delete -u desarrollovazquezrubio@gmail.com -n -f "id:c16548b3-8315-3b27-85ab-8a7f5949838c" --device-id "B9:27:EB:F5:91:2C"
-Traceback (most recent call last):
-  File "/home/tomas/.local/bin/gms", line 11, in <module>
-    sys.exit(gms())
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
-    return self.main(*args, **kwargs)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
-    rv = self.invoke(ctx)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1064, in invoke
-    sub_ctx = cmd.make_context(cmd_name, args, parent=ctx)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 621, in make_context
-    self.parse_args(ctx, args)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 880, in parse_args
-    value, args = param.handle_parse_result(ctx, opts, args)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1404, in handle_parse_result
-    self.callback, ctx, self, value)
-  File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 78, in invoke_param_callback
-    return callback(ctx, param, value)
-  File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/cli.py", line 67, in parse_filters
-    raise ValueError(f"'{filter_}' is not a valid filter.")
-ValueError: 'id:c16548b3-8315-3b27-85ab-8a7f5949838c' is not a valid filter.
+  * playlists : Estoy esperando a que @thebigmunch incluya funcionalidad de playlists (para dejar de utilizar el metadata del album).
 
-
-En cambio la quota si que me funciona porque lo que necesita es la MAC:
-
-[tomas@fundacion tmp]$ gms quota -u desarrollovazquezrubio@gmail.com --uploader-id "B9:27:EB:F5:91:2C"
-[2018-11-12 18:03:46] Logging in to Google Music
-[2018-11-12 18:03:49] Quota -- 10/50000 (0.02%)
-
-
-Y entiendo que subir canciones (o descargar si fuese necesario) también me funcionaría porque parece que también usa la MAC.
+  * albumArt : Estoy esperando a que @thebigmunch incluya funcionalidad de subida de imágenes (para que los usuarios tengan una imagen por pantalla de la playlist).
 
 
 
@@ -187,3 +123,8 @@ Follow the prompts and paste provided code:
 
 
 * ¿Como hago operaciones con las variables en handlebars?
+
+
+* Para modificar varios registros de una vez: 
+
+db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});

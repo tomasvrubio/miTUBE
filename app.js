@@ -25,7 +25,6 @@ var UserManagement = require('./lib/userManagement.js')(),
     YoutubeDL = require('./lib/youtubedl')(),
     logger = require('./lib/logger');
 
-// var helperMath = require('handlebars-helpers')("math");
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
     helpers: require('handlebars-helpers')(), 
@@ -37,9 +36,6 @@ var handlebars = require('express-handlebars').create({
     //   },
     // }
 });
-
-// console.log(handlebars.helpers);
-// console.log(handlebars.helpers.handlebarsHelpers);
 
 var app = express();
 app.engine('handlebars', handlebars.engine);
@@ -292,70 +288,17 @@ app.get('/wait', function(req, res){
   res.render('wait', context);
 });
 
+
 app.get('/about', function(req, res){
   var context = {
     userdata: res.locals.userdata,
     active: {"about": true},
   };
   logger.debug("Context: "+JSON.stringify(context));
-
-  Gmusic.upload("desarrollovazquezrubio@gmail.com", "23:23:23:23:23:23", "6MYVzBAGXJ0").then(obj => {
-    
-    logger.debug("Ha devuelto: "+JSON.stringify(obj));
-  });
-
-  // spawnSTDERR:[2018-11-29 06:02:52] Logging in to Google Music
-
-  // spawnSTDERR:Traceback (most recent call last):
-  //   File "/home/tomas/.local/bin/gms", line 11, in <module>
-  //     sys.exit(gms())
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 722, in __call__
-  //     return self.main(*args, **kwargs)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 697, in main
-  //     rv = self.invoke(ctx)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 1066, in invoke
-  //     return _process_result(sub_ctx.command.invoke(sub_ctx))
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 895, in invoke
-  //     return ctx.invoke(self.callback, **ctx.params)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/click/core.py", line 535, in invoke
-  //     return callback(*args, **kwargs)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music_scripts/commands/upload.py", line 117, in upload
-  //     mm = google_music.musicmanager(username, uploader_id=uploader_id)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music/api.py", line 51, in musicmanager
-  //     token=token
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music/clients/musicmanager.py", line 64, in __init__
-  //     self._upauth(uploader_id, uploader_name)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music/clients/musicmanager.py", line 70, in _upauth
-  //     self._call(mm_calls.UpAuth, uploader_id, uploader_name)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/tenacity/__init__.py", line 292, in wrapped_f
-  //     return self.call(f, *args, **kw)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/tenacity/__init__.py", line 358, in call
-  //     do = self.iter(retry_state=retry_state)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/tenacity/__init__.py", line 331, in iter
-  //     raise retry_exc.reraise()
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/tenacity/__init__.py", line 167, in reraise
-  //     raise self.last_attempt.result()
-  //   File "/usr/lib64/python3.7/concurrent/futures/_base.py", line 425, in result
-  //     return self.__get_result()
-  //   File "/usr/lib64/python3.7/concurrent/futures/_base.py", line 384, in __get_result
-  //     raise self._exception
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/tenacity/__init__.py", line 361, in call
-  //     result = fn(*args, **kwargs)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music/clients/base.py", line 77, in _call
-  //     return call.parse_response(response.headers, response.content)
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music_proto/musicmanager/models.py", line 41, in parse_response
-  //     if not self.check_success(res_body):
-  //   File "/home/tomas/.local/lib/python3.7/site-packages/google_music_proto/musicmanager/calls.py", line 495, in check_success
-  //     return response.HasField('auth_status') and response.auth_status == upload_pb2.UploadResponse.OK
-  // ValueError: Unknown field auth_status.
-
-  // (node:25511) UnhandledPromiseRejectionWarning: 1
-  // (node:25511) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
-  // (node:25511) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
-
-
+ 
   res.render('about', context);
 });
+
 
 app.get('/manual', function(req, res){
   var context = {
@@ -366,6 +309,7 @@ app.get('/manual', function(req, res){
 
   res.render('manual', context);
 });
+
 
 app.get('/user', isLoggedIn, function(req, res){
   ListUser.find({email:req.session.userdata.email}, function(err, lists){ 
@@ -388,6 +332,7 @@ app.get('/user', isLoggedIn, function(req, res){
     res.render('user', context);
   });
 });
+
 
 app.post('/user', isLoggedIn, function(req, res){
 
@@ -495,6 +440,7 @@ app.get('/list', isLoggedIn, function(req, res){
 
 });
 
+
 app.post('/list', isLoggedIn, function(req, res){
 
   if (req.body.action == "syncToogle"){ 
@@ -511,24 +457,31 @@ app.post('/list', isLoggedIn, function(req, res){
 
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
+  var action = req.query.action || "upl";
+  logger.debug("La accion es: "+action);
   logger.debug("El codigo es: "+authCode);
   
   User.findOne({email:req.session.userdata.email}).then(user => {
-    Gmusic.getAuth(req.session.userdata.email, user.mac, authCode).then(response => {
+    Gmusic.getAuth(action, req.session.userdata.email, user.mac, authCode).then(response => {
       logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));
   
       if (response.code == 0) {
-        logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic.");
+        logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic para la acción "+action+".");
 
-        req.session.userdata.home = "/";
-        //Tras la inclusión de "home", me hace falta seguir teniendo gmusicAuth?
-        req.session.userdata.gmusicAuth = true; 
-        res.redirect(303, '/user'); 
+        if (action == "upl") {
+          res.redirect(303, '/gmusic?action=del');
+        } else {
+          req.session.userdata.home = "/";
+          //TODO: Tras la inclusión de "home", me hace falta seguir teniendo gmusicAuth?
+          req.session.userdata.gmusicAuth = true; 
+          res.redirect(303, '/user');
+        } 
       } else {
         var context = {
+          action,
           userdata: res.locals.userdata,
           message: response.message,
-          urlAuth: response.url,
+          urlAuth: response.url,        
         };
         logger.debug("Context: "+JSON.stringify(context));
 
@@ -545,6 +498,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
     });
   });
 });
+
 
 app.get('/admin', adminOnly, function(req, res){
 
@@ -619,11 +573,13 @@ app.post("/admin", adminOnly, function(req, res){
   return res.redirect(303, "/admin");
 });
 
+
 // custom 404 page
 app.use(function(req, res){
         res.status(404);
         res.render('404');
 });
+
 
 // custom 500 page
 app.use(function(err, req, res, next){
@@ -631,6 +587,7 @@ app.use(function(err, req, res, next){
         res.status(500);
         res.render('500');
 });
+
 
 
 app.listen(app.get('port'), function(){
@@ -641,7 +598,7 @@ app.listen(app.get('port'), function(){
 cron.schedule('00 03 * * *', () => {
   
   Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then( () => {
-    logger.debug("Comprobadas todas las listas de la aplicación");
+    logger.info("Comprobadas todas las listas de la aplicación");
   }).catch(err => {
     console.log(err);
   });

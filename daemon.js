@@ -26,6 +26,84 @@ async function loop() {
   do {
     logger.info("Daemon - Another iteration.");
 
+
+
+    //Search for songs to delete
+    //Aquí deberíamos buscar si hay trabajos para eliminar canciones. En caso de que los haya y tenga la pass del usuario lanzarlos. Si no ponerlos en estado err-del
+    await Promise.all([
+      WorkTodo.find({state:"del"}),
+      User.find({},{"_id":0, "email":1, "mac":1})
+    ]).then(async ([deletes, users]) => {  
+
+      userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
+
+      // console.log(userPass);
+
+      if (deletes.length==0)
+        logger.debug("Daemon - Nothing to delete.");
+      else{
+        logger.debug("Daemon - Songs to delete...");
+        for (const work of deletes){  
+          // if (userPass[work.email]){
+            // logger.debug("Daemon - Have gPassword. Can remove song from gMusic.");
+            
+            logger.debug("Daemon - Deleting "+work.songId+" song for "+work.email);
+
+            if (!work.gmusicId){
+              logger.debug("Daemon - No gmusicId (song not uploaded). Pending 'upl' work.");
+            }
+            //TODO: SI hubiese alguna tarea de upload con esta lista+canción debería borrarla. También eso significará que no hay datos de la canción. Lo puedo comprobar mirando si existe el gmusicId.
+            // WorkTodo.find({email: work.email, listId: work.listId, songId:work.songId, state:"upl"}).then( uploadDeleted => {
+            //   logger.debug("Daemon - Pending 'upl' work for this user and song removed.");
+            //   WorkDone.insertMany({
+            //     songId: uploadDeleted.songId,
+            //     listId: uploadDeleted.listId,
+            //     email: uploadDeleted.email,
+            //     action: "upl",
+            //     dateLastMovement: Date.now()
+            //   });
+            // });   
+
+            //Elimino el trabajo de gmusic.
+            await Gmusic.delete(work.email, userMacs[work.email], work.gmusicId).then(returnObject => {
+
+              if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar el borrado.
+                logger.debug("Daemon - Ended deleting song.");
+                
+                //Una vez terminado muevo el trabajo a workDone.          
+                WorkDone.insertMany({
+                  songId: work.songId,
+                  listId: work.listId,
+                  email: work.email,
+                  action: "del",
+                  dateLastMovement: Date.now()
+                });                
+
+                work.remove();
+              } else if (returnObject == 1) {
+                logger.debug("Daemon - Problems deleting. Move 'del' works to 'err-del'.");
+                work.state = "err-del";
+                work.dateLastMovement = Date.now();
+                work.save();
+              }
+
+            }).catch(err => {
+              logger.debug("Daemon - Delete exception.")
+              logger.error(err.stack);
+            });              
+
+          // } else{
+          //   logger.debug("Daemon - Don't have gPassword. Move 'del' works to 'err-del'.");
+          //   work.state = "err-del";
+          //   work.dateLastMovement = Date.now();
+          //   work.save();
+          // }             
+        }
+      }
+    });
+
+
+
     //Search for songs to update
     await Promise.all([
       WorkTodo.find({state:"upl"}),
@@ -49,7 +127,7 @@ async function loop() {
             
             logger.debug("Daemon - Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
-              console.log(returnObject);
+              logger.debug(JSON.stringify(returnObject));
 
               if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar la subida.
                 logger.debug("Daemon - Ended uploading song.");
@@ -80,6 +158,11 @@ async function loop() {
                 });
                 
                 work.remove();
+              } else if (returnObject.code == 1){
+                logger.debug("Daemon - Don't have auth to users Google Music. Move 'upl' work to 'err-upl'.");
+                work.state = "err-upl";
+                work.dateLastMovement = Date.now();
+                work.save();
               }
             }).catch(err => {
               logger.error(err.stack);
@@ -94,63 +177,6 @@ async function loop() {
         }
       }
 
-      //Search for songs to delete
-      //Aquí deberíamos buscar si hay trabajos para eliminar canciones. En caso de que los haya y tenga la pass del usuario lanzarlos. Si no ponerlos en estado err-del
-      await Promise.all([
-        WorkTodo.find({state:"del"}),
-        User.find({},{"_id":0, "email":1, "gpassword":1, "mac":1})
-      ]).then(async ([deletes, users]) => {  
-
-        userPass = Object.assign({}, ...users.map(person => ({[person.email]: person.gpassword})));
-        userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
-
-        // console.log(userPass);
-
-        if (deletes.length==0)
-          logger.debug("Daemon - Nothing to delete.");
-        else{
-          logger.debug("Daemon - Songs to delete...");
-          for (const work of deletes){  
-            if (userPass[work.email]){
-              logger.debug("Daemon - Have gPassword. Can remove song from gMusic.");
-              console.log(work.email+userPass[work.email]+userMacs[work.email]+work.gmusicId);
-
-              //Elimino el trabajo de gmusic.
-              await Gmusic.delete(work.email, userPass[work.email], userMacs[work.email], work.gmusicId).then(returnObject=> {
-
-                if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar el borrado.
-                  logger.debug("Daemon - Ended deleting song.");
-                  //Una vez terminado muevo el trabajo a workDone.
-                  
-                  WorkDone.insertMany({
-                    songId: work.songId,
-                    listId: work.listId,
-                    email: work.email,
-                    action: "del",
-                    dateLastMovement: Date.now()
-                  });
-
-                  work.remove();
-                } else if (returnObject == 2) {
-                  logger.debug("Daemon - Problems deleting. Move 'del' works to 'err-del'.");
-                  work.state = "err-del";
-                  work.dateLastMovement = Date.now();
-                  work.save();
-                }
-
-              }).catch(err => {
-                logger.error(err.stack);
-              });              
-
-            } else{
-              logger.debug("Daemon - Don't have gPassword. Move 'del' works to 'err-del'.");
-              work.state = "err-del";
-              work.dateLastMovement = Date.now();
-              work.save();
-            }             
-          }
-        }
-      });
 
       
       //Search for songs to download
