@@ -5,4 +5,5 @@ credentials.js
 tmp/*.mp3
 tmp/*.webm
 tmp/*.part
+logs/*
 .vscode

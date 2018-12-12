@@ -5,7 +5,6 @@ var express = require('express'),
     mongoose = require('mongoose'),
     passport = require('passport'),
     LocalStrategy = require('passport-local'),
-    //passportLocalMongoose = require('passport-local-mongoose'), //Revisar que es lo que utilizo realmente de passport
     moment = require('moment'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
@@ -15,8 +14,6 @@ var express = require('express'),
     ListUser = require('./models/listUser.js'),
     WorkTodo = require('./models/workTodo.js'),
     User = require('./models/user.js');
-    //helpers = require('handlebars-helpers');
-
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
 var UserManagement = require('./lib/userManagement.js')(),
@@ -344,12 +341,12 @@ app.post('/user', isLoggedIn, function(req, res){
       return res.json({success: true}); 
     }).catch(err => {
       console.log(err);
-      //TODO: Esto me va a fallar porque no tiene retorno...
-    });
-    
+      return res.json({success: false});
+    });  
+
 
   } else if (req.body.action == "newList") {
-    //TODO: Meter aquí lo de process-user
+
     if (req.body.url.includes("http"))
       var listId = req.body.url.split("list=")[1];
     else
@@ -472,7 +469,6 @@ app.all('/gmusic', isLoggedIn, function(req, res){
           res.redirect(303, '/gmusic?action=del');
         } else {
           req.session.userdata.home = "/";
-          //TODO: Tras la inclusión de "home", me hace falta seguir teniendo gmusicAuth?
           req.session.userdata.gmusicAuth = true; 
           res.redirect(303, '/user');
         } 
