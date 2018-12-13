@@ -39,18 +39,8 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
 
-//Morgan logger
-app.use(morgan('dev', {
-  skip: function (req, res) {
-      return res.statusCode < 400
-  }, stream: process.stderr
-}));
 
-app.use(morgan('dev', {
-  skip: function (req, res) {
-      return res.statusCode >= 400
-  }, stream: process.stdout
-}));
+app.use(morgan(':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { stream: logger.stream }));
 
 //Email sender
 var mailTransport = nodemailer.createTransport({
@@ -137,7 +127,7 @@ app.use(flash());
 //TODO: A eliminar
 app.use(function(req, res, next){
   logger.debug("Session data: "+JSON.stringify(req.session));
-  console.log(req.body);
+  logger.silly("Request body: "+JSON.stringify(req.body));
 
   return next();
 });
@@ -340,7 +330,7 @@ app.post('/user', isLoggedIn, function(req, res){
       logger.debug("Comprobadas todas las listas del usuario");
       return res.json({success: true}); 
     }).catch(err => {
-      console.log(err);
+      logger.error(JSON.stringify(err));
       return res.json({success: false});
     });  
 
@@ -374,12 +364,12 @@ app.post('/user', isLoggedIn, function(req, res){
         Synchronize.createList(credentials.youtube.apiKey, listId, nameYT).then(returnObject => {
           Synchronize.generateWorkUpload(listId).then(returnObject => {
             logger.debug("Canciones metidas en workTodo.");
-          }).catch(console.error);
+          });//.catch(console.error);
           req.flash("success", "Nueva lista creada.");
           return res.redirect(303, '/user');
-        }).catch(console.error);
+        });//.catch(console.error);
       }).catch(err => {
-        console.error(err.stack);
+        logger.error(JSON.stringify(err.stack));
         logger.debug("Url no válida como lista de Youtube");
         req.flash("info", "URL no válida como lista de Youtube.");
         return res.redirect(303, '/user');
@@ -407,7 +397,7 @@ app.get('/list', isLoggedIn, function(req, res){
         return res.redirect(303, '/user');
       }
 
-      console.log(listUser);
+      loger.debug("Lista recuperada: "+JSON.stringify(listUser));
   
       var context = {
         userdata: res.locals.userdata,
@@ -560,7 +550,7 @@ app.post("/admin", adminOnly, function(req, res){
       logger.debug("Comprobadas todas las listas de la aplicación");
       //return res.json({success: true}); 
     }).catch(err => {
-      console.log(err);
+      logger.error(JSON.stringify(err));
       //TODO: Esto me va a fallar porque no tiene retorno...
     });
 
@@ -572,16 +562,16 @@ app.post("/admin", adminOnly, function(req, res){
 
 // custom 404 page
 app.use(function(req, res){
-        res.status(404);
-        res.render('404');
+  res.status(404);
+  res.render('404');
 });
 
 
 // custom 500 page
 app.use(function(err, req, res, next){
-        console.error(err.stack);
-        res.status(500);
-        res.render('500');
+  logger.error(JSON.stringify(err.stack));
+  res.status(500);
+  res.render('500');
 });
 
 
@@ -596,7 +586,7 @@ cron.schedule('00 03 * * *', () => {
   Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then( () => {
     logger.info("Comprobadas todas las listas de la aplicación");
   }).catch(err => {
-    console.log(err);
+    logger.error(JSON.stringify(err));
   });
 
 });

@@ -118,14 +118,14 @@
     })
     .then(data => {
       if(data.success=true){
-        console.log("exito");
+        //console.log("exito");
         alertUpdateUser.style.display = "block";
         setTimeout(function() {
           alertUpdateUser.style.display = "none";
         }, 5000);
       }
     })
-    .catch(error => console.log('error is', error));
+    .catch(error => console.log('error is ', error));
   });
 
 </script>

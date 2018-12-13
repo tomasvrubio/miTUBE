@@ -37,8 +37,6 @@ async function loop() {
 
       userMacs = Object.assign({}, ...users.map(person => ({[person.email]: person.mac})));
 
-      // console.log(userPass);
-
       if (deletes.length==0)
         logger.debug("Daemon - Nothing to delete.");
       else{
