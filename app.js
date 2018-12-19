@@ -37,7 +37,7 @@ var handlebars = require('express-handlebars').create({
 var app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-app.set('port', process.env.PORT || 3000);
+app.set('port', credentials.port || 3000);
 
 
 app.use(morgan(':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { stream: logger.stream }));

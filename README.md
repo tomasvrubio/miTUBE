@@ -4,16 +4,16 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 ### Requisitos
 
 * nodejs
+* npm
 * mongodb
-* python3
-* pip
-* gmusicapi-scripts (pip3 install gmusicapi-scripts --user)
-* Nuevo programa: gms [google-music-scripts] (pip3 install google-music-scripts --user)
+* python3 (Ultima version: https://gist.github.com/SeppPenner/6a5a30ebc8f79936fa136c524417761d)
+* pip3 (sudo pip3 install --upgrade pip setuptools wheel)
+* gms [google-music-scripts] (pip3 install google-music-scripts --user)
 * youtube-dl (pip3 install youtube-dl --user)
   * Requerido instalar "ffmpeg" [FEDORA]
   * Actualización cuando empecemos a detectar errores en descarga.
-* mid3v2
-
+* mid3v2 (sudo apt-get install python-mutagen)
+* mp3gain (sudo apt-get install mp3gain)
 
 ### Instalación
 
@@ -27,10 +27,11 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 
 ```
 module.exports = {
+  port: PORT,
   cookieSecret: 'your cookie secret goes here',
   gmail: {
     user: 'email',
-    password: 'clave',
+    password: 'pass',
   },
   mongo: {
     connectionString: 'your_connection_string',
@@ -43,14 +44,21 @@ module.exports = {
 
 * Montar entorno Producción (Cap 12).
 * Usar https -> Seguir tutorial que tengo en el móvil.
+* TODO NUEVO:
+  * ¿Por qué se ve bien si simulo un movil en el PC y se ve tan pequeño en el teléfono? ¿Cual es la mejor herramienta para simular navegaciones en distintas pantallas?
+    - Tiene que ser por resolución. 
+  * ¿Por qué me falla al llamar a gmusic? ¿Qué trazas puedo meter? Probar a hacer la llamada sin más desde la terminal y luego probar distintas llamadas desde el inicio de la app (¿me falla el spawn?)
+    - Era por estar levantando el proceso con root. Con iptables he apuntado a otro puerto
+    - Ahora me falla porque he superado el limite. ¿Esto era por repetir MAC o hay algo con los dispositivos desde los que pruebo el usuario? Probar con el usuario de otra persona.
+      Probar ahora con desarrollovazquezrubio
+  * Cambiar imagen correo.
+    - Hecho
+  * Cambiar links correo.
+    - Hecho
+  * ¿Cómo hago para alojar varias webs desde la raspi? ¿Hay que poner un nginx delante?
+    - Con nginx. Hacer algún tutorial (pero siempre hablan utilizando un dominio y yo lo que tengo es dataplicity)
+  * 
 
-Para poder eliminar canciones voy a necesitar la pass de gmail de los usuarios... Ponerlo como funcionalidad opcional.
-
-* Corregir pantallas que se muestran mientras se va a avanzando en la autorización de gmusic. Mostrar información de lo que hay que hacer. Cuando ya sólo queda añadir el método de pago indicar que hay que pulsar botón para refrescar la consulta y que si todo va bien se redirigirá al usuario a su página de listas.
-  * Si quiero que entre por primera vez en google music: https://play.google.com/music
-
-
-* Hacer una página de Admin desde la que pueda ver el volumen de trabajos pendientes, en error, poder ver gráficas de uso (para trastear con otras librerías), datos de los usuarios... También una pestaña donde pueda autorizar el acceso de los usuarios. Aún así también lo podré hacer desde un link que llegue al correo del administrador.
 
 * usuarios pruebas:
 
@@ -120,9 +128,6 @@ spawnSTDOUT:Visit:
 https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=652850857958.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fmusicmanager&state=pmU90izuu1r3wTLyHKcmoWT8uDHqOP&access_type=offline&prompt=consent
 
 Follow the prompts and paste provided code: 
-
-
-* ¿Como hago operaciones con las variables en handlebars?
 
 
 * Para modificar varios registros de una vez: 
