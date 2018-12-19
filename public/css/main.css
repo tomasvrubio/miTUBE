@@ -14,7 +14,7 @@ body {
 }
 
 body {
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .navbar
@@ -24,10 +24,11 @@ body {
 
 .form-user {
   width: 100%;
-  max-width: 330px;
+  max-width: 60%;
   padding: 15px;
   margin: 0 auto;
 }
+
 
 .form-user input {
   margin-bottom: -1px;

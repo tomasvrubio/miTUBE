@@ -50,15 +50,22 @@ module.exports = {
   * ¿Por qué me falla al llamar a gmusic? ¿Qué trazas puedo meter? Probar a hacer la llamada sin más desde la terminal y luego probar distintas llamadas desde el inicio de la app (¿me falla el spawn?)
     - Era por estar levantando el proceso con root. Con iptables he apuntado a otro puerto
     - Ahora me falla porque he superado el limite. ¿Esto era por repetir MAC o hay algo con los dispositivos desde los que pruebo el usuario? Probar con el usuario de otra persona.
-      Probar ahora con desarrollovazquezrubio
+      Probar ahora con desarrollo...
+      He visto que tenía demasiados dispositivos en la cuenta
   * Cambiar imagen correo.
     - Hecho
   * Cambiar links correo.
     - Hecho
   * ¿Cómo hago para alojar varias webs desde la raspi? ¿Hay que poner un nginx delante?
     - Con nginx. Hacer algún tutorial (pero siempre hablan utilizando un dominio y yo lo que tengo es dataplicity)
-  * 
-
+  
+  * Poner mac con dos digitos siempre
+      Hecho (padStart)
+  * Variable para despertar demonio cuando quiera
+      Hecho
+  * Imagen correo
+      Pasado svg a png
+  * Hacer que se vea bien en móviles
 
 * usuarios pruebas:
 

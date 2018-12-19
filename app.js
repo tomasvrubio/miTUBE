@@ -594,9 +594,11 @@ cron.schedule('00 03 * * *', () => {
 
 //COMENTAR CUANDO ESTOY CON INTERNET MOVIL PARA NO GASTAR DATOS
 // Call to daemon:
-// const child = spawn('node ./daemon.js', {
-//   stdio: 'inherit',
-//   shell: true
-// });
+if (credentials.daemon.active) {
+  const child = spawn('node ./daemon.js', {
+    stdio: 'inherit',
+    shell: true
+  });
+}
 
 //TODO: Contemplar que al tratar de subir una canción no tenga el token

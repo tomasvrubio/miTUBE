@@ -180,8 +180,8 @@ async function loop() {
       //Search for songs to download
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
-          logger.debug("Daemon - Nothing to download. Sleeping...");
-          await sleep(30000); //TODO: Adjust SLEEP TIME (ms)
+          logger.debug("Daemon - Nothing to download. Sleeping "+credentials.daemon.sleepTime+"ms ...");
+          await sleep(credentials.daemon.sleepTime); //TODO: Adjust SLEEP TIME (ms)
         } 
         else {
           logger.debug("Daemon - Need to download "+work.songId);
