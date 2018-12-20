@@ -397,7 +397,7 @@ app.get('/list', isLoggedIn, function(req, res){
         return res.redirect(303, '/user');
       }
 
-      loger.debug("Lista recuperada: "+JSON.stringify(listUser));
+      logger.debug("Lista recuperada: "+JSON.stringify(listUser));
   
       var context = {
         userdata: res.locals.userdata,
