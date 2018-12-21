@@ -8,6 +8,7 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 * mongodb
 * python3 (Ultima version: https://gist.github.com/SeppPenner/6a5a30ebc8f79936fa136c524417761d)
 * pip3 (sudo pip3 install --upgrade pip setuptools wheel)
+* librerias python para youtube-dl: libav-tools (sudo apt-get install -y libav-tools)
 * gms [google-music-scripts] (pip3 install google-music-scripts --user)
 * youtube-dl (pip3 install youtube-dl --user)
   * Requerido instalar "ffmpeg" [FEDORA]
