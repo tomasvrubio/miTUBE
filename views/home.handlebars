@@ -1,17 +1,16 @@
-<form action="/process-home" method="POST" class="form-user">
-  <div class="form-user">
-  <h1 class="h3 mb-3 font-weight-normal" id="prueba">Accede a la aplicación</h1>
-  <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
-  <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
-  <button class="btn btn-lg btn-dark btn-square btn-block color-negro" type="submit">Entrar</button>
+<div class="col-lg-6 text-center">
+  <form action="/process-home" method="POST" class="form-user">
+    <h2 class="mt-5">Accede a la aplicación</h2>
+    <input type="email" name="email" class="form-control mt-3" placeholder="Email" required autofocus>
+    <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
+    <button class="btn btn-lg btn-dark btn-square btn-block color-negro mt-1" type="submit">Entrar</button>
 
-  {{#if alert}}
-  <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
-    {{alert}}
-  </div>
-  {{/if}}
+    {{#if alert}}
+    <div class="alert alert-danger mt-3" role="alert">
+      {{alert}}
+    </div>
+    {{/if}}
 
-  <h5 style="margin-top: 20px;">Si no tienes usuario puedes crearlo <a href="register">aquí</a>.</h5>
-  </div>
-
-</form>
+    <h5 class="mt-2">Si no tienes usuario puedes crearlo <a href="register">aquí</a>.</h5>
+  </form>
+</div>

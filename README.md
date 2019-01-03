@@ -141,3 +141,16 @@ Follow the prompts and paste provided code:
 * Para modificar varios registros de una vez: 
 
 db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
+
+
+### Problemas encontrados:
+
+* En chrome no ajusta bien el tamaño de las columnas con col-5 col-2 ... Hay que hacerlo con el estilo width y darle porcentajes. Explicado en  https://stackoverflow.com/questions/15115052/set-up-fixed-width-for-td
+
+* No se ve bien en los móviles. Tienen más píxeles de lo que tiene un portátil (al menos el mío con el que estaba haciendo las pruebas). ¿Qué es lo que tengo que hacer para detectar que están abriendo la página desde un móvil y cambiar la manera en que se muestra?
+
+* Mostrar en el listado de canciones las que no se han podido sincronizar.
+
+* Mientras se están comprobando las cosas del usuario al hacer LOGIN poner algo que lo indique.
+
+* Cuando pulses para actualizar todas las listas te indique lo está haciendo. Y cuando termine diga que ya está. Y que después de que desaparezca el alert se vuelva a poner blanco

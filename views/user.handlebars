@@ -1,11 +1,11 @@
-<div class="container-fluid">
+<div class="col-lg-12">
 
   <div class="contenedor-list">
-    <h3>Mis listas</h3>
+    <h2 class="mt-5">Mis listas</h2>
 
     <div class="card border-dark bg-light card-nuevaLista">
       <div class="card-header color-negro text-white"><strong>¿Tienes una lista nueva?</strong></div>
-      <div class="card-body text-secondary">
+      <div class="card-body text-secondary color-blanco">
         <form action="/user" method="POST">
           <div class="form-row align-items-center form-list">
             <input type="hidden" name="action" value="newList" />
@@ -38,21 +38,21 @@
       </div>
     </div>
 
-    <div id ="divUpdateUser" class="boton-actListas">
+    <div id ="divUpdateUser" class="boton-actListas mt-1">
         <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block"><strong>Actualizar todas tus listas</strong></button>
         <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>  
     </div>
 
     <!-- Mostrar resultados en tabla -->
-    <div class="table-list">
+    <div class="table-list mt-2">
       <table id="miTabla" class="table table-sm table-hover">
         <caption>Tabla de listas sincronizadas</caption>
         <thead class="thead-dark">
           <tr>
             <th scope="col">Nombre</th>
             <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-            <th scope="col" class="text-right">Fecha incorporación</th>
-            <th scope="col col-1" class="text-center">SYNC</th>
+            <th scope="col" class="text-right">Incorporada</th>
+            <th scope="col col-1" class="text-center">Sincroniza</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +61,7 @@
             <th><a href="list?listid={{listId}}">{{name}}</a></th>
             <th class="d-none d-md-table-cell">{{listId}}</th>
             <th class="text-right">{{created}}</th>
-            <th>
+            <th class ="block-sync">
               <div class={{#if sync}}"block-green" {{else}}"block-red" {{/if}}> </div>
             </th>
           </tr>

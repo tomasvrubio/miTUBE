@@ -1,15 +1,15 @@
-<div class="container-fluid">
+<div class="col-lg-12">
 
   <div class="contenedor-list">
 
-    <form action="user" class="boton-atrasLista">
+    <form action="user" class="boton-atrasLista mt-5">
       <div class="text-right">
   	    <input type="submit" class="btn btn-dark btn-sm btn-square color-negro" value="Volver a mis listas" />
       </div>
     </form>
 
-    <div class="card text-white bg-dark mb-3 card-listDetails">
-      <div class="card-header text-center bold color-negro"><h3><strong>{{name}}</strong></h3></div>
+    <div class="card text-white bg-dark mb-3 card-listDetails mt-1">
+      <div class="card-header text-center bold color-negro"><h4><strong>{{name}}</strong></h4></div>
       <div class="card-body color-negro">
         <div class="row justify-content-between">
           <span class="col-12"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
@@ -20,10 +20,10 @@
           <span class="col-12 ml-auto card-text text-right"><strong>#Pendientes: </strong><span id="numWorksId" class="indicador">{{numWorks}}</span></span>
         </div>
         <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Registro: </strong><em>{{created}}</em></span>
+          <span class="col align-self-end card-text text-right"><strong>Incorporada: </strong><em>{{created}}</em></span>
         </div>
         <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Modificación: </strong><em>{{modified}}</em></span>
+          <span class="col align-self-end card-text text-right"><strong>Modificada: </strong><em>{{modified}}</em></span>
         </div>
         {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo
         o desactivarlo sin recargar página? --}}
@@ -50,12 +50,12 @@
         <caption>Tabla de canciones de una lista</caption>
         <thead class="thead-dark">
           <tr>
-            <th scope="col">
+            <th scope="col" style="width: 70%">
               <span class="d-sm-none">Canción</span>
               <span class="d-none d-sm-block">Nombre</span>
             </th>
-            <th scope="col" class="d-none d-md-table-cell">Identificador</th>
-            <th scope="col" class="text-right d-none d-sm-table-cell col-3">Fecha</th>
+            <th scope="col" class="d-none d-md-table-cell" style="width: 15%">Identificador</th>
+            <th scope="col" class="text-right d-none d-sm-table-cell col-3" style="width: 15%">Fecha</th>
           </tr>
         </thead>
         <tbody>
@@ -76,6 +76,7 @@
         </tbody>
       </table>
     </div>
+  </table>
 
   </div>
 </div>

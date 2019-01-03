@@ -1,4 +1,90 @@
-body {
+.icono {
+  filter: invert(1);
+}
+
+.color-negro {
+  background-color: #212529;
+}
+
+.color-blanco {
+  background-color: white;
+}
+
+.form-user input {
+  margin-bottom: -1px;
+  border-radius: 0;
+}
+
+.btn.btn-square {
+  border-radius: 0;
+  margin-bottom: -1px;
+}
+
+.form-user .form-control:focus {
+  z-index: 2;
+}
+
+.alert {
+  border-radius: 0;
+}
+
+.contenedor-list {
+ font-size: 0.9rem;
+}
+
+.card {
+  border-radius: 0;
+}
+
+.card-header {
+  padding: 5px 20px 0px 20px;
+  border-radius: 0;
+} 
+
+.card-body {
+  padding: 1%;
+}
+
+.form-list input {
+  margin-bottom: -1px;
+  border-radius: 0;
+}
+
+.btn.btn-square {
+  border-radius: 0;
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:active {
+  background-color: #212529;
+}
+
+.table-list {
+  margin: 0 auto;
+}
+
+.block-sync {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-green {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px; 
+  background-color: #28a745;
+  
+}
+
+.block-red {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px; 
+  background-color: #dc3545;
+}
+
+/* body {
   display: -ms-flexbox;
   display: -webkit-box;
   display: flex;
@@ -33,8 +119,6 @@ body {
 .form-user input {
   margin-bottom: -1px;
   border-radius: 0;
-  /* border-top-left-radius: 0;
-    border-top-right-radius: 0; */
 }
 
 .form-user .btn {
@@ -85,7 +169,6 @@ body {
 
 .card-nuevaLista {
   margin: 0 auto 10px auto;
-  /* padding-bottom: 0px; */
 }
 
 .card-header {
@@ -143,10 +226,6 @@ body {
   border-radius: 4px;
   filter: invert(1);
 }
-
-/* .col .btn {
-    padding: 0 10px;
-}  */
 
 .block-green {
   padding: 10% 10%;
@@ -232,4 +311,5 @@ dd ul li {
 
 .about-body div{
   padding-bottom: 0.3em;
-}
+} */
+
