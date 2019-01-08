@@ -1,9 +1,9 @@
 <div class="col-lg-6 text-center">
-  <form action="/process-home" method="POST" class="form-user">
+  <form id="btnLoggingUser" action="/process-home" method="POST" class="form-user">
     <h2 class="mt-5">Accede a la aplicación</h2>
     <input type="email" name="email" class="form-control mt-3" placeholder="Email" required autofocus>
     <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
-    <button class="btn btn-lg btn-dark btn-square btn-block color-negro mt-1" type="submit">Entrar</button>
+    <button class="btn btn-lg btn-dark btn-square btn-block color-negro mt-1" type="submit" onclick="this.blur();">Entrar</button>
 
     {{#if alert}}
     <div class="alert alert-danger mt-3" role="alert">
@@ -11,6 +11,27 @@
     </div>
     {{/if}}
 
-    <h5 class="mt-2">Si no tienes usuario puedes crearlo <a href="register">aquí</a>.</h5>
+    <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    <p id="loader-comment" style="display:none;">Espere mientras se comprueban las autorizaciones de su usuario.</p>
+
+    <h5 id="registry-comment" class="mt-2">Si no tienes usuario puedes crearlo <a href="register">aquí</a>.</h5>
   </form>
 </div>
+
+{{!-- JAVASCRIPT --}}
+<script>
+
+  const loaderAnimation = document.getElementById("loader-animation");
+  const buttonLoggingUser = document.getElementById("btnLoggingUser");
+  const registryComment = document.getElementById("registry-comment");
+  const loaderComment = document.getElementById("loader-comment");
+
+  buttonLoggingUser.addEventListener("submit", function(){
+
+    loaderAnimation.style.display = "inline-block";
+    registryComment.style.display = "none";
+    loaderComment.style.display = "inline-block";
+
+  });
+
+</script>

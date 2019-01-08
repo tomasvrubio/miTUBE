@@ -154,3 +154,5 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 * Mientras se están comprobando las cosas del usuario al hacer LOGIN poner algo que lo indique.
 
 * Cuando pulses para actualizar todas las listas te indique lo está haciendo. Y cuando termine diga que ya está. Y que después de que desaparezca el alert se vuelva a poner blanco
+
+PepePruebasAdmin -> desa -> u507i9d

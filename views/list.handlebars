@@ -2,8 +2,9 @@
 
   <div class="contenedor-list">
 
-    <form action="user" class="boton-atrasLista mt-5">
+    <form action="user" class="boton-atrasLista mt-3">
       <div class="text-right">
+        <img src="img/arrow-left.svg" width="20" height="20" class="d-inline-block" alt="">
   	    <input type="submit" class="btn btn-dark btn-sm btn-square color-negro" value="Volver a mis listas" />
       </div>
     </form>
@@ -13,7 +14,7 @@
       <div class="card-body color-negro">
         <div class="row justify-content-between">
           <span class="col-12"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
-              target="_blank">{{nameYT}}</a></span>
+              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a></span>
           <span class="col-12 ml-auto card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
         {{!-- </div>
         <div class="row justify-content-end"> --}}
@@ -65,7 +66,7 @@
               <span class="d-none d-sm-block">{{originalName}}</span>
               <div class="d-sm-none row justify-content-between">
                 <span class="col-12">{{originalName}}</span>
-                <span class="col-1"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank" class="indicador" style="background-color: red; color:white;">YT</a></span>
+                <div class="col-1"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank" class="indicador"><img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt=""></a></div>
                 <span class="col-6 ml-auto text-right" style="font-size: 0.8rem;"><em>{{added}}</em></span>
               </div>
             </th>

@@ -391,13 +391,17 @@ app.get('/list', isLoggedIn, function(req, res){
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
       List.findOne({listId:req.query.listid}),
       WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}),
-    ]).then( ([listUser, list, works]) => {
+      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid, state:/err/}),
+    ]).then( ([listUser, list, works, errors]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
       }
 
       logger.debug("Lista recuperada: "+JSON.stringify(listUser));
+
+      console.log(works);
+      console.log(errors);
   
       var context = {
         userdata: res.locals.userdata,

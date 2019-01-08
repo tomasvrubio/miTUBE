@@ -1,7 +1,7 @@
 <div class="col-lg-12">
 
   <div class="contenedor-list">
-    <h2 class="mt-5">Mis listas</h2>
+    <h2 class="mt-3">Mis listas</h2>
 
     <div class="card border-dark bg-light card-nuevaLista">
       <div class="card-header color-negro text-white"><strong>¿Tienes una lista nueva?</strong></div>
@@ -38,19 +38,21 @@
       </div>
     </div>
 
-    <div id ="divUpdateUser" class="boton-actListas mt-1">
-        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block"><strong>Actualizar todas tus listas</strong></button>
-        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>  
+    <div id ="divUpdateUser" class="boton-actListas mt-2 text-center">
+        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block" onclick="this.blur();"><strong>Actualizar todas tus listas</strong></button>
+        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>
+        <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        <p id="loader-updateUser-comment" class="mt-2" style="display: none">Espere mientras se actualizan las listas.</p>
     </div>
 
     <!-- Mostrar resultados en tabla -->
-    <div class="table-list mt-2">
+    <div class="table-list mt-3">
       <table id="miTabla" class="table table-sm table-hover">
         <caption>Tabla de listas sincronizadas</caption>
         <thead class="thead-dark">
           <tr>
             <th scope="col">Nombre</th>
-            <th scope="col" class="d-none d-md-table-cell">Identificador</th>
+            <th scope="col" class="d-none d-md-table-cell">Identificador Youtube</th>
             <th scope="col" class="text-right">Incorporada</th>
             <th scope="col col-1" class="text-center">Sincroniza</th>
           </tr>
@@ -97,9 +99,14 @@
 
   const buttonUpdateUser = document.getElementById("btnUpdateUser");
   const alertUpdateUser = document.getElementById("alertUpdateUser");
+  const loaderAnimation = document.getElementById("loader-animation");
 
-  //TODO: Cuando se pulse tengo que desactivarlo hasta que el fetch me devuelva algo... Para evitar multiples pulsaciones.
   buttonUpdateUser.addEventListener("click", function(){
+    
+    buttonUpdateUser.disabled = true;
+    buttonUpdateUser.innerHTML = "<strong>Espere mientras se actualizan...</strong>"
+    loaderAnimation.style.display = "inline-block";
+
     //Buena manera de utilizarlo:
     fetch('user', {
       method: 'post',
@@ -118,14 +125,20 @@
     })
     .then(data => {
       if(data.success=true){
-        //console.log("exito");
+        loaderAnimation.style.display = "none";
+        buttonUpdateUser.innerHTML = "<strong>Actualizar todas tus listas</strong>";
+        buttonUpdateUser.disabled = false;
+
         alertUpdateUser.style.display = "block";
         setTimeout(function() {
           alertUpdateUser.style.display = "none";
+          //buttonUpdateUser.classList.toggle("hover");
+          //buttonUpdateUser.classList.toggle("active");
         }, 5000);
       }
     })
     .catch(error => console.log('error is ', error));
   });
+
 
 </script>
