@@ -62,16 +62,16 @@
         <tbody>
           {{#each songs}}
           <tr>
-            <th>
+            <td>
               <span class="d-none d-sm-block">{{originalName}}</span>
               <div class="d-sm-none row justify-content-between">
                 <span class="col-12">{{originalName}}</span>
                 <div class="col-1"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank" class="indicador"><img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt=""></a></div>
                 <span class="col-6 ml-auto text-right" style="font-size: 0.8rem;"><em>{{added}}</em></span>
               </div>
-            </th>
-            <th class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank">{{songId}}</a></th>
-            <th class="text-right d-none d-sm-table-cell">{{added}}</th>
+            </td>
+            <td class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank">{{songId}}</a></td>
+            <td class="text-right d-none d-sm-table-cell">{{added}}</td>
           </tr>
           {{/each}}
         </tbody>

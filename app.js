@@ -446,6 +446,19 @@ app.post('/list', isLoggedIn, function(req, res){
 });
 
 
+app.post('/deleteList', isLoggedIn, function(req, res){
+
+  logger.debug("Lista a eliminar: "+req.body.listId);
+  //A la hora de borrar una lista tengo que:
+    // * Generar trabajos de borrado de todas las canciones. Hay que ver como hago si hay trabajos pendientes de esa lista para el usuario.
+    // * Borrar lista de la tabla de sincronizaciones del usuario. 
+    // * ¿Borrar lista de la BBDD? ¿O la dejo como histórico?
+
+
+  return res.redirect(303, '/user');
+});
+
+
 app.all('/gmusic', isLoggedIn, function(req, res){
   var authCode = req.body.authCode || null;
   var action = req.query.action || "upl";

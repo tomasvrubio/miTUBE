@@ -10,15 +10,13 @@
           <div class="form-row align-items-center form-list">
             <input type="hidden" name="action" value="newList" />
             <div class="col-12 col-sm-5">
-              <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista"
-                required>
+              <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>
             </div>
             <div class="col-12 col-sm-5">
-              <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube"
-                required>
+              <input type="text" id="fieldURL" name="url" class="form-control form-control-sm" placeholder="URL de Youtube" required>
             </div>
             <div class="col-sm-2 col-4 ml-auto">
-              <button class="btn btn-sm btn-dark btn-square btn-block color-negro" type="submit"><strong>Aceptar</strong></button>
+              <button class="btn btn-sm btn-outline-dark btn-square btn-block color-negro" type="submit"><strong>Aceptar</strong></button>
             </div>
           </div>
         </form>
@@ -55,21 +53,40 @@
             <th scope="col" class="d-none d-md-table-cell">Identificador Youtube</th>
             <th scope="col" class="text-right">Incorporada</th>
             <th scope="col col-1" class="text-center">Sincroniza</th>
+            <th scope="col col-1" class="text-center">Borrar</th>
           </tr>
         </thead>
         <tbody>
           {{#each lists}}
           <tr>
-            <th><a href="list?listid={{listId}}">{{name}}</a></th>
-            <th class="d-none d-md-table-cell">{{listId}}</th>
-            <th class="text-right">{{created}}</th>
-            <th class ="block-sync">
+            <td><strong><a href="list?listid={{listId}}">{{name}}</a></strong></td>
+            <td class="d-none d-md-table-cell">{{listId}}</td>
+            <td class="text-right">{{created}}</td>
+            <td align="center">
               <div class={{#if sync}}"block-green" {{else}}"block-red" {{/if}}> </div>
-            </th>
+            </td>
+            <td align="center"><a href="#" onclick="deleteButton(this)"><img src="img/rubbish-bin-delete-button.svg" width="15" height="15" alt=""></a></td>
           </tr>
           {{/each}}
         </tbody>
       </table>
+    </div>
+
+    <div class="overlay">
+      <div class="overlay-cuadro">
+        <span>¿Quieres borrar la lista?</span>
+        <div class="row justify-content-center overlay-confirm">
+          <div class="col-2">
+            <form action="/deleteList" method="post">
+              <input id="overlay-confirm-listId" type="hidden" name="listId" value=""/>
+              <button id="overlay-confirm-si" class="btn btn-outline-dark btn-sm btn-square"><strong>SI</strong></button>
+            </form>
+          </div>
+          <div class="col-2">
+            <button id="overlay-confirm-no" class="btn btn-outline-dark btn-sm btn-square"><strong>NO</strong></button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -79,6 +96,28 @@
 {{!-- JAVASCRIPT --}}
 <script>
 
+  // TODO: Esto debería pasarlo a un js común para toda la aplicación
+  //JS para evitar que los elementos se queden focus en pantalla táctil
+  if('ontouchstart' in document.documentElement) {
+    // Loop through each stylesheet
+    for(var sheetI = document.styleSheets.length - 1; sheetI >= 0; sheetI--) {
+      var sheet = document.styleSheets[sheetI];
+      // Verify if cssRules exists in sheet
+      if(sheet.cssRules) {
+        // Loop through each rule in sheet
+        for(var ruleI = sheet.cssRules.length - 1; ruleI >= 0; ruleI--) {
+          var rule = sheet.cssRules[ruleI];
+          // Verify rule has selector text
+          if(rule.selectorText) {
+            // Replace hover psuedo-class with active psuedo-class
+            rule.selectorText = rule.selectorText.replace(":hover", ":active");
+          }
+        }
+      }
+    }
+  }
+
+  //JS para mostrar el mensaje de alerta
   const alertNewList = document.getElementById("alertNewList");
   const fieldName = document.getElementById("fieldName");
   const fieldURL = document.getElementById("fieldURL");
@@ -97,6 +136,7 @@
     });
   }
 
+  //Javascript para el botón de actualización de listas
   const buttonUpdateUser = document.getElementById("btnUpdateUser");
   const alertUpdateUser = document.getElementById("alertUpdateUser");
   const loaderAnimation = document.getElementById("loader-animation");
@@ -107,7 +147,6 @@
     buttonUpdateUser.innerHTML = "<strong>Espere mientras se actualizan...</strong>"
     loaderAnimation.style.display = "inline-block";
 
-    //Buena manera de utilizarlo:
     fetch('user', {
       method: 'post',
       body: 'action=updateUser&email={{userdata.email}}',
@@ -132,13 +171,33 @@
         alertUpdateUser.style.display = "block";
         setTimeout(function() {
           alertUpdateUser.style.display = "none";
-          //buttonUpdateUser.classList.toggle("hover");
-          //buttonUpdateUser.classList.toggle("active");
         }, 5000);
       }
     })
     .catch(error => console.log('error is ', error));
   });
 
+  //Para mostrar el Overlay con el que se borra una lista
+  function deleteButton(button) {
+  
+    var listName = button.closest('tr').firstElementChild.innerText;
+    var listId = button.closest('tr').getElementsByTagName("td")[1].innerText;
+    var overlay = document.getElementsByClassName("overlay")[0];
+    var buttonOverlayNo = document.getElementById("overlay-confirm-no");
+    var inputOverlayListId = document.getElementById("overlay-confirm-listId");
+  
+    inputOverlayListId.value = listId; 
+    overlay.getElementsByTagName("span")[0].innerHTML = "¿Desea borrar la lista <strong>" + listName + "</strong>?";   
+
+    //TODO: Hacer que aparezca y desaparezca desvaneciendose. Quitar el evento de click al ocultarlo.
+    buttonOverlayNo.addEventListener('click', function(){      
+      //$('#overlay-confirm-no').off('click');
+      //$('.overlay').fadeOut();
+      overlay.style.display = "none";
+    });
+    
+    buttonOverlayNo.focus();
+    overlay.style.display = "block";
+  }
 
 </script>

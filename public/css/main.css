@@ -56,11 +56,18 @@
 
 .btn-outline-dark {
   background-color: white;
+  color: black;
 }
 
 .btn-outline-dark:hover,
 .btn-outline-dark:active {
   background-color: #212529;
+}
+
+@media (hover:hover) {
+  .btn:hover{
+      background: yellow;
+  }
 }
 
 .table-list {
@@ -90,7 +97,11 @@
 .block-sync {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
+}
+
+.table-list td {
+  vertical-align: middle;
 }
 
 .manual-comentario {
@@ -119,15 +130,7 @@
 /* Animación CSS para mostrar la carga */
 .lds-ring {
   display: none;
-  /* display: inline-block; */
-  position: relative;
-  width: 64px;
-  height: 64px;
-}
-
-.lds-ring2 {
-  /* display: none; */
-  display: inline-block;
+  /* display: inline-block; */  
   position: relative;
   width: 64px;
   height: 64px;
@@ -161,6 +164,38 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 0;
+}
+
+.overlay-cuadro {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* font-size: 30px; */
+  color: white;
+  transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+}
+
+.overlay span {
+  display: block;
+  text-align: center;
+}
+
+.overlay-confirm {
+  text-align: center;
 }
 
 
