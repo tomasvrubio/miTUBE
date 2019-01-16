@@ -2,57 +2,94 @@
 
   <div class="contenedor-list">
 
-    <form action="user" class="boton-atrasLista mt-3">
-      <div class="text-right">
-        <img src="img/arrow-left.svg" width="20" height="20" class="d-inline-block" alt="">
-  	    <input type="submit" class="btn btn-dark btn-sm btn-square color-negro" value="Volver a mis listas" />
-      </div>
-    </form>
+    <button onclick="topFunction()" id="myBtn" title="Go to top" class="btn btn-dark btn-sm btn-square color-negro">
+      <img src="img/arrow-up.svg" width="20" height="20" class="d-inline-block icono" alt="">
+      <strong>Subir</strong>
+    </button>
 
-    <div class="card text-white bg-dark mb-3 card-listDetails mt-1">
+
+    <div class="text-right mt-3">
+      <a href="user" class="link">
+        
+        <button class="btn btn-outline-dark btn-sm btn-square">
+          <img src="img/arrow-left.svg" width="20" height="20" class="d-inline-block" alt="">
+          Volver a mis listas
+        </button>
+      </a>
+    </div>
+
+
+    <div class="card text-white bg-dark card-listDetails mt-1">
       <div class="card-header text-center bold color-negro"><h4><strong>{{name}}</strong></h4></div>
       <div class="card-body color-negro">
         <div class="row justify-content-between">
-          <span class="col-12"><strong>Nombre lista Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
-              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a></span>
-          <span class="col-12 ml-auto card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
-        {{!-- </div>
-        <div class="row justify-content-end"> --}}
-          <span class="col-12 ml-auto card-text text-right"><strong>#Pendientes: </strong><span id="numWorksId" class="indicador">{{numWorks}}</span></span>
-        </div>
-        <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Incorporada: </strong><em>{{created}}</em></span>
-        </div>
-        <div class="row justify-content-end">
-          <span class="col align-self-end card-text text-right"><strong>Modificada: </strong><em>{{modified}}</em></span>
-        </div>
-        {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo
-        o desactivarlo sin recargar página? --}}
-        <div class="row justify-content-center text-center">
-          <form action="/list" method="post">
-            <input type="hidden" name="action" value="syncToogle" />
-            <input type="hidden" name="listId" value="{{listId}}" />
-            {{#if sync}}
-            <input type="hidden" name="sync" value="false" />
-            <button class="btn btn-success btn-sm btn-square text-center" type="submit">Sincronización Activada</button>
-            {{else}}
-            <input type="hidden" name="sync" value="true" />
-            <button class="btn btn-danger btn-sm btn-square text-center" type="submit">Sincronización Desactivada</button>
-            {{/if}}
-          </form>
+          <span class="col-12">
+            <strong>Lista en Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
+              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a>
+          </span>
+
+          <div class="col-4 btn-group">
+            <button id="listImage" type="button" class="btn btn-default dropdown-toggle color-negro" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <img src="http://lorempixel.com/75/75/abstract/" class="img-thumbnail">
+            </button>
+            
+            <ul id="listImageMenu" class="dropdown-menu">
+              <li class="dropdown-header">Selecciona la imagen del album</li>
+              <li>
+                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/abstract/"></a>
+              </li>
+              <li>
+                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/sports/"></a>
+              </li>
+              <li>
+                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/cats/"></a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-8">
+            <div class="row justify-content-between">
+              <span class="col-12 align-self-end card-text text-right"><strong>#Canciones: </strong>{{numSongs}}</span>
+              <span class="col-12 card-text text-right"><strong>#Pendientes: </strong><span id="numWorksId" class="indicador">{{numWorks}}</span></span>
+              <span class="col-12 align-self-end card-text text-right"><strong>Incorporada: </strong><em>{{created}}</em></span>
+              <span class="col-12 align-self-end card-text text-right"><strong>Modificada: </strong><em>{{modified}}</em></span>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  
+
+    {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo o desactivarlo sin recargar página? --}}
+    <div class="justify-content-center text-center mt-1">
+      <form action="/list" method="post">
+        <input type="hidden" name="action" value="syncToogle" />
+        <input type="hidden" name="listId" value="{{listId}}" />
+        {{#if sync}}
+        <input type="hidden" name="sync" value="false" />
+        <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">
+          <img src="img/refresh-button.svg" width="20" height="20" class="d-inline-block" alt="">
+          <strong>Sincronización <span style="color:#28a745;">Activada</span></strong>
+        </button>
+        {{else}}
+        <input type="hidden" name="sync" value="true" />
+        <button class="btn btn-outline-dark btn-sm btn-square btn-block" type="submit">
+          <img src="img/refresh-button.svg" width="20" height="20" class="d-inline-block" alt="">
+          <strong>Sincronización <span style="color:#dc3545;">Desactivada</span></strong>
+        </button>
+        {{/if}}
+      </form>
     </div>
 
 
     <!-- Mostrar resultados en tabla -->
-    <div class="table-list">
+    <div class="table-list mt-1">
       <table id="miTabla" class="table table-sm table-hover">
-        <caption>Tabla de canciones de una lista</caption>
+        <caption>Tabla de canciones en la lista</caption>
         <thead class="thead-dark">
           <tr>
             <th scope="col" style="width: 70%">
-              <span class="d-sm-none">Canción</span>
+              <span class="d-sm-none">Canciones</span>
               <span class="d-none d-sm-block">Nombre</span>
             </th>
             <th scope="col" class="d-none d-md-table-cell" style="width: 15%">Identificador</th>
@@ -77,18 +114,83 @@
         </tbody>
       </table>
     </div>
-  </table>
 
   </div>
 </div>
 
 {{!-- JAVASCRIPT --}}
 <script>
+
+  //Go to top button
+  ///////////////////////////////////////////////////////
+  // When the user scrolls down 20px from the top of the document, show the button
+  window.onscroll = function() {scrollFunction()};
+
+  function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+      document.getElementById("myBtn").style.display = "block";
+    } else {
+      document.getElementById("myBtn").style.display = "none";
+    }
+  }
+
+  // When the user clicks on the button, scroll to the top of the document
+  function topFunction() {
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+  }
+  ///////////////////////////////////////////////////////
+
   const indicador = document.getElementById("numWorksId");
 
   if ({{numWorks}} == 0)
     indicador.style.backgroundColor = "#28a745";
   else
     indicador.style.backgroundColor = "#f38609";  
+
+
+  //Para hacer funcionar el dropdown va a tocar adaptar este código
+  const listImage = document.getElementById("listImage");
+  const listImageMenu = document.getElementById("listImageMenu");
+
+  listImage.addEventListener("click", function(elem) {
+    console.log("Clickado toogle");
+    console.log(elem);
+    console.log(this);
+
+  });
+
+  listImageMenu.addEventListener("click", function(elem) {    
+    console.log("Clickado opcion menú");
+    const selectedImage = elem.srcElement.currentSrc;
+    console.log(selectedImage);
+    console.log(this);
+
+    //Aquí deberíamos hacer la petición al servidor para modificar la imagen
+    fetch('list', {
+      method: 'post',
+      body: 'action=setImage&listId={{listId}}&imageId='+selectedImage,
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .then(data => {
+      if(data.success=true){
+        console.log("Imagen cambiada")
+      }
+    })
+    .catch(error => console.log('Error is ', error));
+
+    //Cambiamos la imagen que se muestra en la web
+    listImage.firstElementChild.src = selectedImage;
+  });
 
 </script>

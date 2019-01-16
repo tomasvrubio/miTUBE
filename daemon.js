@@ -42,8 +42,6 @@ async function loop() {
       else{
         logger.debug("Daemon - Songs to delete...");
         for (const work of deletes){  
-          // if (userPass[work.email]){
-            // logger.debug("Daemon - Have gPassword. Can remove song from gMusic.");
             
             logger.debug("Daemon - Deleting "+work.songId+" song for "+work.email);
 
@@ -88,14 +86,7 @@ async function loop() {
             }).catch(err => {
               logger.debug("Daemon - Delete exception.")
               logger.error(err.stack);
-            });              
-
-          // } else{
-          //   logger.debug("Daemon - Don't have gPassword. Move 'del' works to 'err-del'.");
-          //   work.state = "err-del";
-          //   work.dateLastMovement = Date.now();
-          //   work.save();
-          // }             
+            });                        
         }
       }
     });

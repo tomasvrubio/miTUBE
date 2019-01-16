@@ -9,7 +9,7 @@ var listUserSchema = mongoose.Schema({
 	created: Date,
 	updated: Date,
 	sync: {type:Boolean, default:true},
-	picture: String, //REVISAR:¿Seguro que es un string? //TODO: Creo que no me va a hacer falta porque de momento no veo manera de subirla a Google.
+	imageId: {type:String, default:"img/unknown.jpg"} 
 	//Pensando en poner un campo más que indique que hay trabajo pendiente a la hora de descargar, sincronizar canciones. Podría ser un booleano.
 });
 

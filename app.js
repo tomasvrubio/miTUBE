@@ -433,24 +433,46 @@ app.get('/list', isLoggedIn, function(req, res){
 
 
 app.post('/list', isLoggedIn, function(req, res){
+  var action = req.body.action,
+      email = res.locals.userdata.email,
+      listId = req.body.listId;
 
-  if (req.body.action == "syncToogle"){ 
-    var email = res.locals.userdata.email,
-        listId = req.body.listId,
-        sync = req.body.sync;
+
+  if (action == "syncToogle"){ 
+    var sync = req.body.sync;
 
     Synchronize.toogleSync(email, listId, sync);
+    return res.redirect(303, '/list?listid='+listId);
+  
+  } else if (action == "setImage") {
+    var imageId = req.body.imageId;
+    
+    console.log("Hay que actualizar la imagen.");
+    Synchronize.setImage(email, listId, imageId);
+
+    return res.json({success: true}); 
+    // return res.json({success: false}); 
   }
 
-  return res.redirect(303, '/list?listid='+listId);
 });
 
 
 app.post('/deleteList', isLoggedIn, function(req, res){
 
-  logger.debug("Lista a eliminar: "+req.body.listId);
+  var email = res.locals.userdata.email,
+      listId = req.body.listId;
+
+  console.log(email);
+
+  Synchronize.deleteRelation(email, listId).then(returnObject => {
+    logger.debug("Eliminada lista "+listId);
+  }).catch(err => {
+    logger.error("No se ha podido eliminar la lista - "+JSON.stringify(err.stack)); 
+  });
+
+
   //A la hora de borrar una lista tengo que:
-    // * Generar trabajos de borrado de todas las canciones. Hay que ver como hago si hay trabajos pendientes de esa lista para el usuario.
+    // * Generar trabajos de borrado de todas las canciones. Hay que ver como hago si hay trabajos pendientes de esa lista para el usuario. Si no encuentro la canción en gmusic y hay trabajos de subida significa que aún no está subida (y no está generado el gmusicId). Tnego que borrar el borrado y la subida pendientes sin poder hacer nada en google music.
     // * Borrar lista de la tabla de sincronizaciones del usuario. 
     // * ¿Borrar lista de la BBDD? ¿O la dejo como histórico?
 
