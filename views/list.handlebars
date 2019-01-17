@@ -30,20 +30,16 @@
 
           <div class="col-4 btn-group">
             <button id="listImage" type="button" class="btn btn-default dropdown-toggle color-negro" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <img src="http://lorempixel.com/75/75/abstract/" class="img-thumbnail">
+              <img src={{imageId}} width="75" height="75" class="img-thumbnail">
             </button>
             
-            <ul id="listImageMenu" class="dropdown-menu">
-              <li class="dropdown-header">Selecciona la imagen del album</li>
+            <ul id="listImageMenu" class="dropdown-menu text-center">
+              <li class="dropdown-header">Elige imagen</li>
+              {{#each covers}}
               <li>
-                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/abstract/"></a>
+                <a href="#" title="Selecciona esta imagen"><img src="img/covers/{{this}}" width="75" height="75"></a>
               </li>
-              <li>
-                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/sports/"></a>
-              </li>
-              <li>
-                <a href="#" title="Select this card"><img src="http://lorempixel.com/75/75/cats/"></a>
-              </li>
+              {{/each}}
             </ul>
           </div>
 

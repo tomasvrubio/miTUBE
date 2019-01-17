@@ -9,7 +9,7 @@ var listUserSchema = mongoose.Schema({
 	created: Date,
 	updated: Date,
 	sync: {type:Boolean, default:true},
-	imageId: {type:String, default:"img/unknown.jpg"} 
+	imageId: {type:String, default:"img/covers/unknown.jpg"} 
 	//Pensando en poner un campo más que indique que hay trabajo pendiente a la hora de descargar, sincronizar canciones. Podría ser un booleano.
 });
 

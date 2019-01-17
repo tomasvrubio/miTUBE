@@ -162,10 +162,12 @@ PepePruebasAdmin -> desa -> u507i9d
 
 + * Terminar de hacer que el dropdown se vea bien. ¿Oculto del todo el botón de la derecha? Y habría que hacer que sólo fuera del tamaño de la imagen y que no se pudiese pulsar lo de alrededor.
 
-* Cuando pulso una imagen del listado del dropdown:
++ * Cuando pulso una imagen del listado del dropdown:
   - Esa imagen se pone en la imagen de la ficha.
   - Se manda una petición al servidor para que se registre que el usuario quiere esa imagen para la lista.
 
-* Que el listado del dropdown se genere dinámicamente con el contenido del directorio. 
++ * Que el listado del dropdown se genere dinámicamente con el contenido del directorio. 
 
 * Tener dos imágenes en el directorio: las comprimidas para mostrar en el dropdown y las grandes para subir a google music.
+
+* Generar trabajo de modificación de imagen

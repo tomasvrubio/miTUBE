@@ -76,6 +76,7 @@
 
 .table-list {
   margin: 0 auto;
+
 }
 
 .yt-link {
@@ -230,22 +231,38 @@
   background-color: #555; /* Add a dark-grey background on hover */
 }
 
+.dropdown-menu { 
+  width: 302px;
+  border-radius: 0px;
+  padding: 0px;
+  border: 1px solid rgb(0, 0, 0);
+}
+  
+.dropdown-toggle { 
+  padding: 0;
+}
 
-
-/* .dropdown-toggle, .dropdown-menu { width: 300px } */
-/* .btn-group img { margin-right: 10px } */
-.dropdown-toggle { padding: 0 }
-/* .dropdown-toggle .glyphicon {
-   padding-right: 0px;
-} */
 .dropdown-toggle::after {
   display: none;
 }
+
+.dropdown-menu>li {
+  float: left;
+}
+
 .dropdown-menu>li>a:hover {
   background: #f1f9fd;
-  border-radius: 12px; 
- } /* $search-blue */
-.dropdown-header { background: #ccc; font-size: 14px; font-weight: 700; padding-top: 5px; padding-bottom: 5px;}
+  border-radius: 0px; 
+} 
+
+.dropdown-header { 
+  width: 300px;
+  background: #212529; 
+  color: white; 
+  font-weight: 700; 
+  padding-top: 0px; 
+  padding-bottom: 0px;
+}
 
 
 /* body {

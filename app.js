@@ -392,17 +392,19 @@ app.get('/list', isLoggedIn, function(req, res){
       List.findOne({listId:req.query.listid}),
       WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}),
       WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid, state:/err/}),
-    ]).then( ([listUser, list, works, errors]) => {
+      Synchronize.getImages(),
+    ]).then( ([listUser, list, works, errors, covers]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
       }
 
-      logger.debug("Lista recuperada: "+JSON.stringify(listUser));
+      // logger.debug("Lista recuperada: "+JSON.stringify(listUser));
+      // logger.debug("Imagenes recuperadas: "+JSON.stringify(covers));
+      // console.log(works);
+      // console.log(errors);
+      
 
-      console.log(works);
-      console.log(errors);
-  
       var context = {
         userdata: res.locals.userdata,
         listId: req.query.listid,
@@ -413,6 +415,8 @@ app.get('/list', isLoggedIn, function(req, res){
         numSongs: list.songs.length,
         numWorks: works.length || 0,
         sync: listUser.sync,
+        imageId: listUser.imageId,
+        covers,
         songs: list.songs.map(function(song){
           return {
               songId: song.songId,
