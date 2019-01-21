@@ -404,7 +404,6 @@ app.get('/list', isLoggedIn, function(req, res){
       // console.log(works);
       // console.log(errors);
       
-
       var context = {
         userdata: res.locals.userdata,
         listId: req.query.listid,
@@ -415,7 +414,7 @@ app.get('/list', isLoggedIn, function(req, res){
         numSongs: list.songs.length,
         numWorks: works.length || 0,
         sync: listUser.sync,
-        imageId: listUser.imageId,
+        imageId: listUser.imageId.replace("covers/","covers/thumbnail/thumbnail-"),
         covers,
         songs: list.songs.map(function(song){
           return {
@@ -439,7 +438,9 @@ app.get('/list', isLoggedIn, function(req, res){
 app.post('/list', isLoggedIn, function(req, res){
   var action = req.body.action,
       email = res.locals.userdata.email,
-      listId = req.body.listId;
+      listId = req.body.listId,
+      listName = req.body.listName,
+      songId = req.body.songId;
 
 
   if (action == "syncToogle"){ 
@@ -451,12 +452,23 @@ app.post('/list', isLoggedIn, function(req, res){
   } else if (action == "setImage") {
     var imageId = req.body.imageId;
     
-    console.log("Hay que actualizar la imagen.");
-    Synchronize.setImage(email, listId, imageId);
-
-    return res.json({success: true}); 
-    // return res.json({success: false}); 
+    Synchronize.setImage(email, listId, listName, songId, imageId).then(returnObject => {
+      return res.json({success: true}); 
+    }).catch(err => {
+      logger.error(JSON.stringify(err));
+      return res.json({success: false});
+    }); 
   }
+
+
+  // Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
+  //   logger.debug("Comprobadas todas las listas del usuario");
+  //   return res.json({success: true}); 
+  // }).catch(err => {
+  //   logger.error(JSON.stringify(err));
+  //   return res.json({success: false});
+  // });  
+
 
 });
 

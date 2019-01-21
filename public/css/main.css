@@ -264,6 +264,11 @@
   padding-bottom: 0px;
 }
 
+.dropdown-toogle-ok {
+  border: 0px;
+  background: #28a745;
+}
+
 
 /* body {
   display: -ms-flexbox;

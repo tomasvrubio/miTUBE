@@ -31,13 +31,12 @@
           <div class="col-4 btn-group">
             <button id="listImage" type="button" class="btn btn-default dropdown-toggle color-negro" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <img src={{imageId}} width="75" height="75" class="img-thumbnail">
-            </button>
-            
+            </button>            
             <ul id="listImageMenu" class="dropdown-menu text-center">
               <li class="dropdown-header">Elige imagen</li>
               {{#each covers}}
               <li>
-                <a href="#" title="Selecciona esta imagen"><img src="img/covers/{{this}}" width="75" height="75"></a>
+                <a href="#" title="Selecciona esta imagen"><img src="img/covers/thumbnail/thumbnail-{{this}}" width="100" height="100"></a>
               </li>
               {{/each}}
             </ul>
@@ -149,23 +148,13 @@
   const listImage = document.getElementById("listImage");
   const listImageMenu = document.getElementById("listImageMenu");
 
-  listImage.addEventListener("click", function(elem) {
-    console.log("Clickado toogle");
-    console.log(elem);
-    console.log(this);
-
-  });
-
-  listImageMenu.addEventListener("click", function(elem) {    
-    console.log("Clickado opcion menú");
-    const selectedImage = elem.srcElement.currentSrc;
-    console.log(selectedImage);
-    console.log(this);
+  listImageMenu.addEventListener("click", function(elem) {
+    const selectedImage = elem.srcElement.attributes[0].value.replace("thumbnail/thumbnail-", "");
 
     //Aquí deberíamos hacer la petición al servidor para modificar la imagen
     fetch('list', {
       method: 'post',
-      body: 'action=setImage&listId={{listId}}&imageId='+selectedImage,
+      body: 'action=setImage&listId={{listId}}&listName={{name}}&songId={{songs.[1].songId}}&imageId='+selectedImage,
       headers: { 'Content-type': 'application/x-www-form-urlencoded' }
     })
     .then(response => {
@@ -180,7 +169,10 @@
     })
     .then(data => {
       if(data.success=true){
-        console.log("Imagen cambiada")
+        listImage.firstElementChild.classList.add("dropdown-toogle-ok");
+        setTimeout(function() {
+          listImage.firstElementChild.classList.remove("dropdown-toogle-ok");
+        }, 1500);
       }
     })
     .catch(error => console.log('Error is ', error));

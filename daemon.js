@@ -93,7 +93,7 @@ async function loop() {
 
 
 
-    //Search for songs to update
+    //Search for songs to upload
     await Promise.all([
       WorkTodo.find({state:"upl"}),
       User.find({},{"_id":0, "email":1, "mac":1})
@@ -115,7 +115,7 @@ async function loop() {
             });
             
             logger.debug("Daemon - Uploading song "+work.songId+" for user "+work.email);
-            await Gmusic.upload(work.email, userMacs[work.email], work.songId).then(returnObject => {
+            await Gmusic.upload(work.email, userMacs[work.email], work.songId, work.imageId).then(returnObject => {
               logger.debug("Daemon - Gmusic returns: "+JSON.stringify(returnObject));
 
               if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar la subida.
