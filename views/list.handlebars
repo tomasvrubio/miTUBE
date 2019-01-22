@@ -99,8 +99,10 @@
               <div class="d-sm-none row justify-content-between">
                 <span class="col-12">{{originalName}}</span>
                 <div class="col-1"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank" class="indicador"><img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt=""></a></div>
-                <span class="col-6 ml-auto text-right" style="font-size: 0.8rem;"><em>{{added}}</em></span>
+                <span class="col-6 ml-auto text-right" style="font-size: 0.8rem;"><div class="block-green d-inline-block" style="margin-right: 3px;"></div><em>{{added}}</em></span>
               </div>
+
+              {{!-- TODO: Indicar con colores los estados de cada una de las canciones. Naranja que se está trabajando en ella. Roja que presenta un error. Negra que se tiene que eliminar. Si pinchas la bola te salga un tooltip que te indique que es lo que se está haciendo. --}}
             </td>
             <td class="d-none d-md-table-cell"><a href="https://www.youtube.com/watch?v={{songId}}" target="_blank">{{songId}}</a></td>
             <td class="text-right d-none d-sm-table-cell">{{added}}</td>

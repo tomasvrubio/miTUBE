@@ -149,13 +149,11 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 + * No se ve bien en los móviles. Tienen más píxeles de lo que tiene un portátil (al menos el mío con el que estaba haciendo las pruebas). ¿Qué es lo que tengo que hacer para detectar que están abriendo la página desde un móvil y cambiar la manera en que se muestra?
 
-* Mostrar en el listado de canciones las que no se han podido sincronizar.
-
 + * Mientras se están comprobando las cosas del usuario al hacer LOGIN poner algo que lo indique.
 
 + * Cuando pulses para actualizar todas las listas te indique lo está haciendo. Y cuando termine diga que ya está. Y que después de que desaparezca el alert se vuelva a poner blanco
 
-PepePruebasAdmin -> desa -> u507i9d
+
 
 
 #### En cuanto como hacer la selección de la imagen para la lista
@@ -170,8 +168,31 @@ PepePruebasAdmin -> desa -> u507i9d
 
 + * Tener dos imágenes en el directorio: las comprimidas para mostrar en el dropdown y las grandes para subir a google music.
 
-* Generar trabajo de modificación de imagen
++ * Generar trabajo de modificación de imagen
 
-* Modificar subida de canciones para que ahora también se incluya imageId y el filtro necesario en el comando de subida.
++ * Modificar subida de canciones para que ahora también se incluya imageId y el filtro necesario en el comando de subida.
 
-* 
++ * Readdir no funciona en Raspberry: La versión de node no me devuelve los tipos de ficheros. He tenido que modificar la manera en que fitraba que no me mostrase la carpeta thumbnail.
+
+
+#### Resto de cosas a ir implementando:
+
+* Mostrar en el listado de canciones las que aún se estén sincronizando y las que hayan dado error. Una bola de un color que si pulsamos salga un tooltip.
+
+* Arreglar el indicador de las cosas pendientes en una lista. Si no indica nada no ponerlo pero pensar que es lo que puedo poner.
+
+* Cuando se levanta el demonio parece que la raspberry llega al límite. ¿Qué es lo que está haciendo por detrás? En principio ya no tenía nada que bajar, está todo en error. Probar a no activarlo para ver si tengo los mismos problemas con la aplicación.
+
+* Corregir visualización de carga cuando la pantalla es demasiado ancha.
+
+* Al tratar trabajos para eliminar canciones fijarme en si hay uno de subida con fecha anterior. Borrar y eliminarlo.
+
+* En una parada ordenada apagar el demonio
+
+* Mantener comunicación entre app y daemon
+
+* No levantar demonio si ya hay uno en pie?¿
+
+
+
+PepePruebasAdmin -> desa -> u507i9d

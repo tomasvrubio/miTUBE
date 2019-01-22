@@ -48,17 +48,6 @@ async function loop() {
             if (!work.gmusicId){
               logger.debug("Daemon - No gmusicId (song not uploaded). Pending 'upl' work.");
             }
-            //TODO: SI hubiese alguna tarea de upload con esta lista+canción debería borrarla. También eso significará que no hay datos de la canción. Lo puedo comprobar mirando si existe el gmusicId.
-            // WorkTodo.find({email: work.email, listId: work.listId, songId:work.songId, state:"upl"}).then( uploadDeleted => {
-            //   logger.debug("Daemon - Pending 'upl' work for this user and song removed.");
-            //   WorkDone.insertMany({
-            //     songId: uploadDeleted.songId,
-            //     listId: uploadDeleted.listId,
-            //     email: uploadDeleted.email,
-            //     action: "upl",
-            //     dateLastMovement: Date.now()
-            //   });
-            // });   
 
             //Elimino el trabajo de gmusic.
             await Gmusic.delete(work.email, userMacs[work.email], work.gmusicId).then(returnObject => {
@@ -73,7 +62,20 @@ async function loop() {
                   email: work.email,
                   action: "del",
                   dateLastMovement: Date.now()
-                });                
+                });
+                
+                //TODO: Aquí es donde debería borrar los trabajos de subida en caso de que los haya.
+                //Si hubiese alguna tarea de upload con esta lista+canción debería borrarla. También eso significará que no hay datos de la canción. Lo puedo comprobar mirando si existe el gmusicId.
+                // WorkTodo.find({email: work.email, listId: work.listId, songId:work.songId, state:"upl"}).then( uploadDeleted => {
+                //   logger.debug("Daemon - Pending 'upl' work for this user and song removed.");
+                //   WorkDone.insertMany({
+                //     songId: uploadDeleted.songId,
+                //     listId: uploadDeleted.listId,
+                //     email: uploadDeleted.email,
+                //     action: "upl",
+                //     dateLastMovement: Date.now()
+                //   });
+                // });   
 
                 work.remove();
               } else if (returnObject == 1) {
@@ -172,7 +174,7 @@ async function loop() {
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 
         if (work==null) {
           logger.debug("Daemon - Nothing to download. Sleeping "+credentials.daemon.sleepTime+"ms ...");
-          await sleep(credentials.daemon.sleepTime); //TODO: Adjust SLEEP TIME (ms)
+          await sleep(credentials.daemon.sleepTime);
         } 
         else {
           logger.debug("Daemon - Need to download "+work.songId);

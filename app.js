@@ -390,19 +390,16 @@ app.get('/list', isLoggedIn, function(req, res){
     Promise.all([
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
       List.findOne({listId:req.query.listid}),
-      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}),
-      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid, state:/err/}),
+      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}), //TODO: Quitarla
+      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid},{"_id":0, "songId":1, "state":1, "dateLastMovement":1}).sort({dateLastMovement:1}),
       Synchronize.getImages(),
-    ]).then( ([listUser, list, works, errors, covers]) => {
+    ]).then( ([listUser, list, works, works2, covers]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
       }
 
-      // logger.debug("Lista recuperada: "+JSON.stringify(listUser));
-      // logger.debug("Imagenes recuperadas: "+JSON.stringify(covers));
-      // console.log(works);
-      // console.log(errors);
+      pendingWorks = Object.assign({}, ...works2.map(work => ({[work.songId]: work.state})));
       
       var context = {
         userdata: res.locals.userdata,
@@ -422,6 +419,7 @@ app.get('/list', isLoggedIn, function(req, res){
               originalName: song.originalName,
               name: song.name,
               artist: song.artist,
+              state: pendingWorks[song.songId],
               added: moment(song.added).format('DD MMM YYYY')
             }
         })
@@ -647,8 +645,7 @@ cron.schedule('00 03 * * *', () => {
 });
 
 
-//COMENTAR CUANDO ESTOY CON INTERNET MOVIL PARA NO GASTAR DATOS
-// Call to daemon:
+// Call to daemon: //TODO: Tengo que escuchar al demonio y si presenta algún problema ir reportando sus mensajes o volver a levantarlo. También tendría que poder pararlo y arrancarlo a través del menú del administrador.
 if (credentials.daemon.active) {
   const child = spawn('node ./daemon.js', {
     stdio: 'inherit',
