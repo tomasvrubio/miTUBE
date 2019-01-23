@@ -106,7 +106,9 @@
                     {{#is state "del"}}
                   <div class="block-black d-inline-block" style="margin-right: 3px;" data-toggle="tooltip" data-placement="left" title="Pendiente Eliminar" ></div>     
                     {{else}}
-                  <div class="block-orange d-inline-block" style="margin-right: 3px;" data-toggle="tooltip" data-placement="left" title="Pendiente Subir"></div> 
+                      {{#if state}}
+                  <div class="block-orange d-inline-block" style="margin-right: 3px;" data-toggle="tooltip" data-placement="left" title="Pendiente Subir"></div>
+                      {{/if}}
                     {{/is}}
                   {{/has}}                  
                   <em>{{added}}</em>
