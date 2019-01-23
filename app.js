@@ -390,16 +390,15 @@ app.get('/list', isLoggedIn, function(req, res){
     Promise.all([
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
       List.findOne({listId:req.query.listid}),
-      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid}), //TODO: Quitarla
       WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid},{"_id":0, "songId":1, "state":1, "dateLastMovement":1}).sort({dateLastMovement:1}),
       Synchronize.getImages(),
-    ]).then( ([listUser, list, works, works2, covers]) => {
+    ]).then( ([listUser, list, works, covers]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
         return res.redirect(303, '/user');
       }
 
-      pendingWorks = Object.assign({}, ...works2.map(work => ({[work.songId]: work.state})));
+      pendingWorks = Object.assign({}, ...works.map(work => ({[work.songId]: work.state})));
       
       var context = {
         userdata: res.locals.userdata,
@@ -409,7 +408,7 @@ app.get('/list', isLoggedIn, function(req, res){
         name: listUser.name,
         nameYT: list.nameYT,
         numSongs: list.songs.length,
-        numWorks: works.length || 0,
+        numWorks: Object.keys(pendingWorks).length|| 0,
         sync: listUser.sync,
         imageId: listUser.imageId.replace("covers/","covers/thumbnail/thumbnail-"),
         covers,
@@ -440,7 +439,6 @@ app.post('/list', isLoggedIn, function(req, res){
       listName = req.body.listName,
       songId = req.body.songId;
 
-
   if (action == "syncToogle"){ 
     var sync = req.body.sync;
 
@@ -457,16 +455,6 @@ app.post('/list', isLoggedIn, function(req, res){
       return res.json({success: false});
     }); 
   }
-
-
-  // Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
-  //   logger.debug("Comprobadas todas las listas del usuario");
-  //   return res.json({success: true}); 
-  // }).catch(err => {
-  //   logger.error(JSON.stringify(err));
-  //   return res.json({success: false});
-  // });  
-
 
 });
 

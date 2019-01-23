@@ -177,7 +177,7 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 #### Resto de cosas a ir implementando:
 
-* Mostrar en el listado de canciones las que aún se estén sincronizando y las que hayan dado error. Una bola de un color que si pulsamos salga un tooltip.
++ * Mostrar en el listado de canciones las que aún se estén sincronizando y las que hayan dado error. Una bola de un color que si pulsamos salga un tooltip.
 
 * Arreglar el indicador de las cosas pendientes en una lista. Si no indica nada no ponerlo pero pensar que es lo que puedo poner.
 

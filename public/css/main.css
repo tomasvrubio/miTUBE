@@ -132,6 +132,20 @@
   background-color: #dc3545;
 }
 
+.block-black {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px; 
+  background-color: #212529;
+}
+
+.block-orange {
+  width: 12px;
+  height: 12px;
+  border-radius: 12px; 
+  background-color: #f38609;
+}
+
 /* Animación CSS para mostrar la carga */
 .lds-ring {
   display: none;
