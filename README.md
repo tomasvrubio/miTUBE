@@ -185,13 +185,21 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 * Corregir visualización de carga cuando la pantalla es demasiado ancha.
 
-* Al tratar trabajos para eliminar canciones fijarme en si hay uno de subida con fecha anterior. Borrar y eliminarlo.
+* Corregir visualización pantalla de meter TOKEN google music.
+
+* Algún mensaje en la entrada de la aplicación.
+
++ * Al tratar trabajos para eliminar canciones fijarme en si hay uno de subida con fecha anterior. Borrar y eliminarlo.
 
 * En una parada ordenada apagar el demonio
 
 * Mantener comunicación entre app y daemon
 
 * No levantar demonio si ya hay uno en pie?¿
+
+* Al borrar cuando vuelva a levantar la página ya no se encuentre la lista borrada.
+
+* Arreglar la manera en que se ve el nombre de la lista para YT.
 
 
 

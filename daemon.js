@@ -46,7 +46,7 @@ async function loop() {
             logger.debug("Daemon - Deleting "+work.songId+" song for "+work.email);
 
             if (!work.gmusicId){
-              logger.debug("Daemon - No gmusicId (song not uploaded). Pending 'upl' work.");
+              logger.debug("Daemon - No gmusicId (song not uploaded yet). Pending 'upl' work.");
             }
 
             //Elimino el trabajo de gmusic.
@@ -63,20 +63,12 @@ async function loop() {
                   action: "del",
                   dateLastMovement: Date.now()
                 });
-                
-                //TODO: Aquí es donde debería borrar los trabajos de subida en caso de que los haya.
-                //Si hubiese alguna tarea de upload con esta lista+canción debería borrarla. También eso significará que no hay datos de la canción. Lo puedo comprobar mirando si existe el gmusicId.
-                // WorkTodo.find({email: work.email, listId: work.listId, songId:work.songId, state:"upl"}).then( uploadDeleted => {
-                //   logger.debug("Daemon - Pending 'upl' work for this user and song removed.");
-                //   WorkDone.insertMany({
-                //     songId: uploadDeleted.songId,
-                //     listId: uploadDeleted.listId,
-                //     email: uploadDeleted.email,
-                //     action: "upl",
-                //     dateLastMovement: Date.now()
-                //   });
-                // });   
 
+                WorkTodo.deleteMany({email: work.email, listId: work.listId, songId:work.songId, state:{$ne:"del"}}).then( workNotNeeded => {
+                  logger.debug("Daemon - Pending work for this user and song removed.");
+                  logger.debug("Daemon - Work not done and deleted because of this: "+JSON.stringify(workNotNeeded));
+                });  
+                
                 work.remove();
               } else if (returnObject == 1) {
                 logger.debug("Daemon - Problems deleting. Move 'del' works to 'err-del'.");

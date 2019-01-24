@@ -9,6 +9,7 @@ var express = require('express'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
     spawn = require("child_process").spawn,
+    daemon,
     cron = require("node-cron"),
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -390,7 +391,7 @@ app.get('/list', isLoggedIn, function(req, res){
     Promise.all([
       ListUser.findOne({email:req.session.userdata.email, listId: req.query.listid}),
       List.findOne({listId:req.query.listid}),
-      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid},{"_id":0, "songId":1, "state":1, "dateLastMovement":1}).sort({dateLastMovement:1}),
+      WorkTodo.find({email:req.session.userdata.email, listId: req.query.listid, state:{$ne:"img"}},{"_id":0, "songId":1, "state":1, "dateLastMovement":1}).sort({dateLastMovement:1}),
       Synchronize.getImages(),
     ]).then( ([listUser, list, works, covers]) => {
       if (listUser == null || list == null){
@@ -635,10 +636,33 @@ cron.schedule('00 03 * * *', () => {
 
 // Call to daemon: //TODO: Tengo que escuchar al demonio y si presenta algún problema ir reportando sus mensajes o volver a levantarlo. También tendría que poder pararlo y arrancarlo a través del menú del administrador.
 if (credentials.daemon.active) {
-  const child = spawn('node ./daemon.js', {
+  //TODO: Comprobar si ya existe algún proceso de demonio en la máquina. Si ya existe apagar el servidor indicando que hay que terminar ese proceso.
+
+  //TODO: (DONE) Pasarlo a "var daemon =", pasar la definición de la variable al comienzo de este fichero y así poder hacer referencia a la variable desde una ruta (para en algún momento hacer la parada a petición del ADMIN
+  daemon = spawn('node ./daemon.js', {
     stdio: 'inherit',
     shell: true
   });
+
+  daemon.stdout.on("data", function (data) {
+    var dataString = data.toString('utf8');
+    
+    logger.debug("spawnSTDOUT DAEMON:" + JSON.stringify(dataString));
+  });
+
+  daemon.stderr.on("data", function (data) {
+    var dataString = data.toString('utf8');
+    
+    logger.debug("spawnSTDERR DAEMON:" + JSON.stringify(dataString));
+  });
+
+  daemon.on("exit", function (code) {
+    logger.debug("spawnEXIT DAEMON: "+ code);
+    
+    //TODO: Ver la manera de volver a levantarlo si hay una salida no controlada.
+    // return resolve(code);
+  });
+
 }
 
 //TODO: Contemplar que al tratar de subir una canción no tenga el token
