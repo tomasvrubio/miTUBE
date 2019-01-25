@@ -9,7 +9,6 @@ var express = require('express'),
     morgan = require('morgan'),
     credentials = require('./credentials.js'), 
     spawn = require("child_process").spawn,
-    daemon,
     cron = require("node-cron"),
     List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
@@ -639,30 +638,26 @@ if (credentials.daemon.active) {
   //TODO: Comprobar si ya existe algún proceso de demonio en la máquina. Si ya existe apagar el servidor indicando que hay que terminar ese proceso.
 
   //TODO: (DONE) Pasarlo a "var daemon =", pasar la definición de la variable al comienzo de este fichero y así poder hacer referencia a la variable desde una ruta (para en algún momento hacer la parada a petición del ADMIN
-  daemon = spawn('node ./daemon.js', {
+  var daemon = spawn('node ./daemon.js', {
     stdio: 'inherit',
-    shell: true
+    shell: true,
+    detached: true, //NEW
+    // stdio: 'ignore' //NEW
   });
 
-  daemon.stdout.on("data", function (data) {
-    var dataString = data.toString('utf8');
-    
-    logger.debug("spawnSTDOUT DAEMON:" + JSON.stringify(dataString));
-  });
-
-  daemon.stderr.on("data", function (data) {
-    var dataString = data.toString('utf8');
-    
-    logger.debug("spawnSTDERR DAEMON:" + JSON.stringify(dataString));
-  });
-
-  daemon.on("exit", function (code) {
-    logger.debug("spawnEXIT DAEMON: "+ code);
+  daemon.on("exit", function (code, signal) {
+    logger.debug("spawnEXIT DAEMON: With code "+code+" and signal "+signal);
     
     //TODO: Ver la manera de volver a levantarlo si hay una salida no controlada.
-    // return resolve(code);
   });
 
+  // process.on('exit', function() {
+  //   console.log("Process is about to exit, kill Daemon");
+  //   daemon.kill();
+  // });
+
 }
+
+
 
 //TODO: Contemplar que al tratar de subir una canción no tenga el token

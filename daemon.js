@@ -26,10 +26,11 @@ async function loop() {
   do {
     logger.info("Daemon - Another iteration.");
 
+    //TODO: Comprobar si el proceso de mi padre ha parado. En ese caso el demonio finaliza
+    
 
 
     //Search for songs to delete
-    //Aquí deberíamos buscar si hay trabajos para eliminar canciones. En caso de que los haya y tenga la pass del usuario lanzarlos. Si no ponerlos en estado err-del
     await Promise.all([
       WorkTodo.find({state:"del"}),
       User.find({},{"_id":0, "email":1, "mac":1})

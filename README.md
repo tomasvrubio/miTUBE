@@ -201,6 +201,8 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 * Arreglar la manera en que se ve el nombre de la lista para YT.
 
+* ¿Me tengo que desuscribir de los eventos que escucho con los procesos que voy levantando?
 
+* Rotado diario de logs
 
 PepePruebasAdmin -> desa -> u507i9d
