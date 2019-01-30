@@ -24,8 +24,11 @@
       <div class="card-body color-negro">
         <div class="row justify-content-between">
           <span class="col-12">
-            <strong>Lista en Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
-              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a>
+            {{!-- <strong>Lista en Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
+              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a> --}}
+              <strong>Lista en Youtube: </strong><span>{{nameYT}}<a href="https://www.youtube.com/playlist?list={{listId}}" target="_blank" class="indicador"><img src="img/youtube-red.svg" width="15" height="15" alt="" style="margin-left: 3px; background-color: white; padding: 1px;"></a></span>
+            {{!-- <strong>Lista en Youtube: </strong><a href="https://www.youtube.com/playlist?list={{listId}}"
+              target="_blank" class="yt-link">{{nameYT}}<img src="img/youtube-red.svg" width="15" height="15" class="d-inline-block" alt="" style="margin-left: 3px; "></a> --}}
           </span>
 
           <div class="col-4 btn-group">

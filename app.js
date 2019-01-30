@@ -294,6 +294,9 @@ app.get('/manual', function(req, res){
   };
   logger.debug("Context: "+JSON.stringify(context));
 
+  //Para asegurarme de que funcionan las imagenes en los mails
+  UserManagement.pruebaEmail("desarrollovazquezrubio@gmail.com", "desa", credentials.gmail.user, res, mailTransport);
+
   res.render('manual', context);
 });
 
@@ -470,16 +473,10 @@ app.post('/deleteList', isLoggedIn, function(req, res){
     logger.debug("Eliminada lista "+listId);
   }).catch(err => {
     logger.error("No se ha podido eliminar la lista - "+JSON.stringify(err.stack)); 
+  }).then(() => {
+    return res.redirect(303, '/user'); 
   });
 
-
-  //A la hora de borrar una lista tengo que:
-    // * Generar trabajos de borrado de todas las canciones. Hay que ver como hago si hay trabajos pendientes de esa lista para el usuario. Si no encuentro la canción en gmusic y hay trabajos de subida significa que aún no está subida (y no está generado el gmusicId). Tnego que borrar el borrado y la subida pendientes sin poder hacer nada en google music.
-    // * Borrar lista de la tabla de sincronizaciones del usuario. 
-    // * ¿Borrar lista de la BBDD? ¿O la dejo como histórico?
-
-
-  return res.redirect(303, '/user');
 });
 
 

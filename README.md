@@ -183,11 +183,11 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 * Cuando se levanta el demonio parece que la raspberry llega al límite. ¿Qué es lo que está haciendo por detrás? En principio ya no tenía nada que bajar, está todo en error. Probar a no activarlo para ver si tengo los mismos problemas con la aplicación.
 
-* Corregir visualización de carga cuando la pantalla es demasiado ancha.
++ * Corregir visualización de carga cuando la pantalla es demasiado ancha.
 
-* Corregir visualización pantalla de meter TOKEN google music.
++ * Corregir visualización pantalla de meter TOKEN google music.
 
-* Algún mensaje en la entrada de la aplicación.
++ * Algún mensaje en la entrada de la aplicación.
 
 + * Al tratar trabajos para eliminar canciones fijarme en si hay uno de subida con fecha anterior. Borrar y eliminarlo.
 
@@ -197,12 +197,15 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 * No levantar demonio si ya hay uno en pie?¿
 
-* Al borrar cuando vuelva a levantar la página ya no se encuentre la lista borrada.
++ * Al borrar cuando vuelva a levantar la página ya no se encuentre la lista borrada.
 
-* Arreglar la manera en que se ve el nombre de la lista para YT.
++ * Arreglar la manera en que se ve el nombre de la lista para YT.
 
 * ¿Me tengo que desuscribir de los eventos que escucho con los procesos que voy levantando?
 
-* Rotado diario de logs
++ * Rotado diario de logs
+
++ * Corregir vista "wait"
 
 PepePruebasAdmin -> desa -> u507i9d
+tomeisi -> tomasvrub -> b90mi1yh

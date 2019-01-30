@@ -1,4 +1,7 @@
 <div class="col-lg-6 text-center">
+
+  <p class="mt-2 text-right font-italic">La música de Youtube a tus dispositivos</p>
+
   <form id="btnLoggingUser" action="/process-home" method="POST" class="form-user">
     <h2 class="mt-5">Accede a la aplicación</h2>
     <input type="email" name="email" class="form-control mt-3" placeholder="Email" required autofocus>
@@ -12,7 +15,7 @@
     {{/if}}
 
     <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
-    <p id="loader-comment" style="display:none;">Espere mientras se comprueban las autorizaciones de su usuario.</p>
+    <p id="loader-comment">Espere mientras se comprueban las autorizaciones de su usuario.</p>
 
     <h5 id="registry-comment" class="mt-2">Si no tienes usuario puedes crearlo <a href="register">aquí</a>.</h5>
   </form>

@@ -1,25 +1,23 @@
 <div class="container-fluid">
   <div class="gmusic-body">
-    <h4 class="text-center">La aplicación necesita acceder a tu <strong>perfil de Google Music</strong> para poder
-      realizar todas sus funciones.</h4>
+
+    <h5 class="mt-2">Para poder sincronizar las canciones mitube necesita acceder a tu <strong>perfil de Google Music</strong>.</h5>
 
     {{#is action "upl"}}
-    <h4 class="text-center">Lo que estás haciendo en este paso es autorizar a <strong>mitube</strong> para que pueda <span class="text-danger"><strong>subir canciones a tu biblioteca</strong></span>.</h4>
+    <h5>Primero tienes que permitir <span class="text-danger"><strong>subir canciones a tu biblioteca</strong></span>.</h5>
     {{else}}
-    <h4 class="text-center">No es que estés repitiendo el paso anterior. Ahora estás autorizando a <strong>mitube</strong> para que pueda <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h4>
+    <h5>Y ahora tienes que permitir <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h5>
     {{/is}}
     
-    <h4 class="text-center"><strong>Accede al siguiente enlace</strong> para obtener el código que introducirás en mitube.</h4>
+    <h5>Para ello accede al siguiente enlace, consigue el código y luego vuelve a pegarlo.</h5>
 
     <a href={{urlAuth}} target="_blank">
-      <button class="btn btn-lg btn-dark btn-square btn-block color-negro">Obtener código</button>
+      <button class="btn btn-outline-dark btn-sm btn-block btn-square"><strong>Obtener código</strong></button>
     </a>
 
-    <h4 class="text-center">Después vuelve a esta página y <strong>pégalo en el recuadro</strong>:</h4>
-
-    <form action={{append "/gmusic?action=" action}} method="POST" class="form-user">
-      <input type="text" name="authCode" class="form-control" placeholder="Codigo autorización">
-      <button type="submit" class="btn btn-lg btn-dark btn-square btn-block color-negro">Aceptar</button>
+    <form action={{append "/gmusic?action=" action}} method="POST" class="form-user mt-1">
+      <input type="text" name="authCode" class="form-control" placeholder="Pegar código autorización" required>
+      <button type="submit" class="btn btn-outline-dark btn-sm btn-block btn-square mt-3"><strong>Aceptar</strong></button>
 
       {{#if message}}
       <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
