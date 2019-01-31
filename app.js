@@ -294,9 +294,6 @@ app.get('/manual', function(req, res){
   };
   logger.debug("Context: "+JSON.stringify(context));
 
-  //Para asegurarme de que funcionan las imagenes en los mails
-  UserManagement.pruebaEmail("desarrollovazquezrubio@gmail.com", "desa", credentials.gmail.user, res, mailTransport);
-
   res.render('manual', context);
 });
 

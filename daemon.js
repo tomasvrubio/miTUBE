@@ -133,7 +133,7 @@ async function loop() {
 
                 WorkTodo.find({songId: work.songId, state:"upl"}).countDocuments().then(uplWork => {
                   logger.debug("Daemon - Pending uploads of "+work.songId+": "+uplWork);
-                  if (uplWork == 1){
+                  if (uplWork <= 1){
                     fs.unlink("./tmp/"+work.songId+".mp3", function (err) {
                         if (err) throw err;
                         logger.debug("Daemon - File "+work.songId+" deleted");

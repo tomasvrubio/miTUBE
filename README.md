@@ -207,5 +207,29 @@ db.worktodos.update({state:'err-del'}, {$set: {state:'del'}}, {multi: true});
 
 + * Corregir vista "wait"
 
+
+#### De la prueba que estoy haciendo con Cris:
+
+* Las canciones que no borra aparece como que no hay trabajos pendientes (a 0). Del siguiente listado no ha borrado WRz2MxhAdJo ni OPf0YbXqDm0. Han subido a gmusic??
+
+2019-01-30T18:41:14.958Z [debug]: Daemon - Pending uploads of SSFx-1IagAk: 1
+2019-01-30T18:42:34.390Z [debug]: Daemon - Pending uploads of WRz2MxhAdJo: 0
+2019-01-30T18:45:09.179Z [debug]: Daemon - Pending uploads of KrZHPOeOxQQ: 1
+2019-01-30T18:47:13.158Z [debug]: Daemon - Pending uploads of uzWO7O-qHWI: 1
+2019-01-30T18:47:49.882Z [debug]: Daemon - Pending uploads of 9SKFwtgUJHs: 1
+2019-01-30T18:49:26.488Z [debug]: Daemon - Pending uploads of lDK9QqIzhwk: 1
+2019-01-30T18:50:48.677Z [debug]: Daemon - Pending uploads of fkYVMLplZrw: 1
+2019-01-30T18:53:32.266Z [debug]: Daemon - Pending uploads of BN1WwnEDWAM: 1
+2019-01-30T18:54:06.365Z [debug]: Daemon - Pending uploads of btPJPFnesV4: 1
+2019-01-30T18:55:38.102Z [debug]: Daemon - Pending uploads of KDXOzr0GoA4: 1
+2019-01-30T18:57:09.712Z [debug]: Daemon - Pending uploads of QEZq4I2wTBc: 1
+2019-01-30T19:00:19.199Z [debug]: Daemon - Pending uploads of Fi8rsCncwF8: 1
+2019-01-30T19:00:51.316Z [debug]: Daemon - Pending uploads of OPf0YbXqDm0: 0
+
+* El demonio ha parado de trabajar. Le tocaba subir una canción pero en principio ya no está haciendo nada.
+
+* ¿Estoy esperando bien entre pasos? Cuando pasa x tiempo acaba haciendo cosas en simultaneo???
+
+
 PepePruebasAdmin -> desa -> u507i9d
 tomeisi -> tomasvrub -> b90mi1yh

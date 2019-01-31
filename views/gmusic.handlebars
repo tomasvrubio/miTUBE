@@ -4,8 +4,18 @@
     <h5 class="mt-2">Para poder sincronizar las canciones mitube necesita acceder a tu <strong>perfil de Google Music</strong>.</h5>
 
     {{#is action "upl"}}
+    <div class="text-center">
+      <a href="mailto:desarrollovazquezrubio@gmail.com">
+        <img class="image_fix" style="max-width:50px" src="img/cloud-computing-up.svg" alt="miTUBE" title="miTUBE"/> 
+      </a>
+    </div>
     <h5>Primero tienes que permitir <span class="text-danger"><strong>subir canciones a tu biblioteca</strong></span>.</h5>
     {{else}}
+    <div class="text-center">
+      <a href="mailto:desarrollovazquezrubio@gmail.com">
+        <img class="image_fix" style="max-width:50px" src="img/cloud-computing-delete.svg" alt="miTUBE" title="miTUBE"/> 
+      </a>
+    </div>
     <h5>Y ahora tienes que permitir <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h5>
     {{/is}}
     
