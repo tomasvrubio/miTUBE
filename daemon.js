@@ -175,7 +175,7 @@ async function loop() {
           await YoutubeDL.download(work.songId).then(async function(returnObject){
             if (returnObject == 0) {
               logger.debug("Daemon - Song "+work.songId+" downloaded.");
-              WorkTodo.updateMany(
+              await WorkTodo.updateMany(
                 {songId:work.songId, state:"new"},
                 {$set: { state:"upl", dateLastMovement:Date.now() }}, function(err){
                   logger.debug("Daemon - Works of "+work.songId+" with 'new' state moved to 'upl' state.");
