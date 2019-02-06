@@ -193,8 +193,8 @@ app.get('/', function(req, res){
     active: {"home": true},
   };
 
-  logger.debug(req.flash("error"));
-  logger.debug("Context: "+JSON.stringify(context));
+  //logger.debug(req.flash("error"));
+  logger.silly("Context: "+JSON.stringify(context));
 
   res.render('home', context);
 });
@@ -270,7 +270,7 @@ app.get('/wait', function(req, res){
   var context = {
     userdata: res.locals.userdata,
   };
-  logger.debug("Context: "+JSON.stringify(context));
+  logger.silly("Context: "+JSON.stringify(context));
 
   res.render('wait', context);
 });
@@ -281,7 +281,7 @@ app.get('/about', function(req, res){
     userdata: res.locals.userdata,
     active: {"about": true},
   };
-  logger.debug("Context: "+JSON.stringify(context));
+  logger.silly("Context: "+JSON.stringify(context));
  
   res.render('about', context);
 });
@@ -292,7 +292,7 @@ app.get('/manual', function(req, res){
     userdata: res.locals.userdata,
     active: {"manual": true},
   };
-  logger.debug("Context: "+JSON.stringify(context));
+  logger.silly("Context: "+JSON.stringify(context));
 
   res.render('manual', context);
 });
@@ -314,7 +314,7 @@ app.get('/user', isLoggedIn, function(req, res){
       alert: req.flash("info") || null,
       success: req.flash("success") || null,
     };
-    logger.debug("Context: "+JSON.stringify(context));
+    logger.silly("Context: "+JSON.stringify(context));
     
     res.render('user', context);
   });
@@ -423,7 +423,7 @@ app.get('/list', isLoggedIn, function(req, res){
             }
         })
       };
-      logger.debug("Context: "+JSON.stringify(context));
+      logger.silly("Context: "+JSON.stringify(context));
 
       res.render('list', context);
     });
@@ -504,7 +504,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
           message: response.message,
           urlAuth: response.url,        
         };
-        logger.debug("Context: "+JSON.stringify(context));
+        logger.silly("Context: "+JSON.stringify(context));
 
         if (response.code == 1)
           logger.debug(req.session.userdata.email+": Usuario sin autorización googleMusic.");
@@ -638,6 +638,8 @@ if (credentials.daemon.active) {
     detached: true, //NEW
     // stdio: 'ignore' //NEW
   });
+
+  console.log(daemon);
 
   daemon.on("exit", function (code, signal) {
     logger.debug("spawnEXIT DAEMON: With code "+code+" and signal "+signal);

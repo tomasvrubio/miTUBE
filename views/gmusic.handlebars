@@ -5,35 +5,46 @@
 
     {{#is action "upl"}}
     <div class="text-center">
-      <a href="mailto:desarrollovazquezrubio@gmail.com">
-        <img class="image_fix" style="max-width:50px" src="img/cloud-computing-up.svg" alt="miTUBE" title="miTUBE"/> 
-      </a>
+      <img class="image_fix" style="max-width:50px" src="img/cloud-computing-up.svg" alt="miTUBE" title="miTUBE"/> 
     </div>
     <h5>Primero tienes que permitir <span class="text-danger"><strong>subir canciones a tu biblioteca</strong></span>.</h5>
     {{else}}
     <div class="text-center">
-      <a href="mailto:desarrollovazquezrubio@gmail.com">
-        <img class="image_fix" style="max-width:50px" src="img/cloud-computing-delete.svg" alt="miTUBE" title="miTUBE"/> 
-      </a>
+      <img class="image_fix" style="max-width:50px" src="img/cloud-computing-delete.svg" alt="miTUBE" title="miTUBE"/> 
     </div>
-    <h5>Y ahora tienes que permitir <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h5>
+    <h5>Y ahora no pienses que te repites ya que tienes que permitir <span class="text-danger"><strong>eliminar canciones de tu biblioteca</strong></span>.</h5>
     {{/is}}
     
-    <h5>Para ello accede al siguiente enlace, consigue el código y luego vuelve a pegarlo.</h5>
+    <h5>A través del siguiente enlace consigue el código de autorización y luego vuelve para pegarlo.</h5>
 
     <a href={{urlAuth}} target="_blank">
       <button class="btn btn-outline-dark btn-sm btn-block btn-square"><strong>Obtener código</strong></button>
     </a>
 
-    <form action={{append "/gmusic?action=" action}} method="POST" class="form-user mt-1">
-      <input type="text" name="authCode" class="form-control" placeholder="Pegar código autorización" required>
+    <form id="btngMusic" action={{append "/gmusic?action=" action}} method="POST" class="form-user mt-1 text-center">
+      <input type="text" name="authCode" class="form-control btn-sm" placeholder="Pegar código autorización" required>
       <button type="submit" class="btn btn-outline-dark btn-sm btn-block btn-square mt-3"><strong>Aceptar</strong></button>
+      <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
 
       {{#if message}}
-      <div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+      <div id="alert-gmusic" class="alert alert-danger" role="alert" style="margin-top: 20px;">
         <p><b>Resultado intento sincronización: </b>{{message}}</p>
       </div>
       {{/if}}
     </form>
   </div>
 </div>
+
+{{!-- JAVASCRIPT --}}
+<script>
+
+  const loaderAnimation = document.getElementById("loader-animation");
+  const buttongMusic = document.getElementById("btngMusic");
+  const gmusicComment = document.getElementById("alert-gmusic");
+
+  buttongMusic.addEventListener("submit", function(){
+    loaderAnimation.style.display = "inline-block";
+    gmusicComment.style.display = "none";
+  });
+
+</script>

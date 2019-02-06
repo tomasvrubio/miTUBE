@@ -87,6 +87,8 @@ async function loop() {
     });
 
 
+    //TODO: Buscar trabajos de imagen y hacer los cambios en gmusic. En caso de encontrarlos habría que modificar esa canción y por lo que he visto tambień el resto de canciones que tengo ya subidas de la lista. ¿Puedo hacerlo sin tener que eliminar y volver a subir la canción entera?
+
 
     //Search for songs to upload
     await Promise.all([
@@ -161,7 +163,7 @@ async function loop() {
         }
       }
 
-
+      
       
       //Search for songs to download
       await WorkTodo.findOne({state:"new"}).then(async function(work){ 

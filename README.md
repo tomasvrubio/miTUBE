@@ -232,9 +232,11 @@ He puesto el filtro a borrar <= 1
 
 Era porque mp3gain pedía confirmación. He puesto ya la opción para que vaya en automático.
 
-* ¿Estoy esperando bien entre pasos? Cuando pasa x tiempo acaba haciendo cosas en simultaneo???
++ * ¿Estoy esperando bien entre pasos? Cuando pasa x tiempo acaba haciendo cosas en simultaneo???
 
 En principio no he visto nada que lo evidencie. Sólo he puesto un await antes de modificar la ganancia.
+
+* Añadir más opciones de imágenes. La que sea por defecto, ¿pongo una interrogación?
 
 PepePruebasAdmin -> desa -> u507i9d
 tomeisi -> tomasvrub -> b90mi1yh
