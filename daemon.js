@@ -115,7 +115,7 @@ async function loop() {
             await Gmusic.upload(work.email, userMacs[work.email], work.songId, work.imageId).then(returnObject => {
               logger.debug("Daemon - Gmusic returns: "+JSON.stringify(returnObject));
 
-              if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar la subida.
+              if (returnObject.code == 0){  
                 logger.debug("Daemon - Ended uploading song.");
 
                 List.findOneAndUpdate(

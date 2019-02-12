@@ -25,13 +25,6 @@ var UserManagement = require('./lib/userManagement.js')(),
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',    
     helpers: require('handlebars-helpers')(), 
-    //TODO: Para poder meter los helpers he tenido que comentar la parte de static. ¿Como meto ambos??        
-    // helpers: {
-    //   handlebarsHelpers: require('handlebars-helpers')(),
-    //   static: function(name) {
-    //     return require('./lib/static.js').map(name);
-    //   },
-    // }
 });
 
 var app = express();
@@ -143,7 +136,6 @@ app.use(function(req, res, next){
       username: "Anonymous",
     };
   } else {
-    //TODO: ¿Lo pongo en un middleware en el que hago sólo este tipo de redirecciones? Código más limpio.
     //Para los usuarios creados pero que aún no tienen permiso en la aplicación
     if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 )
       return res.redirect(303, "/wait");
@@ -199,7 +191,7 @@ app.get('/', function(req, res){
   res.render('home', context);
 });
 
-//TODO: Ver como hacer para obligar a que haga lo de gmusic en vez de ponerse a hacer otras cosas (si pincha links de la cabecera).
+
 app.post('/process-home', passport.authenticate("local-login",{
     //successRedirect: " ", //Sin este parámetro se va a la función de abajo
     failureRedirect: "/",
@@ -246,7 +238,7 @@ app.post('/register', function(req, res){
 
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
-      req.flash("error", "Usuario dado de alta. Ha sido enviada su contraseña al email utilizado en el registro pero debe esperar a que el administrador autorice su acceso.");
+      req.flash("error", "Usuario dado de alta. Ha sido enviada la contraseña a su email pero debe esperar a que le autoricen el acceso.");
       return res.redirect(303, "/");
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
@@ -325,6 +317,8 @@ app.post('/user', isLoggedIn, function(req, res){
 
   if (req.body.action == "updateUser"){ 
     var email = req.body.email;
+
+    //TODO: Si no hay ninguna lista registrada en la aplicación se queda cargando eternamente. CONTROLARLO
 
     Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
       logger.debug("Comprobadas todas las listas del usuario");
@@ -523,6 +517,8 @@ app.all('/gmusic', isLoggedIn, function(req, res){
 
 app.get('/admin', adminOnly, function(req, res){
 
+  console.log(daemon);
+
   Promise.all([
     User.find({role: "disabled"}),
     WorkTodo.aggregate([
@@ -538,7 +534,7 @@ app.get('/admin', adminOnly, function(req, res){
     ]),
   ]).then( ([disabledUsers, currentWork]) => {
 
-    logger.debug(JSON.stringify(currentWork));
+    // logger.debug(JSON.stringify(currentWork));
     
     var context = {
       active: {"admin": true},
@@ -557,6 +553,7 @@ app.get('/admin', adminOnly, function(req, res){
           movements: Object.assign({}, ...work.movements.map(mov => ({[mov.state]: mov.count}))),
         }
       }),
+      daemonStatus: !daemon._closesGot, 
     };
     
     res.render('admin', context);
@@ -577,21 +574,39 @@ app.post("/admin", adminOnly, function(req, res){
 
   } else if (req.body.action == "update") {
     
-    YoutubeDL.updateTool();
+    YoutubeDL.updateTool().then(returnObject => {
+      logger.debug("Youtube-dl actualizado.");
+      return res.json({success: true});
+    }).catch(err => {
+      logger.error(JSON.stringify(err));
+      return res.json({success: false});
+    });
   
   } else if (req.body.action == "syncAll") {
 
     Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then(returnObject => {
       logger.debug("Comprobadas todas las listas de la aplicación");
-      //return res.json({success: true}); 
+      return res.json({success: true});
     }).catch(err => {
       logger.error(JSON.stringify(err));
-      //TODO: Esto me va a fallar porque no tiene retorno...
+      return res.json({success: false});
     });
 
+    //TODO: Si no hay ninguna lista registrada en la aplicación se queda cargando eternamente. CONTROLARLO
+
+  } else if (req.body.action == "exit") {
+    logger.error("Atendiendo petición para apagar el servidor.");
+    
+    if (daemon) {
+      logger.error(JSON.stringify(daemon));
+      logger.error("Demonio levantado. Procedemos a pararlo.");
+      process.kill(daemon.pid);
+      logger.error("Demonio Parado.");
+    }    
+
+    return process.exit(0);
   }
 
-  return res.redirect(303, "/admin");
 });
 
 
@@ -631,29 +646,27 @@ cron.schedule('00 03 * * *', () => {
 if (credentials.daemon.active) {
   //TODO: Comprobar si ya existe algún proceso de demonio en la máquina. Si ya existe apagar el servidor indicando que hay que terminar ese proceso.
 
-  //TODO: (DONE) Pasarlo a "var daemon =", pasar la definición de la variable al comienzo de este fichero y así poder hacer referencia a la variable desde una ruta (para en algún momento hacer la parada a petición del ADMIN
   var daemon = spawn('node ./daemon.js', {
     stdio: 'inherit',
     shell: true,
-    detached: true, //NEW
-    // stdio: 'ignore' //NEW
+    detached: true,
   });
 
-  console.log(daemon);
+  // console.log(daemon);
+
+  process.on("SIGINT", function(code) {
+    logger.error("Recibido SIGINT (Ctrl + c). Paramos demonio.");
+    process.kill(daemon.pid);
+    logger.error("Demonio Parado.");
+    // console.log(daemon);
+    return process.exit(0);
+  });
 
   daemon.on("exit", function (code, signal) {
     logger.debug("spawnEXIT DAEMON: With code "+code+" and signal "+signal);
-    
-    //TODO: Ver la manera de volver a levantarlo si hay una salida no controlada.
   });
-
-  // process.on('exit', function() {
-  //   console.log("Process is about to exit, kill Daemon");
-  //   daemon.kill();
-  // });
-
 }
 
-
-
-//TODO: Contemplar que al tratar de subir una canción no tenga el token
+process.on('exit', function(code) {
+  return logger.error("About to exit with code "+code);
+});

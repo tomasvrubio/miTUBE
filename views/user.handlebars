@@ -1,4 +1,4 @@
-<div class="col-lg-12">
+<div class="col-lg-12 mb-3">
 
   <div class="contenedor-list">
     <h2 class="mt-3">Mis listas</h2>
@@ -189,10 +189,7 @@
     inputOverlayListId.value = listId; 
     overlay.getElementsByTagName("span")[0].innerHTML = "¿Desea borrar la lista <strong>" + listName + "</strong>?";   
 
-    //TODO: Hacer que aparezca y desaparezca desvaneciendose. Quitar el evento de click al ocultarlo.
     buttonOverlayNo.addEventListener('click', function(){      
-      //$('#overlay-confirm-no').off('click');
-      //$('.overlay').fadeOut();
       overlay.style.display = "none";
     });
     

@@ -1,7 +1,6 @@
-<div class="container-fluid">
+<div class="col-lg-12 admin">
 
-
-  <h6><strong>Autorización de usuarios</strong></h6>
+  <h6 class="mt-3"><strong>Autorización de usuarios</strong></h6>
 
   <div class="table-list">
     <table id="miTabla" class="table table-sm table-hover">
@@ -17,10 +16,10 @@
       <tbody>
         {{#each disabledUsers}}
         <tr>
-          <th>{{email}}</th>
-          <th class="d-none d-md-table-cell">{{username}}</th>
-          <th class="text-center">{{created}}</th>
-          <th class="text-center">
+          <td>{{email}}</th>
+          <td class="d-none d-md-table-cell">{{username}}</td>
+          <td class="text-center">{{created}}</td>
+          <td class="text-center">
             <div class="row">
               <div class="col">
                 <form action="/admin" method="post">
@@ -39,7 +38,48 @@
                 </form>
               </div>
             </div>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+
+  <h6><strong>Estadísticas usuarios</strong></h6>
+
+  <div class="table-list">
+    <table id="miTabla" class="table table-sm table-hover">
+      <caption>Tabla datos usuarios</caption>
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Email</th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Pend</span>
+            <span class="d-none d-lg-block">Pendiente</span>
           </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Dwn</span>
+            <span class="d-none d-lg-block">Error descarga</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Up</span>
+            <span class="d-none d-lg-block">Error subida</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Err Del</span>
+            <span class="d-none d-lg-block">Error borrado</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each currentWork}}
+        <tr>
+          <td>{{email}}</td>
+          <td class="text-center">{{sum movements.new movements.upl}}</td>
+          <td class="text-center">{{movements.err-dwn}}</td>
+          <td class="text-center">{{movements.err-upl}}</td>
+          <td class="text-center">{{movements.err-del}}</td>
         </tr>
         {{/each}}
       </tbody>
@@ -76,11 +116,11 @@
       <tbody>
         {{#each currentWork}}
         <tr>
-          <th>{{email}}</th>
-          <th class="text-center">{{sum movements.new movements.upl}}</th>
-          <th class="text-center">{{movements.err-dwn}}</th>
-          <th class="text-center">{{movements.err-upl}}</th>
-          <th class="text-center">{{movements.err-del}}</th>
+          <td>{{email}}</td>
+          <td class="text-center">{{sum movements.new movements.upl}}</td>
+          <td class="text-center">{{movements.err-dwn}}</td>
+          <td class="text-center">{{movements.err-upl}}</td>
+          <td class="text-center">{{movements.err-del}}</td>
         </tr>
         {{/each}}
       </tbody>
@@ -88,31 +128,61 @@
   </div>
 
 
-  <div class="card card-admin">
+  <div class="card card-admin mt-2 mb-3">
     <div class="card-header color-negro text-white">
       ACTUALIZACIÓN <strong>youtube-dl</strong>
     </div>
     <div class="card-body">
-      <h5 class="card-title"></h5>
       <p class="card-text">Al pulsar el siguiente botón se actualiza la herramienta que descarga las canciones de YouTube a la última versión (si es que hay una más reciente a la instalada actualmente).</p>
-      <form action="/admin" method="post">
-        <input type="hidden" name="action" value="update" />
-        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar actualización</button>
-      </form>
+      <div class="text-center">
+        <button id="btnUpdateYoutube" class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar actualización</button>
+        <div id="alertUpdateYoutube" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Herramienta actualizada.</div>
+        <div id="loaderUpdateYoutube" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+      </div>
     </div>
   </div>
   
 
-  <div class="card card-admin">
+  <div class="card card-admin mt-2 mb-3">
     <div class="card-header color-negro text-white">
       Sincronización de <strong>TODAS LAS LISTAS</strong>
     </div>
     <div class="card-body">
-      <h5 class="card-title"></h5>
       <p class="card-text">Al pulsar el siguiente botón se revisan todas las listas de la aplicación por si hay algún cambio cogerlo y generar los trabajos para cada usuario.</p>
+      {{!-- <form action="/admin" method="post"> --}}
+      <div class="text-center">
+        {{!-- <input type="hidden" name="action" value="syncAll" /> --}}
+        <button id="btnSyncAll" class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar sincronización</button>
+        <div id="alertSyncAll" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas sincronizadas.</div>
+        <div id="loaderSyncAll" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+      {{!-- </form> --}}
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-admin mt-2 mb-3">
+    <div class="card-header color-negro text-white">
+      <strong>Estado DAEMON</strong>
+    </div>
+    <div class="card-body">
+      <p class="card-text">El proceso demonio actualmente está:</p>
+      {{#if daemonStatus}}
+        <span style="color:#28a745;"><strong>ACTIVO</strong></span>
+      {{else}}
+        <span style="color:#dc3545;"><strong>INACTIVO</strong></span>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="card card-admin mt-2 mb-3">
+    <div class="card-header color-negro text-white">
+      <strong>APAGAR MITUBE</strong>
+    </div>
+    <div class="card-body">
+      <p class="card-text">Al pulsar el siguiente botón se apaga la aplicación.</p>
       <form action="/admin" method="post">
-        <input type="hidden" name="action" value="syncAll" />
-        <button class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Lanzar sincronización</button>
+        <input type="hidden" name="action" value="exit" />
+        <button id="btnStopServer" class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Apagar</button>
       </form>
     </div>
   </div>
@@ -120,12 +190,96 @@
 
   {{!-- TODO:
 
-  * Poner un botón selector a la izquierda, y uno para seleccionar a todos. Y tener un botón de relanzamiento de
-  trabajos.
-
-  * Poder solicitar actualizaciones de todos, de usuarios o de listas.
-
+  * Tener un botón de relanzamiento de trabajos.
 
   * Tener algún tipo de estadísticas de movimiento por usuarios. Subida, creación de listas.
   --}}
 </div>
+
+
+<script>
+
+  //Javascript para el botón de actualización de Youtube
+  const btnUpdateYoutube = document.getElementById("btnUpdateYoutube");
+  const alertUpdateYoutube = document.getElementById("alertUpdateYoutube");
+  const loaderUpdateYoutube = document.getElementById("loaderUpdateYoutube");
+
+  btnUpdateYoutube.addEventListener("click", function(){
+    
+    btnUpdateYoutube.disabled = true;
+    btnUpdateYoutube.innerHTML = "<strong>Espere mientras se actualiza...</strong>"
+    loaderUpdateYoutube.style.display = "inline-block";
+
+    fetch('admin', {
+      method: 'post',
+      body: 'action=update',
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .then(data => {
+      if(data.success=true){
+        loaderUpdateYoutube.style.display = "none";
+        btnUpdateYoutube.innerHTML = "Lanzar actualización";
+        btnUpdateYoutube.disabled = false;
+
+        alertUpdateYoutube.style.display = "block";
+        setTimeout(function() {
+          alertUpdateYoutube.style.display = "none";
+        }, 5000);
+      }
+    })
+    .catch(error => console.log('error is ', error));
+  });
+
+
+  //Javascript para el botón de sincronización de todas las listas
+  const btnSyncAll = document.getElementById("btnSyncAll");
+  const alertSyncAll = document.getElementById("alertSyncAll");
+  const loaderSyncAll = document.getElementById("loaderSyncAll");
+
+  btnSyncAll.addEventListener("click", function(){
+    
+    btnSyncAll.disabled = true;
+    btnSyncAll.innerHTML = "<strong>Espere mientras se sincronizan...</strong>"
+    loaderSyncAll.style.display = "inline-block";
+
+    fetch('admin', {
+      method: 'post',
+      body: 'action=syncAll',
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .then(data => {
+      if(data.success=true){
+        loaderSyncAll.style.display = "none";
+        btnSyncAll.innerHTML = "Lanzar sincronización";
+        btnSyncAll.disabled = false;
+
+        alertSyncAll.style.display = "block";
+        setTimeout(function() {
+          alertSyncAll.style.display = "none";
+        }, 5000);
+      }
+    })
+    .catch(error => console.log('error is ', error));
+  });
+
+</script>

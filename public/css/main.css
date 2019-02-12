@@ -72,11 +72,11 @@
   border-radius: 0;
 }
 
-@media (hover:hover) {
+/* @media (hover:hover) {
   .btn:hover{
       background: yellow;
   }
-}
+} */
 
 .table-list {
   margin: 0 auto;
@@ -301,7 +301,15 @@
   color: #dc3545;
 }
 
-.btn {
+.admin {
+  font-size: 80%;
+}
+
+.card-admin {
+  border: 0px;
+}
+
+/* .btn {
   background-color: #464444cc;
   color: white;
-}
+} */
