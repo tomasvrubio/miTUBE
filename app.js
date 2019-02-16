@@ -135,6 +135,25 @@ app.use(function(req, res, next){
       home: "/",
       username: "Anonymous",
     };
+    
+  // } else {
+  //   res.locals.userdata = req.session.userdata;
+  //   res.locals.userdata.logged = req.isAuthenticated();
+  //   if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
+
+  //   //Para los usuarios creados pero que aún no tienen permiso en la aplicación
+  //   if ( req.session.userdata.role == "disabled"  && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 ){
+  //     User.findOne({email: req.session.userdata.email}, {"_id":0, "role":1}, function(err, user) {
+  //       logger.debug("Query role: "+user.role);
+  //       if (user.role == "disabled")
+  //         return res.redirect(303, "/wait");
+      
+  //       req.session.userdata.role = user.role;
+  //       req.session.userdata.home = "gmusic";
+  //     });
+  //   }
+  // }
+
   } else {
     //Para los usuarios creados pero que aún no tienen permiso en la aplicación
     if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 )
@@ -143,6 +162,7 @@ app.use(function(req, res, next){
     res.locals.userdata = req.session.userdata;
     res.locals.userdata.logged = req.isAuthenticated();
     if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
+  
   }
 
  	return next();
@@ -517,10 +537,16 @@ app.all('/gmusic', isLoggedIn, function(req, res){
 
 app.get('/admin', adminOnly, function(req, res){
 
-  console.log(daemon);
-
   Promise.all([
-    User.find({role: "disabled"}),
+    User.find({role:{$ne:"rejected"}},{_id:0, email:1, username:1, created:1, role:1}),
+    ListUser.aggregate([
+      {"$group":{
+        "_id":"$email", 
+        "lists":{"$sum":1}, 
+        "last":{"$max":"$created"}, 
+        "mod":{"$max":"$updated"}
+      }}
+    ]),
     WorkTodo.aggregate([
       {"$group":{
         "_id":{"user":"$email","state":"$state"},
@@ -532,9 +558,47 @@ app.get('/admin', adminOnly, function(req, res){
         "movements":{"$push":{"state":"$_id.state","count":"$counts"}}
       }}
     ]),
-  ]).then( ([disabledUsers, currentWork]) => {
+  ]).then( ([allUsers, listInfo, currentWork]) => {
+    //TODO: Sacar los disabledusers del mismo sitio que allUsers
 
-    // logger.debug(JSON.stringify(currentWork));
+    //Distinguimos los dos grupos de usuarios
+    activeUsers = allUsers.filter( user => { return user.role != "disabled"});
+    disabledUsers = allUsers.filter( user => { return user.role == "disabled"});
+    
+    //Creamos tabla de listas por usuario
+    userListInfo = Object.assign({}, ...listInfo.map( function(user){ 
+      return {
+        [user._id]: {
+          "num": user.lists, 
+          "last": user.last, 
+          "mod": user.mod
+        }
+      }
+    }));
+
+    //Creamos tabla de trabajos por usuario
+    userCurrentWork = Object.assign({}, ...currentWork.map( function(user){
+      return {
+        [user._id] : {
+           "total": user.total, 
+           "movements": Object.assign({}, ...user.movements.map(mov => ({[mov.state]: mov.count})))
+        }
+      }
+    }));
+
+    //Juntamos todos los resultados
+    userAdminInfo = activeUsers.map(function(user){
+      return {
+        email: user.email.split("@")[0],
+        lists: userListInfo[user.email] ? userListInfo[user.email].num : 0,
+        lastInc: userListInfo[user.email] ? moment(userListInfo[user.email].last).format('DD MMM YYYY') : null,
+        lastMod: userListInfo[user.email] ? moment(userListInfo[user.email].mod).format('DD MMM YYYY') : null,
+        total: userCurrentWork[user.email] ? userCurrentWork[user.email].total : 0,
+        movements: userCurrentWork[user.email] ? userCurrentWork[user.email].movements : {},
+      }
+    }); 
+
+    console.log(userAdminInfo); //TODO: A eliminar
     
     var context = {
       active: {"admin": true},
@@ -546,6 +610,7 @@ app.get('/admin', adminOnly, function(req, res){
           created: moment(user.created).format('DD MMM YYYY'),
         }
       }),
+      userAdminInfo,
       currentWork: currentWork.map(function(work){
         return {
           email: work._id,
@@ -553,12 +618,12 @@ app.get('/admin', adminOnly, function(req, res){
           movements: Object.assign({}, ...work.movements.map(mov => ({[mov.state]: mov.count}))),
         }
       }),
-      daemonStatus: !daemon._closesGot, 
+      daemonStatus: (credentials.daemon.active ? !daemon._closesGot : false), 
     };
     
     res.render('admin', context);
   }).catch(err => {
-    logger.debug("Impossible to load admin data. Err: "+JSON.stringify(err.stack));
+    logger.debug("Impossible to get admin data. Err: "+JSON.stringify(err.stack));
   });
 });
 

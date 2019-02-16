@@ -88,6 +88,7 @@ async function loop() {
 
 
     //TODO: Buscar trabajos de imagen y hacer los cambios en gmusic. En caso de encontrarlos habría que modificar esa canción y por lo que he visto tambień el resto de canciones que tengo ya subidas de la lista. ¿Puedo hacerlo sin tener que eliminar y volver a subir la canción entera?
+    //Yo creo que vale con eliminar una canción y subir otra.
 
 
     //Search for songs to upload

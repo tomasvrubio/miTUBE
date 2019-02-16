@@ -238,5 +238,7 @@ En principio no he visto nada que lo evidencie. Sólo he puesto un await antes d
 
 * Añadir más opciones de imágenes. La que sea por defecto, ¿pongo una interrogación?
 
+PRUEBAS ENTORNO DESARROLLO
 PepePruebasAdmin -> desa -> u507i9d
 tomeisi -> tomasvrub -> b90mi1yh
+{"email":"waitign2345@gmail.com","password":"fk4gszdm"} [sin permiso]

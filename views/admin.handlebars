@@ -55,6 +55,17 @@
         <tr>
           <th scope="col">Email</th>
           <th scope="col" class="text-center">
+            <span class="d-lg-none">List.</span>
+            <span class="d-none d-lg-block">Listas</span>
+          </th>
+          <th scope="col" class="text-center d-none d-lg-block">
+            <span>Ult. Incorp.</span>
+          </th>
+          <th scope="col" class="text-center">
+            <span class="d-lg-none">Modif.</span>
+            <span class="d-none d-lg-block">Ult. Modif.</span>
+          </th>
+          <th scope="col" class="text-center">
             <span class="d-lg-none">Pend</span>
             <span class="d-none d-lg-block">Pendiente</span>
           </th>
@@ -73,9 +84,12 @@
         </tr>
       </thead>
       <tbody>
-        {{#each currentWork}}
+        {{#each userAdminInfo}}
         <tr>
           <td>{{email}}</td>
+          <td class="text-center">{{lists}}</td>
+          <td class="text-center d-none d-lg-block"><em>{{lastInc}}</em></td>
+          <td class="text-center"><em>{{lastMod}}</em></td>
           <td class="text-center">{{sum movements.new movements.upl}}</td>
           <td class="text-center">{{movements.err-dwn}}</td>
           <td class="text-center">{{movements.err-upl}}</td>
@@ -86,8 +100,8 @@
     </table>
   </div>
 
-
-  <h6><strong>Trabajos pendientes</strong></h6>
+  {{!-- TODO: Quitar definitivamente --}}
+  {{!-- <h6><strong>Trabajos pendientes</strong></h6>
 
   <div class="table-list">
     <table id="miTabla" class="table table-sm table-hover">
@@ -125,7 +139,7 @@
         {{/each}}
       </tbody>
     </table>
-  </div>
+  </div> --}}
 
 
   <div class="card card-admin mt-2 mb-3">
