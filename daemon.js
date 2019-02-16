@@ -65,9 +65,9 @@ async function loop() {
                   dateLastMovement: Date.now()
                 });
 
-                WorkTodo.deleteMany({email: work.email, listId: work.listId, songId:work.songId, state:{$ne:"del"}}).then( workNotNeeded => {
+                WorkTodo.deleteMany({email: work.email, listId: work.listId, songId:work.songId, state:{$ne:"del"}, dateLastMovement:{$lt:work.dateLastMovement}}).then( workNotNeeded => {
                   logger.debug("Daemon - Pending work for this user and song removed.");
-                  logger.debug("Daemon - Work not done and deleted because of this: "+JSON.stringify(workNotNeeded));
+                  logger.debug("Daemon - Upload work not done and deleted because a delete is more recent: "+JSON.stringify(workNotNeeded));
                 });  
                 
                 work.remove();

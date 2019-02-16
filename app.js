@@ -135,7 +135,10 @@ app.use(function(req, res, next){
       home: "/",
       username: "Anonymous",
     };
+
+    return next();
     
+    //TODO: Quitar
   // } else {
   //   res.locals.userdata = req.session.userdata;
   //   res.locals.userdata.logged = req.isAuthenticated();
@@ -156,16 +159,29 @@ app.use(function(req, res, next){
 
   } else {
     //Para los usuarios creados pero que aún no tienen permiso en la aplicación
-    if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 )
-      return res.redirect(303, "/wait");
+    if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 ){
+      User.findOne({email: req.session.userdata.email}, {"_id":0, "role":1}, function(err, user) {
+        logger.debug("Query role: "+user.role);
+        
+        if (user.role == "disabled"){
+          return res.redirect(303, "/wait");
+        
+        } else {
+          res.locals.userdata = req.session.userdata;
+          res.locals.userdata.logged = req.isAuthenticated();
+          res.locals.userdata.role = user.role;
+          // res.locals.userdata.home = "/"; //TODO: Quitar
+          return next();
+        }
+      });
 
-    res.locals.userdata = req.session.userdata;
-    res.locals.userdata.logged = req.isAuthenticated();
-    if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
-  
-  }
-
- 	return next();
+    } else {
+      res.locals.userdata = req.session.userdata;
+      res.locals.userdata.logged = req.isAuthenticated();
+      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
+      return next();
+    }       
+  } 	
 });
 
 
@@ -213,13 +229,13 @@ app.get('/', function(req, res){
 
 
 app.post('/process-home', passport.authenticate("local-login",{
-    //successRedirect: " ", //Sin este parámetro se va a la función de abajo
+    //successRedirect: " ", //Sin este parámetro se va a la función de abajo en caso de éxito
     failureRedirect: "/",
     failureFlash: "Usuario o contraseña inválidos"
   }), function(req, res){
 
     if (req.session.userdata.role == "disabled"){
-      req.session.userdata.home = "wait";
+      req.session.userdata.home = "gmusic";
       res.redirect(303, '/wait');
     } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
       req.session.userdata.home = "gmusic"
@@ -559,7 +575,6 @@ app.get('/admin', adminOnly, function(req, res){
       }}
     ]),
   ]).then( ([allUsers, listInfo, currentWork]) => {
-    //TODO: Sacar los disabledusers del mismo sitio que allUsers
 
     //Distinguimos los dos grupos de usuarios
     activeUsers = allUsers.filter( user => { return user.role != "disabled"});
@@ -597,8 +612,6 @@ app.get('/admin', adminOnly, function(req, res){
         movements: userCurrentWork[user.email] ? userCurrentWork[user.email].movements : {},
       }
     }); 
-
-    console.log(userAdminInfo); //TODO: A eliminar
     
     var context = {
       active: {"admin": true},
@@ -636,6 +649,7 @@ app.post("/admin", adminOnly, function(req, res){
       value: req.body.value,
     };
     UserManagement.authUser(parms, credentials.gmail.user, res, mailTransport);
+    res.redirect(303, '/admin');
 
   } else if (req.body.action == "update") {
     

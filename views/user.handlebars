@@ -8,6 +8,7 @@
       <div class="card-body text-secondary color-blanco">
         <form action="/user" method="POST">
           <div class="form-row align-items-center form-list">
+
             <input type="hidden" name="action" value="newList" />
             <div class="col-12 col-sm-5">
               <input type="text" id="fieldName" name="name" class="form-control form-control-sm" placeholder="Nombre de lista" required>
@@ -32,9 +33,11 @@
           {{alert}}
         </div>
         {{/if}}
-        
+        <div class="col-12" style="color:black; margin-top:5px"><em><a href="http://www.playlist-converter.net/#spotify" target="_blank">Exporta tus listas de Spotify a Youtube</a> para utilizarlas en mitube.</em></div>
       </div>
     </div>
+
+
 
     <div id ="divUpdateUser" class="boton-actListas mt-1 text-center">
         <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block" onclick="this.blur();"><strong>Actualizar todas tus listas</strong></button>
@@ -60,7 +63,7 @@
           {{#each lists}}
           <tr>
             <td><strong><a href="list?listid={{listId}}">{{name}}</a></strong></td>
-            <td class="d-none d-md-table-cell">{{listId}}</td>
+            <td class="d-none d-md-table-cell"><a href="https://www.youtube.com/playlist?list={{listId}}" target="_blank">{{listId}}</a></td>
             <td class="text-right">{{created}}</td>
             <td align="center">
               <div class={{#if sync}}"block-green" {{else}}"block-red" {{/if}}> </div>
