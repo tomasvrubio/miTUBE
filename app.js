@@ -138,30 +138,10 @@ app.use(function(req, res, next){
 
     return next();
     
-    //TODO: Quitar
-  // } else {
-  //   res.locals.userdata = req.session.userdata;
-  //   res.locals.userdata.logged = req.isAuthenticated();
-  //   if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
-
-  //   //Para los usuarios creados pero que aún no tienen permiso en la aplicación
-  //   if ( req.session.userdata.role == "disabled"  && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 ){
-  //     User.findOne({email: req.session.userdata.email}, {"_id":0, "role":1}, function(err, user) {
-  //       logger.debug("Query role: "+user.role);
-  //       if (user.role == "disabled")
-  //         return res.redirect(303, "/wait");
-      
-  //       req.session.userdata.role = user.role;
-  //       req.session.userdata.home = "gmusic";
-  //     });
-  //   }
-  // }
-
   } else {
     //Para los usuarios creados pero que aún no tienen permiso en la aplicación
     if ( req.session.userdata.role == "disabled" && ["/process-home", "/about", "/manual", "/logout", "/wait"].indexOf(req.url) == -1 ){
       User.findOne({email: req.session.userdata.email}, {"_id":0, "role":1}, function(err, user) {
-        logger.debug("Query role: "+user.role);
         
         if (user.role == "disabled"){
           return res.redirect(303, "/wait");
@@ -170,7 +150,6 @@ app.use(function(req, res, next){
           res.locals.userdata = req.session.userdata;
           res.locals.userdata.logged = req.isAuthenticated();
           res.locals.userdata.role = user.role;
-          // res.locals.userdata.home = "/"; //TODO: Quitar
           return next();
         }
       });

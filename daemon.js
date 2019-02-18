@@ -6,7 +6,8 @@ var nodemailer = require('nodemailer'),
 var WorkTodo = require('./models/workTodo.js'),
     WorkDone = require('./models/workDone.js'),
     User = require('./models/user.js'),
-    List = require('./models/list.js');
+    List = require('./models/list.js'),
+    ListUser = require('./models/listUser.js');
 
 var Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl.js')(),
@@ -111,7 +112,14 @@ async function loop() {
             }).catch(err => {
               logger.error(err.stack);
             });
-            
+
+            //Update cover because can change since upload work was registered
+            await ListUser.findOne({"listId":work.listId, "email":work.email},{"_id":0, "imageId":1}).then(cover => {
+              work.imageId = cover.imageId;
+            }).catch(err => {
+              logger.error(err.stack);
+            });
+
             logger.debug("Daemon - Uploading song "+work.songId+" for user "+work.email);
             await Gmusic.upload(work.email, userMacs[work.email], work.songId, work.imageId).then(returnObject => {
               logger.debug("Daemon - Gmusic returns: "+JSON.stringify(returnObject));
