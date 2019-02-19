@@ -38,15 +38,82 @@
     </div>
 
 
+    {{#isEmpty lists}}
+    
+    <div class="mt-3 card border-dark bg-light">
+      <div class="card-body color-blanco">
+        <p><strong>Aún no has registrado ninguna lista.</strong></p>
+        <p>Tienes que utilizar el formulario de la tarjeta de arriba para registrar listas. El significado de sus campos es:</p>
+        <ul>
+          <li class="mb-1"><strong>Nombre de lista:</strong> El nombre con el que quieres que aparezca en Google Music. Como viene indicado en el <a href="manual#manual-howListen">manual</a> las listas aparecerán como álbumes en Google Music (por limitaciones del servicio).</li>
+          <li><strong>URL de Youtube:</strong> La URL de la lista que contiene la música en Youtube. </li>
+        </ul> 
+        <p class="mb-1">Para crear listas puedes utilizar el link del recuadro superior que te permite transferir las que tienes de Spotify para luego introducirlas en mitube o bien puedes <a href="https://www.xataka.com/basics/como-crear-una-lista-de-reproduccion-en-youtube" target="_blank">crear las tuyas</a> desde 0 en Youtube.</p>
+      </div>
+    </div>
+        
+    {{else}}
 
     <div id ="divUpdateUser" class="boton-actListas mt-1 text-center">
-        <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block" onclick="this.blur();"><strong>Actualizar todas tus listas</strong></button>
-        <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>
-        <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
-        <p id="loader-updateUser-comment" class="mt-2" style="display: none">Espere mientras se actualizan las listas.</p>
+      <button id="btnUpdateUser" class="btn btn-outline-dark btn-sm btn-square btn-block" onclick="this.blur();"><strong>Actualizar todas tus listas</strong></button>
+      <div id="alertUpdateUser" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Listas actualizadas</div>
+      <div id="loader-animation" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+      <p id="loader-updateUser-comment" class="mt-2" style="display: none">Espere mientras se actualizan las listas.</p>
+    </div>
+    
+    <div class="table-list mt-2">
+      <table id="miTabla" class="table table-sm table-hover">
+        <caption>Tabla de listas sincronizadas</caption>
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="d-none d-md-table-cell">Identificador Youtube</th>
+            <th scope="col" class="text-right">Incorporada</th>
+            <th scope="col col-1" class="text-center">Sincroniza</th>
+            <th scope="col col-1" class="text-center">Borrar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each lists}}
+          <tr>
+            <td><strong><a href="list?listid={{listId}}">{{name}}</a></strong></td>
+            <td class="d-none d-md-table-cell"><a href="https://www.youtube.com/playlist?list={{listId}}" target="_blank">{{listId}}</a></td>
+            <td class="text-right">{{created}}</td>
+            <td align="center">
+              <div class={{#if sync}}"block-green" {{else}}"block-red" {{/if}}> </div>
+            </td>
+            <td align="center"><a href="#" onclick="deleteButton(this)"><img src="img/rubbish-bin-delete-button.svg" width="15" height="15" alt=""></a></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
     </div>
 
-    <!-- Mostrar resultados en tabla -->
+    <div class="overlay">
+      <div class="overlay-cuadro">
+        <span>¿Quieres borrar la lista?</span>
+        <div class="row justify-content-center overlay-confirm">
+          <div class="col-2">
+            <form action="/deleteList" method="post">
+              <input id="overlay-confirm-listId" type="hidden" name="listId" value=""/>
+              <button id="overlay-confirm-si" class="btn btn-outline-dark btn-sm btn-square"><strong>SI</strong></button>
+            </form>
+          </div>
+          <div class="col-2">
+            <button id="overlay-confirm-no" class="btn btn-outline-dark btn-sm btn-square"><strong>NO</strong></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {{/isEmpty}}
+
+  </div>
+</div>
+
+    
+
+    {{!-- <!-- Mostrar resultados en tabla -->
     <div class="table-list mt-2">
       <table id="miTabla" class="table table-sm table-hover">
         <caption>Tabla de listas sincronizadas</caption>
@@ -93,7 +160,7 @@
     </div>
 
   </div>
-</div>
+</div> --}}
 
 
 {{!-- JAVASCRIPT --}}

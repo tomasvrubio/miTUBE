@@ -222,6 +222,11 @@
   text-align: center;
 }
 
+#manual-body span {
+  display:table; /* Para introducir una nueva linea el final del span. */
+  padding-bottom: 0.5%;
+}
+
 .overlay-confirm {
   text-align: center;
 }
