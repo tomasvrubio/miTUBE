@@ -351,6 +351,14 @@ app.post('/user', isLoggedIn, function(req, res){
     else
       var listId = req.body.url;
 
+    //TODO: Comprobar que la lista que ha introducido no tiene sus dos primeras siglas como RD.
+    if (listId.substring(0,2) == "RD") {
+      logger.debug("Introducida url de mix generado automáticamente por Youtube. No válido.");
+      req.flash("info", "No se pueden utilizar Mixes generados automáticamente por Youtube.");
+      return res.redirect(303, '/user');
+    }
+
+
     Promise.all([
       ListUser.find({email:req.session.userdata.email, listId: listId}).countDocuments(),
       ListUser.find({email:req.session.userdata.email, name: req.body.name}).countDocuments()
