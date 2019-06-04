@@ -158,6 +158,11 @@ async function loop() {
                 work.state = "err-upl";
                 work.dateLastMovement = Date.now();
                 work.save();
+              } else if (returnObject.code == 2){
+                logger.debug("Daemon - File size bigger than allowed (300MB max).");
+                work.state = "err-upl-max";
+                work.dateLastMovement = Date.now();
+                work.save();
               }
             }).catch(err => {
               logger.error(err.stack);
