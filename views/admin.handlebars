@@ -22,7 +22,7 @@
           <td class="text-center">
             <div class="row">
               <div class="col">
-                <form action="/admin" method="post">
+                <form action="admin" method="post">
                   <input type="hidden" name="action" value="auth" />
                   <input type="hidden" name="value" value="OK" />
                   <input type="hidden" name="email" value={{email}} />
@@ -30,7 +30,7 @@
                 </form>
               </div>
               <div class="col">
-                <form action="/admin" method="post">
+                <form action="admin" method="post">
                   <input type="hidden" name="action" value="auth" />
                   <input type="hidden" name="value" value="KO" />
                   <input type="hidden" name="email" value={{email}} />
@@ -194,7 +194,7 @@
     </div>
     <div class="card-body">
       <p class="card-text">Al pulsar el siguiente botón se apaga la aplicación.</p>
-      <form action="/admin" method="post">
+      <form action="admin" method="post">
         <input type="hidden" name="action" value="exit" />
         <button id="btnStopServer" class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Apagar</button>
       </form>

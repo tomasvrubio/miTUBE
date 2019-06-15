@@ -132,7 +132,7 @@ app.use(function(req, res, next){
       logged: req.isAuthenticated(),
       admin: false,
       gmusicAuth: false,
-      home: "/",
+      home: "/mitube",
       username: "Anonymous",
     };
 
@@ -144,7 +144,7 @@ app.use(function(req, res, next){
       User.findOne({email: req.session.userdata.email}, {"_id":0, "role":1}, function(err, user) {
         
         if (user.role == "disabled"){
-          return res.redirect(303, "/wait");
+          return res.redirect(303, "wait");
         
         } else {
           res.locals.userdata = req.session.userdata;
@@ -157,7 +157,7 @@ app.use(function(req, res, next){
     } else {
       res.locals.userdata = req.session.userdata;
       res.locals.userdata.logged = req.isAuthenticated();
-      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/";
+      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/mitube";
       return next();
     }       
   } 	
@@ -189,7 +189,7 @@ function adminOnly(req, res, next){
 app.get('/', function(req, res){
   //If authenticated - Userpage is home
   if (req.isAuthenticated())
-    return res.redirect(303, '/user');
+    return res.redirect(303, 'user');
 
   req.session.userdata = {};
 
@@ -209,16 +209,16 @@ app.get('/', function(req, res){
 
 app.post('/process-home', passport.authenticate("local-login",{
     //successRedirect: " ", //Sin este parámetro se va a la función de abajo en caso de éxito
-    failureRedirect: "/",
+    failureRedirect: "/mitube",
     failureFlash: "Usuario o contraseña inválidos"
   }), function(req, res){
 
     if (req.session.userdata.role == "disabled"){
       req.session.userdata.home = "gmusic";
-      res.redirect(303, '/wait');
+      res.redirect(303, 'wait');
     } else { //En caso de que si que tenga rol lo que hay que hacer es mandarle a /gmusic
       req.session.userdata.home = "gmusic"
-      res.redirect(303, '/gmusic');
+      res.redirect(303, 'gmusic');
     }    
 });
 
@@ -226,7 +226,7 @@ app.post('/process-home', passport.authenticate("local-login",{
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
   req.session.userdata = {};
-  res.redirect(303, '/');
+  res.redirect(303, '/mitube');
 });
 
 app.get('/register', function(req, res){
@@ -248,25 +248,25 @@ app.post('/register', function(req, res){
   if (!email.endsWith("@gmail.com")){
     logger.debug("Not gmail account");
     req.flash("info", "Para poder utilizar la aplicación hay que registrarse con un correo de GMAIL");
-    return res.redirect(303, "/register");
+    return res.redirect(303, "register");
   }
 
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
       req.flash("error", "Usuario dado de alta. Ha sido enviada la contraseña a su email pero debe esperar a que le autoricen el acceso.");
-      return res.redirect(303, "/");
+      return res.redirect(303, "/mitube");
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
-      return res.redirect(303, "/register");
+      return res.redirect(303, "register");
     }
   }).catch(err => {
     //In case is the first user of APP the function will return an error so we have to try it again.  
     UserManagement.createFirstUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
       req.flash("error", "ADMIN Creado.");
-      return res.redirect(303, "/");
+      return res.redirect(303, "/mitube");
     }).catch(err => {
       req.flash("info", "Error. Reintentar registro");
-      return res.redirect(303, "/register");
+      return res.redirect(303, "register");
     });
   });
 
@@ -355,7 +355,7 @@ app.post('/user', isLoggedIn, function(req, res){
     if (listId.substring(0,2) == "RD") {
       logger.debug("Introducida url de mix generado automáticamente por Youtube. No válido.");
       req.flash("info", "No se pueden utilizar Mixes generados automáticamente por Youtube.");
-      return res.redirect(303, '/user');
+      return res.redirect(303, 'user');
     }
 
 
@@ -367,13 +367,13 @@ app.post('/user', isLoggedIn, function(req, res){
       if (usedId){
         logger.debug("URL ya utilizada en otra lista del usuario.");
         req.flash("info", "URL ya utilizada en otra lista del usuario.");
-        return res.redirect(303, '/user');
+        return res.redirect(303, 'user');
       }
 
       if (usedName){
         logger.debug("Nombre ya utilizado en otra lista del usuario.");
         req.flash("info", "Nombre ya utilizado en otra lista del usuario.");
-        return res.redirect(303, '/user');
+        return res.redirect(303, 'user');
       }
 
       Synchronize.createRelation(credentials.youtube.apiKey, listId, req.body.name, req.session.userdata.email)
@@ -383,13 +383,13 @@ app.post('/user', isLoggedIn, function(req, res){
             logger.debug("Canciones metidas en workTodo.");
           });//.catch(console.error);
           req.flash("success", "Nueva lista creada.");
-          return res.redirect(303, '/user');
+          return res.redirect(303, 'user');
         });//.catch(console.error);
       }).catch(err => {
         logger.error(JSON.stringify(err.stack));
-        logger.debug("Url no válida como lista de Youtube");
+        logger.debug("Url no válida como lista de Youtube. Asegúrate de que la lista no sea privada.");
         req.flash("info", "URL no válida como lista de Youtube.");
-        return res.redirect(303, '/user');
+        return res.redirect(303, 'user');
       }); 
     });
   }
@@ -412,7 +412,7 @@ app.get('/list', isLoggedIn, function(req, res){
     ]).then( ([listUser, list, works, covers]) => {
       if (listUser == null || list == null){
         logger.debug("Lista sin detalles almacenados.");
-        return res.redirect(303, '/user');
+        return res.redirect(303, 'user');
       }
 
       pendingWorks = Object.assign({}, ...works.map(work => ({[work.songId]: work.state})));
@@ -460,7 +460,7 @@ app.post('/list', isLoggedIn, function(req, res){
     var sync = req.body.sync;
 
     Synchronize.toogleSync(email, listId, sync);
-    return res.redirect(303, '/list?listid='+listId);
+    return res.redirect(303, 'list?listid='+listId);
   
   } else if (action == "setImage") {
     var imageId = req.body.imageId;
@@ -488,7 +488,7 @@ app.post('/deleteList', isLoggedIn, function(req, res){
   }).catch(err => {
     logger.error("No se ha podido eliminar la lista - "+JSON.stringify(err.stack)); 
   }).then(() => {
-    return res.redirect(303, '/user'); 
+    return res.redirect(303, 'user'); 
   });
 
 });
@@ -508,11 +508,11 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic para la acción "+action+".");
 
         if (action == "upl") {
-          res.redirect(303, '/gmusic?action=del');
+          res.redirect(303, 'gmusic?action=del');
         } else {
-          req.session.userdata.home = "/";
+          req.session.userdata.home = "/mitube";
           req.session.userdata.gmusicAuth = true; 
-          res.redirect(303, '/user');
+          res.redirect(303, 'user');
         } 
       } else {
         var context = {
@@ -532,7 +532,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
       }
     }).catch(err => {
       logger.error("Gmusic coudn't be reached.");
-      res.redirect(303, '/logout');
+      res.redirect(303, 'logout');
     });
   });
 });
@@ -636,7 +636,7 @@ app.post("/admin", adminOnly, function(req, res){
       value: req.body.value,
     };
     UserManagement.authUser(parms, credentials.gmail.user, res, mailTransport);
-    res.redirect(303, '/admin');
+    res.redirect(303, 'admin');
 
   } else if (req.body.action == "update") {
     

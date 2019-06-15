@@ -3,6 +3,7 @@ node_modules
 *~
 credentials.js
 tmp/*.mp3
+tmp/*.mp4
 tmp/*.webm
 tmp/*.part
 logs/*

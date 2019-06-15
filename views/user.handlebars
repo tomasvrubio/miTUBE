@@ -6,7 +6,7 @@
     <div class="card border-dark bg-light card-nuevaLista">
       <div class="card-header color-negro text-white"><strong>¿Tienes una lista nueva?</strong></div>
       <div class="card-body text-secondary color-blanco">
-        <form action="/user" method="POST">
+        <form action="user" method="POST">
           <div class="form-row align-items-center form-list">
 
             <input type="hidden" name="action" value="newList" />
@@ -94,7 +94,7 @@
         <span>¿Quieres borrar la lista?</span>
         <div class="row justify-content-center overlay-confirm">
           <div class="col-2">
-            <form action="/deleteList" method="post">
+            <form action="deleteList" method="post">
               <input id="overlay-confirm-listId" type="hidden" name="listId" value=""/>
               <button id="overlay-confirm-si" class="btn btn-outline-dark btn-sm btn-square"><strong>SI</strong></button>
             </form>
@@ -147,7 +147,7 @@
         <span>¿Quieres borrar la lista?</span>
         <div class="row justify-content-center overlay-confirm">
           <div class="col-2">
-            <form action="/deleteList" method="post">
+            <form action="deleteList" method="post">
               <input id="overlay-confirm-listId" type="hidden" name="listId" value=""/>
               <button id="overlay-confirm-si" class="btn btn-outline-dark btn-sm btn-square"><strong>SI</strong></button>
             </form>

@@ -56,7 +56,7 @@
 
     {{!-- Con un if que sea activado o desactivado en función de lo recibido. ¿O hacerlo en JS para poder activarlo o desactivarlo sin recargar página? --}}
     <div class="justify-content-center text-center mt-1">
-      <form action="/list" method="post">
+      <form action="list" method="post">
         <input type="hidden" name="action" value="syncToogle" />
         <input type="hidden" name="listId" value="{{listId}}" />
         {{#if sync}}
