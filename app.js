@@ -660,6 +660,16 @@ app.post("/admin", adminOnly, function(req, res){
 
     //TODO: Si no hay ninguna lista registrada en la aplicación se queda cargando eternamente. CONTROLARLO
 
+  } else if (req.body.action == "retryDownload") {
+
+    Synchronize.retryDownload().then(returnObject => {
+      logger.debug("Reintento errores: Trabajos en estado 'err-dwn' pasados a 'new'");
+      return res.json({success: true});
+    }).catch(err => {
+      logger.error(JSON.stringify(err));
+      return res.json({success: false});
+    });
+
   } else if (req.body.action == "exit") {
     logger.error("Atendiendo petición para apagar el servidor.");
     
