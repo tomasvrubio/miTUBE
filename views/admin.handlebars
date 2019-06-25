@@ -316,8 +316,8 @@
 
   //Javascript para el botón de sincronización de todas las listas
   const btnRetryDownload = document.getElementById("btnRetryDownload");
-  const alertRetryDownload = document.getElementById("RetryDownload");
-  const loaderRetryDownload = document.getElementById("RetryDownload");
+  const alertRetryDownload = document.getElementById("alertRetryDownload");
+  const loaderRetryDownload = document.getElementById("loaderRetryDownload");
 
   btnRetryDownload.addEventListener("click", function(){
     
@@ -346,6 +346,7 @@
         btnRetryDownload.innerHTML = "Relanzar descargas";
         btnRetryDownload.disabled = false;
 
+        alertRetryDownload.innerHTML = data.countRetried + " trabajos insertados."
         alertRetryDownload.style.display = "block";
         setTimeout(function() {
           alertRetryDownload.style.display = "none";

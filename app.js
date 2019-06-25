@@ -662,9 +662,9 @@ app.post("/admin", adminOnly, function(req, res){
 
   } else if (req.body.action == "retryDownload") {
 
-    Synchronize.retryDownload().then(returnObject => {
-      logger.debug("Reintento errores: Trabajos en estado 'err-dwn' pasados a 'new'");
-      return res.json({success: true});
+    Synchronize.retryDownload().then(countRetried => {
+      logger.debug("Reintento errores: " + countRetried + " trabajos en estado 'err-dwn' pasados a 'new'");
+      return res.json({success: true, countRetried});
     }).catch(err => {
       logger.error(JSON.stringify(err));
       return res.json({success: false});
