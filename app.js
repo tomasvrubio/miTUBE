@@ -670,11 +670,26 @@ app.post("/admin", adminOnly, function(req, res){
       return res.json({success: false});
     });
 
+  } else if (req.body.action == "queryWorkDones") {
+
+    var parms = {
+      dateStart: req.body.dateStart || ISODate("2018-01-01T00:00:00.000Z"),
+      dateEnd: req.body.dateEnd || Date.now(),
+      email: req.body.email || null,
+    };
+
+    Synchronize.getWorkDoneList(parms).then(WorksDone => {
+      return res.json({success: true, WorksDone});
+    }).catch(err => {
+      logger.error(JSON.stringify(err));
+      return res.json({success: false});
+    });
+
   } else if (req.body.action == "exit") {
     logger.error("Atendiendo petición para apagar el servidor.");
     
     if (daemon) {
-      logger.error(JSON.stringify(daemon));
+      // logger.error(JSON.stringify(daemon));
       logger.error("Demonio levantado. Procedemos a pararlo.");
       process.kill(daemon.pid);
       logger.error("Demonio Parado.");
