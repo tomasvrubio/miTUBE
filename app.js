@@ -673,14 +673,15 @@ app.post("/admin", adminOnly, function(req, res){
   } else if (req.body.action == "queryWorkDones") {
 
     var parms = {
-      dateStart: req.body.dateStart || ISODate("2018-01-01T00:00:00.000Z"),
-      dateEnd: req.body.dateEnd || Date.now(),
-      email: req.body.email || null,
+      dateStart: req.body.dateStart || new Date("2018-01-01T00:00:00.000Z"),
+      dateEnd: req.body.dateEnd || new Date(),
+      email: req.body.email || "@",
     };
 
     Synchronize.getWorkDoneList(parms).then(WorksDone => {
       return res.json({success: true, WorksDone});
     }).catch(err => {
+      console.log(err.stack)
       logger.error(JSON.stringify(err));
       return res.json({success: false});
     });

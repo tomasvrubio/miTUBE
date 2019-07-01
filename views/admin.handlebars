@@ -356,4 +356,21 @@
     .catch(error => console.log('error is ', error));
   });
 
+
+  fetch('admin', {
+      method: 'post',
+      body: 'action=queryWorkDones',
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .catch(error => console.log('error is ', error));
 </script>
