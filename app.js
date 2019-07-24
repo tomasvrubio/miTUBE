@@ -744,7 +744,7 @@ if (credentials.daemon.active) {
     detached: true,
   });
 
-  // console.log(daemon);
+  //console.log(daemon);
 
   process.on("SIGINT", function(code) {
     logger.error("Recibido SIGINT (Ctrl + c). Paramos demonio.");

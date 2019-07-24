@@ -13,7 +13,7 @@ var Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl.js')(),
     logger = require('./lib/logger');
 
-mongoose.connect(credentials.mongo.connectionString);
+mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
 
 var active = 1; //To mantain de loop alive
 
