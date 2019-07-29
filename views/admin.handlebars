@@ -193,6 +193,23 @@
 
   <div class="card card-admin mt-2 mb-3">
     <div class="card-header color-negro text-white">
+      Reintentar <strong>SUBIDAS EN ERROR</strong>
+    </div>
+    <div class="card-body">
+      <p class="card-text">Al pulsar el siguiente botón se modificarán todas las canciones en estado ERROR SUBIDA parar volver a intentar su ciclo.</p>
+      {{!-- <form action="/admin" method="post"> --}}
+      <div class="text-center">
+        {{!-- <input type="hidden" name="action" value="syncAll" /> --}}
+        <button id="btnRetryUpload" class="btn btn-success btn-sm btn-block btn-square btn-table" type="submit">Relanzar subidas</button>
+        <div id="alertRetryUpload" class="alert alert-success text-center" role="alert" style="margin: 5px 0px; padding: 0px; display: none">Trabajos insertados.</div>
+        <div id="loaderRetryUpload" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+      {{!-- </form> --}}
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-admin mt-2 mb-3">
+    <div class="card-header color-negro text-white">
       <strong>Estado DAEMON</strong>
     </div>
     <div class="card-body">
@@ -318,7 +335,7 @@
   });
 
 
-  //Javascript para el botón de sincronización de todas las listas
+  //Javascript para el botón de reintento de canciones en error descarga
   const btnRetryDownload = document.getElementById("btnRetryDownload");
   const alertRetryDownload = document.getElementById("alertRetryDownload");
   const loaderRetryDownload = document.getElementById("loaderRetryDownload");
@@ -354,6 +371,49 @@
         alertRetryDownload.style.display = "block";
         setTimeout(function() {
           alertRetryDownload.style.display = "none";
+        }, 5000);
+      }
+    })
+    .catch(error => console.log('error is ', error));
+  });
+
+
+  //Javascript para el botón de reintento de canciones en error subida
+  const btnRetryUpload = document.getElementById("btnRetryUpload");
+  const alertRetryUpload = document.getElementById("alertRetryUpload");
+  const loaderRetryUpload = document.getElementById("loaderRetryUpload");
+
+  btnRetryUpload.addEventListener("click", function(){
+    
+    btnRetryUpload.disabled = true;
+    btnRetryUpload.innerHTML = "<strong>Espere mientras se modifican...</strong>"
+    loaderRetryUpload.style.display = "inline-block";
+
+    fetch('admin', {
+      method: 'post',
+      body: 'action=retryUpload',
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+    })
+    .then(data => {
+      if(data.success=true){
+        loaderRetryUpload.style.display = "none";
+        btnRetryUpload.innerHTML = "Relanzar subidas";
+        btnRetryUpload.disabled = false;
+
+        alertRetryUpload.innerHTML = data.countRetried + " trabajos insertados."
+        alertRetryUpload.style.display = "block";
+        setTimeout(function() {
+          alertRetryUpload.style.display = "none";
         }, 5000);
       }
     })

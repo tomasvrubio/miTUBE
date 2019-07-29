@@ -670,6 +670,16 @@ app.post("/admin", adminOnly, function(req, res){
       return res.json({success: false});
     });
 
+  } else if (req.body.action == "retryUpload") {
+
+    Synchronize.retryUpload().then(countRetried => {
+      logger.debug("Reintento errores: " + countRetried + " trabajos en estado 'err-upl' pasados a 'new'");
+      return res.json({success: true, countRetried});
+    }).catch(err => {
+      logger.error(JSON.stringify(err));
+      return res.json({success: false});
+    });
+
   } else if (req.body.action == "queryWorkDones") {
 
     var parms = {
