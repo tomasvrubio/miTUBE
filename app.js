@@ -46,6 +46,7 @@ var mailTransport = nodemailer.createTransport({
 
 //Database 
 mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
+mongoose.set('useFindAndModify', false);
 
 
 app.use(favicon(__dirname + '/public/favicon.png'));

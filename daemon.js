@@ -14,6 +14,7 @@ var Gmusic = require('./lib/gmusic.js')(),
     logger = require('./lib/logger');
 
 mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
+mongoose.set('useFindAndModify', false);
 
 var active = 1; //To mantain de loop alive
 
@@ -48,7 +49,7 @@ async function loop() {
             logger.debug("Daemon - Deleting "+work.songId+" song for "+work.email);
 
             if (!work.gmusicId){
-              logger.debug("Daemon - No gmusicId (song not uploaded yet). Pending 'upl' work.");
+              logger.debug("Daemon - No gmusicId. Its posible that song isn't uploaded yet.");
             }
 
             //Elimino el trabajo de gmusic.
@@ -121,12 +122,22 @@ async function loop() {
             });
 
             logger.debug("Daemon - Uploading song "+work.songId+" for user "+work.email);
-            await Gmusic.upload(work.email, userMacs[work.email], work.songId, work.imageId).then(returnObject => {
+            await Gmusic.upload(work.email, userMacs[work.email], work.songId, work.imageId).then(async function(returnObject) {
               logger.debug("Daemon - Gmusic returns: "+JSON.stringify(returnObject));
 
               if (returnObject.code == 0){  
                 logger.debug("Daemon - Ended uploading song.");
 
+                //Esto mejor lo voy a hacer directamente en la zona de eliminar. Hago un delete con uuid y otro que lo que tenga que utilizar es el nombre de la canción y artista.
+                if (returnObject.uuid == 0){
+                  logger.debug("Daemon - No uuid, need to obtain it")
+                  // await Gmusic.getUuid(work.email, userMacs[work.email], NOMBRE_QUE_BUSCAR_QUE_NO_TENGO).then(uuid => {
+                  //   returnObject.uuid = uuid;
+                  // });
+                }
+
+                //TODO: Ver que carencias tiene esta operación para que dejen de saltarme errores al ejecutarla
+                // (node:16852) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
                 List.findOneAndUpdate(
                   {listId:work.listId, "songs.songId":work.songId}, 
                   {"$set": { "songs.$.gmusicId":returnObject.uuid }}
