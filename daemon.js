@@ -53,7 +53,7 @@ async function loop() {
             }
 
             //Elimino el trabajo de gmusic.
-            await Gmusic.delete(work.email, userMacs[work.email], work.gmusicId).then(returnObject => {
+            await Gmusic.delete(work.email, userMacs[work.email], work.gmusicId, work.songId).then(returnObject => {
 
               if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar el borrado.
                 logger.debug("Daemon - Ended deleting song.");
