@@ -47,27 +47,10 @@ async function loop() {
         //////
         for (const work of deletes){
 
-<<<<<<< HEAD
             work.tries++;
             work.save();
             if (work.tries <= 5) {
               logger.debug("Daemon - Deleting "+work.songId+" song for "+work.email);
-=======
-            //Elimino el trabajo de gmusic.
-            await Gmusic.delete(work.email, userMacs[work.email], work.gmusicId, work.songId).then(returnObject => {
-
-              if (returnObject.code == 0){  //TODO: No tengo contemplado como manejar los errores a la hora de ejecutar el borrado.
-                logger.debug("Daemon - Ended deleting song.");
-                
-                //Una vez terminado muevo el trabajo a workDone.          
-                WorkDone.insertMany({
-                  songId: work.songId,
-                  listId: work.listId,
-                  email: work.email,
-                  action: "del",
-                  dateLastMovement: Date.now()
-                });
->>>>>>> 5e76490db8fa72949880923f2bf81451cbc0bd09
 
               if (!work.gmusicId){
                 logger.debug("Daemon - No gmusicId. Its posible that song isn't uploaded yet.");
@@ -90,7 +73,7 @@ async function loop() {
 
                   WorkTodo.deleteMany({email: work.email, listId: work.listId, songId:work.songId, state:{$ne:"del"}, dateLastMovement:{$lt:work.dateLastMovement}}).then( workNotNeeded => {
                     logger.debug("Daemon - Pending work for this user and song removed.");
-                    logger.debug("Daemon - Upload work not done and deleted because a delete is more recent: "+JSON.stringify(workNotNeeded));
+                    logger.debug("Daemon - Upload work not done and deleted because a registered delete is more recent: "+JSON.stringify(workNotNeeded));
                   });
 
                   work.remove();
