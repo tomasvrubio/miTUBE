@@ -7,10 +7,10 @@ var workTodoSchema = mongoose.Schema({
   imageId: String,
 	listId: String,
 	listName: String,
-	email: String, 
+	email: String,
 	state: String,
   dateLastMovement: Date,
-  tries: Integer, //To avoid infinite works
+  tries: {type:Number, default:0}, //To avoid infinite works
 });
 
 var WorkTodo = mongoose.model('WorkTodo', workTodoSchema);

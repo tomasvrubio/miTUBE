@@ -47,6 +47,7 @@ async function loop() {
         //////
         for (const work of deletes){
 
+            if (!work.tries) work.tries=0;
             work.tries++;
             work.save();
             if (work.tries <= 5) {
@@ -118,6 +119,7 @@ async function loop() {
         logger.debug("Daemon - Songs to upload...");
         ////////////
         for (const work of uploads){
+          if (!work.tries) work.tries=0;
           work.tries++;
           work.save();
           if (work.tries <= 5) {
@@ -220,6 +222,7 @@ async function loop() {
         }
         //////
         else {
+          if (!work.tries) work.tries=0;
           work.tries++;
           work.save();
           if (work.tries <= 5) {
