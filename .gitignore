@@ -6,5 +6,6 @@ tmp/*.mp3
 tmp/*.mp4
 tmp/*.webm
 tmp/*.part
+tools/*
 logs/*
 .vscode
