@@ -145,16 +145,10 @@ async function loop() {
                 if (returnObject.code == 0){
                   logger.debug("Daemon - Ended uploading song.");
 
-                  //Esto mejor lo voy a hacer directamente en la zona de eliminar. Hago un delete con uuid y otro que lo que tenga que utilizar es el nombre de la canción y artista
                   if (returnObject.uuid == 0){
-                    logger.debug("Daemon - No uuid, need to obtain it")
-                    // await Gmusic.getUuid(work.email, userMacs[work.email], NOMBRE_QUE_BUSCAR_QUE_NO_TENGO).then(uuid => {
-                    //   returnObject.uuid = uuid;
-                    // });
+                    logger.debug("Daemon - No uuid, need to obtain it");
                   }
 
-                  //TODO: Ver que carencias tiene esta operación para que dejen de saltarme errores al ejecutarla
-                  // (node:16852) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
                   List.findOneAndUpdate(
                     {listId:work.listId, "songs.songId":work.songId},
                     {"$set": { "songs.$.gmusicId":returnObject.uuid }}
@@ -171,7 +165,7 @@ async function loop() {
                   });
 
                   WorkTodo.find({songId: work.songId, state:"upl"}).countDocuments().then(uplWork => {
-                    logger.debug("Daemon - Pending uploads of "+work.songId+": "+uplWork);
+                    logger.debug("Daemon - Pending uploads of "+work.songId+": "+(uplWork-1));
                     if (uplWork <= 1){
                       fs.unlink("./tmp/"+work.songId+".mp3", function (err) {
                           if (err) throw err;
