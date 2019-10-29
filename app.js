@@ -7,15 +7,18 @@ var express = require('express'),
     LocalStrategy = require('passport-local'),
     moment = require('moment'),
     morgan = require('morgan'),
-    credentials = require('./credentials.js'), 
     spawn = require("child_process").spawn,
     cron = require("node-cron"),
-    List = require('./models/list.js'),
+    credentials = require('./credentials.js');    
+    //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
+
+// Load models
+var List = require('./models/list.js'),
     ListUser = require('./models/listUser.js'),
     WorkTodo = require('./models/workTodo.js'),
     User = require('./models/user.js');
-    //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
+// Own libraries
 var UserManagement = require('./lib/userManagement.js')(),
     Synchronize = require('./lib/synchronize.js')(),
     Gmusic = require('./lib/gmusic.js')(),
@@ -133,7 +136,7 @@ app.use(function(req, res, next){
       logged: req.isAuthenticated(),
       admin: false,
       gmusicAuth: false,
-      home: "/mitube",
+      home: "/mitube/",
       username: "Anonymous",
     };
 
@@ -158,7 +161,7 @@ app.use(function(req, res, next){
     } else {
       res.locals.userdata = req.session.userdata;
       res.locals.userdata.logged = req.isAuthenticated();
-      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/mitube";
+      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/mitube/";
       return next();
     }       
   } 	
@@ -210,7 +213,7 @@ app.get('/', function(req, res){
 
 app.post('/process-home', passport.authenticate("local-login",{
     //successRedirect: " ", //Sin este parámetro se va a la función de abajo en caso de éxito
-    failureRedirect: "/mitube",
+    failureRedirect: "/mitube/",
     failureFlash: "Usuario o contraseña inválidos"
   }), function(req, res){
 
@@ -227,7 +230,7 @@ app.post('/process-home', passport.authenticate("local-login",{
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
   req.session.userdata = {};
-  res.redirect(303, '/mitube');
+  res.redirect(303, '/mitube/');
 });
 
 app.get('/register', function(req, res){
@@ -255,7 +258,7 @@ app.post('/register', function(req, res){
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
       req.flash("error", "Usuario dado de alta. Ha sido enviada la contraseña a su email pero debe esperar a que le autoricen el acceso.");
-      return res.redirect(303, "/mitube");
+      return res.redirect(303, "/mitube/");
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
       return res.redirect(303, "register");
@@ -264,7 +267,7 @@ app.post('/register', function(req, res){
     //In case is the first user of APP the function will return an error so we have to try it again.  
     UserManagement.createFirstUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
       req.flash("error", "ADMIN Creado.");
-      return res.redirect(303, "/mitube");
+      return res.redirect(303, "/mitube/");
     }).catch(err => {
       req.flash("info", "Error. Reintentar registro");
       return res.redirect(303, "register");
@@ -510,7 +513,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         if (action == "upl") {
           res.redirect(303, 'gmusic?action=del');
         } else {
-          req.session.userdata.home = "/mitube";
+          req.session.userdata.home = "/mitube/";
           req.session.userdata.gmusicAuth = true; 
           res.redirect(303, 'user');
         } 

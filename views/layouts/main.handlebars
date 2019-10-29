@@ -42,14 +42,14 @@
             <li class="nav-item {{#if active.user}}active{{/if}}">
               <a class="nav-link" href="user">
                 <img src="img/list.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-lg-inline-block">Mis listas</span>
+                <span class="d-md-inline-block">Mis listas</span>
               </a> 
             </li>
               {{#if userdata.admin}}
             <li class="nav-item {{#if active.admin}}active{{/if}}">
               <a class="nav-link" href="admin">
                 <img src="img/settings.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-lg-inline-block">Admin</span>
+                <span class="d-md-inline-block">Admin</span>
               </a>
             </li>
               {{/if}}
@@ -58,13 +58,13 @@
             <li class="nav-item {{#if active.manual}}active{{/if}}">
               <a class="nav-link" href="manual">
                 <img src="img/file-text.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-lg-inline-block">Funcionamiento</span>
+                <span class="d-md-inline-block">Funcionamiento</span>
               </a>
             </li>
             <li class="nav-item {{#if active.about}}active{{/if}}">
               <a class="nav-link" href="about">
                 <img src="img/info.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-lg-inline-block">Sobre mí</span>
+                <span class="d-md-inline-block">Sobre mí</span>
               </a>
             </li>
           </ul>
@@ -81,20 +81,20 @@
             <li class="nav-item">
               <a class="nav-link" href="logout">
                 <img src="img/power.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-lg-inline-block">Salir</span>
+                <span class="d-md-inline-block">Salir</span>
               </a>
             </li>
           {{else}}
             <li class="nav-item {{#if active.home}}active{{/if}}">
               <a class="nav-link" href="/mitube/">
                 <img src="img/user-check.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-md-inline-block">Entrar</span>
+                <span class="d-md-inline-block">Entrar</span>
               </a>
             </li>
             <li class="nav-item {{#if active.register}}active{{/if}}">
               <a class="nav-link" href="register">
                 <img src="img/user-plus.svg" width="20" height="20" class="d-inline-block icono" alt="">
-                <span class="d-sm-none d-md-inline-block">Registrarse</span>
+                <span class="d-md-inline-block">Registrarse</span>
               </a>
             </li>
           {{/if}}
