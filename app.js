@@ -136,7 +136,7 @@ app.use(function(req, res, next){
       logged: req.isAuthenticated(),
       admin: false,
       gmusicAuth: false,
-      home: "/mitube/",
+      home: credentials.subdomain,
       username: "Anonymous",
     };
 
@@ -161,7 +161,7 @@ app.use(function(req, res, next){
     } else {
       res.locals.userdata = req.session.userdata;
       res.locals.userdata.logged = req.isAuthenticated();
-      if (res.locals.userdata.logged == false) res.locals.userdata.home = "/mitube/";
+      if (res.locals.userdata.logged == false) res.locals.userdata.home = credentials.subdomain;
       return next();
     }       
   } 	
@@ -213,7 +213,7 @@ app.get('/', function(req, res){
 
 app.post('/process-home', passport.authenticate("local-login",{
     //successRedirect: " ", //Sin este parámetro se va a la función de abajo en caso de éxito
-    failureRedirect: "/mitube/",
+    failureRedirect: credentials.subdomain,
     failureFlash: "Usuario o contraseña inválidos"
   }), function(req, res){
 
@@ -230,7 +230,7 @@ app.post('/process-home', passport.authenticate("local-login",{
 app.get('/logout', isLoggedIn, function(req, res){
   req.logout();
   req.session.userdata = {};
-  res.redirect(303, '/mitube/');
+  res.redirect(303, credentials.subdomain);
 });
 
 app.get('/register', function(req, res){
@@ -258,7 +258,7 @@ app.post('/register', function(req, res){
   UserManagement.createUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
     if (confirmation == "OK"){
       req.flash("error", "Usuario dado de alta. Ha sido enviada la contraseña a su email pero debe esperar a que le autoricen el acceso.");
-      return res.redirect(303, "/mitube/");
+      return res.redirect(303, credentials.subdomain);
     } else if (confirmation == "KO"){
       req.flash("info", "Usuario ya registrado previamente. Utilice otro email");
       return res.redirect(303, "register");
@@ -267,7 +267,7 @@ app.post('/register', function(req, res){
     //In case is the first user of APP the function will return an error so we have to try it again.  
     UserManagement.createFirstUser(email, name, credentials.gmail.user, res, mailTransport).then(confirmation => {
       req.flash("error", "ADMIN Creado.");
-      return res.redirect(303, "/mitube/");
+      return res.redirect(303, credentials.subdomain);
     }).catch(err => {
       req.flash("info", "Error. Reintentar registro");
       return res.redirect(303, "register");
@@ -336,8 +336,6 @@ app.post('/user', isLoggedIn, function(req, res){
 
   if (req.body.action == "updateUser"){ 
     var email = req.body.email;
-
-    //TODO: Si no hay ninguna lista registrada en la aplicación se queda cargando eternamente. CONTROLARLO
 
     Synchronize.checkUpdatedUser(credentials.youtube.apiKey, email).then(returnObject => {
       logger.debug("Comprobadas todas las listas del usuario");
@@ -513,7 +511,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
         if (action == "upl") {
           res.redirect(303, 'gmusic?action=del');
         } else {
-          req.session.userdata.home = "/mitube/";
+          req.session.userdata.home = credentials.subdomain;
           req.session.userdata.gmusicAuth = true; 
           res.redirect(303, 'user');
         } 
@@ -661,8 +659,6 @@ app.post("/admin", adminOnly, function(req, res){
       return res.json({success: false});
     });
 
-    //TODO: Si no hay ninguna lista registrada en la aplicación se queda cargando eternamente. CONTROLARLO
-
   } else if (req.body.action == "retryDownload") {
 
     Synchronize.retryDownload().then(countRetried => {
@@ -736,7 +732,7 @@ app.listen(app.get('port'), function(){
 });
 
 //Programamos un job para que se ejecute todos los días a las 03:00 y sincronice las canciones de toda la aplicación
-cron.schedule('00 03 * * *', () => {
+cron.schedule(credentials.checkPlanification, () => {
   
   Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then( () => {
     logger.info("Comprobadas todas las listas de la aplicación");

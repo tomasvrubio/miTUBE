@@ -29,6 +29,7 @@ Web application to synchronize music of the videos you have in Youtube Lists to 
 ```
 module.exports = {
   port: PORT,
+  subdomain: '/', //For production "/mitube/"
   cookieSecret: 'your cookie secret goes here',
   gmail: {
     user: 'email',
@@ -37,6 +38,18 @@ module.exports = {
   mongo: {
     connectionString: 'your_connection_string',
   },
+  youtube: {
+    apiKey: 'xxxxxx',
+  },
+  logger: {
+    levelFile: 'debug',
+    levelConsole: 'silly',
+  },
+  daemon: {
+    active: false,
+    sleepTime: 10000, //Miliseconds between daemon executions
+  },
+  checkPlanification: '00 03 * * *', //Planification for checking all lists in app
 };
 ```
 
@@ -46,27 +59,12 @@ module.exports = {
 * Montar entorno Producción (Cap 12).
 * Usar https -> Seguir tutorial que tengo en el móvil.
 * TODO NUEVO:
-  * ¿Por qué se ve bien si simulo un movil en el PC y se ve tan pequeño en el teléfono? ¿Cual es la mejor herramienta para simular navegaciones en distintas pantallas?
-    - Tiene que ser por resolución. 
   * ¿Por qué me falla al llamar a gmusic? ¿Qué trazas puedo meter? Probar a hacer la llamada sin más desde la terminal y luego probar distintas llamadas desde el inicio de la app (¿me falla el spawn?)
     - Era por estar levantando el proceso con root. Con iptables he apuntado a otro puerto
     - Ahora me falla porque he superado el limite. ¿Esto era por repetir MAC o hay algo con los dispositivos desde los que pruebo el usuario? Probar con el usuario de otra persona.
       Probar ahora con desarrollo...
       He visto que tenía demasiados dispositivos en la cuenta
-  * Cambiar imagen correo.
-    - Hecho
-  * Cambiar links correo.
-    - Hecho
-  * ¿Cómo hago para alojar varias webs desde la raspi? ¿Hay que poner un nginx delante?
-    - Con nginx. Hacer algún tutorial (pero siempre hablan utilizando un dominio y yo lo que tengo es dataplicity)
   
-  * Poner mac con dos digitos siempre
-      Hecho (padStart)
-  * Variable para despertar demonio cuando quiera
-      Hecho
-  * Imagen correo
-      Pasado svg a png
-  * Hacer que se vea bien en móviles
 
 * usuarios pruebas:
 
