@@ -51,7 +51,6 @@ var mailTransport = nodemailer.createTransport({
 mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
 mongoose.set('useFindAndModify', false);
 
-
 app.use(favicon(__dirname + '/public/favicon.png'));
 app.use(express.static(__dirname + '/public', {dotfiles: 'allow'}));
 app.use(require('body-parser').urlencoded({extended:true})); //Para poder usar variables de formulario en req.body
@@ -503,11 +502,9 @@ app.all('/gmusic', isLoggedIn, function(req, res){
   
   User.findOne({email:req.session.userdata.email}).then(user => {
     Gmusic.getAuth(action, req.session.userdata.email, user.mac, authCode).then(response => {
-      logger.debug("He terminado getAuth - Valor respuesta: "+JSON.stringify(response));
+      logger.debug("He terminado getAuth-"+action+" - Valor respuesta: "+JSON.stringify(response));
   
       if (response.code == 0) {
-        logger.debug(req.session.userdata.email+": Usuario autorizado googleMusic para la acción "+action+".");
-
         if (action == "upl") {
           res.redirect(303, 'gmusic?action=del');
         } else {
@@ -523,12 +520,7 @@ app.all('/gmusic', isLoggedIn, function(req, res){
           urlAuth: response.url,        
         };
         logger.silly("Context: "+JSON.stringify(context));
-
-        if (response.code == 1)
-          logger.debug(req.session.userdata.email+": Usuario sin autorización googleMusic.");
-        else
-          logger.debug(req.session.userdata.email+": Clave autorización introducida inválida o usuario no dado de alta en googleMusic.");
-        
+       
         res.render('gmusic', context);
       }
     }).catch(err => {

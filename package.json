@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.19.0",
     "connect-flash": "^0.1.1",
-    "cookie-parser": "^1.4.3",
-    "express": "^4.16.4",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
     "express-favicon": "^2.0.1",
-    "express-handlebars": "^3.0.0",
-    "express-session": "^1.15.6",
+    "express-handlebars": "^3.1.0",
+    "express-session": "^1.17.0",
     "handlebars-helpers": "^0.10.0",
-    "moment": "^2.22.2",
-    "mongoose": "^5.3.13",
+    "moment": "^2.24.0",
+    "mongoose": "^5.7.7",
     "morgan": "^1.9.1",
     "node-cron": "^2.0.3",
     "nodemailer": "^4.7.0",
@@ -20,8 +20,8 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1",
     "python-shell": "^0.5.0",
-    "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.5.1",
-    "youtube-api": "^2.0.9"
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^3.10.0",
+    "youtube-api": "^2.0.10"
   }
 }
