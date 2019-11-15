@@ -9,6 +9,7 @@ var express = require('express'),
     morgan = require('morgan'),
     spawn = require("child_process").spawn,
     cron = require("node-cron"),
+    {IncomingWebhook} = require('@slack/webhook'),
     credentials = require('./credentials.js');    
     //Utilizamos un fichero con las credenciales. Importante que no sincronice con el repositorio.
 
@@ -30,6 +31,9 @@ var handlebars = require('express-handlebars').create({
     helpers: require('handlebars-helpers')(), 
 });
 
+var slackBot = new IncomingWebhook(credentials.slack.webhook_url);
+
+
 var app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -48,7 +52,7 @@ var mailTransport = nodemailer.createTransport({
 });
 
 //Database 
-mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
+mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 
 app.use(favicon(__dirname + '/public/favicon.png'));
@@ -723,11 +727,38 @@ app.listen(app.get('port'), function(){
   logger.info( 'Express started on http://localhost:' + app.get('port') + ' press Ctrl-C to terminate.' );
 });
 
+
+//PRUEBAS SLACK
+// (async () => {
+//   await slackBot.send({
+//     text: 'La aplicación ha arrancado.',
+//     attachments: [{
+//       title: "Hola",
+//       text: '`One of the most interesting neighborhoods in the city.`',
+//     }],
+//   });
+// })();
+
+slackBot.send({
+  text: '*INFO* :'+credentials.ENT+': La aplicación ha arrancado.',
+}).catch(err => {
+  logger.error("No ha sido posible mandar mensaje a SLACK.");
+  logger.error(JSON.stringify(err.stack));
+});
+
 //Programamos un job para que se ejecute todos los días a las 03:00 y sincronice las canciones de toda la aplicación
 cron.schedule(credentials.checkPlanification, () => {
   
   Synchronize.checkUpdatedAll(credentials.youtube.apiKey).then( () => {
     logger.info("Comprobadas todas las listas de la aplicación");
+    
+    slackBot.send({
+      text: '*INFO* :'+credentials.ENT+': Se han comprobado todas las listas de la aplicación.',
+    }).catch(err => {
+      logger.error("No ha sido posible mandar mensaje a SLACK.");
+      logger.error(JSON.stringify(err.stack));
+    });
+
   }).catch(err => {
     logger.error(JSON.stringify(err));
   });
@@ -745,7 +776,7 @@ if (credentials.daemon.active) {
     detached: true,
   });
 
-  //console.log(daemon);
+  //console.log(daemon); //TODO: Para esto quizás tengo que llamar al spawn con async/await??
 
   process.on("SIGINT", function(code) {
     logger.error("Recibido SIGINT (Ctrl + c). Paramos demonio.");
@@ -757,9 +788,23 @@ if (credentials.daemon.active) {
 
   daemon.on("exit", function (code, signal) {
     logger.debug("spawnEXIT DAEMON: With code "+code+" and signal "+signal);
+
+    slackBot.send({
+      text: '*ERROR* :'+credentials.ENT+': El demonio se ha parado.',
+    }).catch(err => {
+      logger.debug("No ha sido posible mandar mensaje a SLACK.");
+      logger.error(JSON.stringify(err.stack));
+    });
   });
 }
 
 process.on('exit', function(code) {
+  slackBot.send({
+    text: '*ERROR* :'+credentials.ENT+': El demonio se ha parado.',
+  }).catch(err => {
+    logger.debug("No ha sido posible mandar mensaje a SLACK.");
+    logger.error(JSON.stringify(err.stack));
+  });
+
   return logger.error("About to exit with code "+code);
 });

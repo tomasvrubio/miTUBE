@@ -1,6 +1,7 @@
 var nodemailer = require('nodemailer'),
     mongoose = require('mongoose'),
-    fs = require('fs');
+    fs = require('fs'),
+    {IncomingWebhook} = require('@slack/webhook'),
     credentials = require('./credentials.js');
 
 var WorkTodo = require('./models/workTodo.js'),
@@ -13,7 +14,9 @@ var Gmusic = require('./lib/gmusic.js')(),
     YoutubeDL = require('./lib/youtubedl.js')(),
     logger = require('./lib/logger');
 
-mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true});
+var slackBot = new IncomingWebhook(credentials.slack.webhook_url);
+
+mongoose.connect(credentials.mongo.connectionString, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 
 var active = 1; //To mantain de loop alive
@@ -277,7 +280,21 @@ async function loop() {
     //TODO: Si pierdo la autorización del usuario debo mandarle un mail solicitándosela.
     //  SI HUBIESE ALGÚN ERROR DEMASIADO GRAVE SALIR DEL BUCLE Y FINALIZAR DEMONIO?
   } while (active);
+
+  slackBot.send({
+    text: '*ERROR* :'+credentials.ENT+': El demonio se ha parado.',
+  }).catch(err => {
+    logger.error("No ha sido posible mandar mensaje a SLACK.");
+    logger.error(JSON.stringify(err.stack));
+  });
 }
+
+slackBot.send({
+  text: '*INFO* :'+credentials.ENT+': Se ha arrancado el demonio.',
+}).catch(err => {
+  logger.error("No ha sido posible mandar mensaje a SLACK.");
+  logger.error(JSON.stringify(err.stack));
+});
 
 //Run the loop
 loop();
